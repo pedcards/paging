@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+    <lists></lists>
+    <users>
+        <user name="chun" first="terry">
+            <name_l>Chun</name_l>
+            <name_f>Terry</name_f>
+            <group>CARDS</group>
+            <pager sys="cook">2064692828</pager>
+            <mobile sys="att">2066188205</mobile>
+            <pushbul>tchun47@gmail.com</pushbul>
+            <team>EP</team>
+            <mode>B</mode>
+        </user>
+        <user name="keylon" first="jenny">
+            <name_l>Keylon</name_l>
+            <name_f>Jenny</name_f>
+            <group>Clinic RN</group>
+            <pager sys="cook">2064691285</pager>
+            <mobile sys="att">2062913400</mobile>
+            <pushbul></pushbul>
+            <team>EP</team>
+            <mode>B</mode>
+        </user>
+    </users>
+</root>
