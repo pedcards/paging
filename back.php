@@ -67,6 +67,25 @@ function str_rot($s, $n = -1) {
     return strtr($s, $letters, $rep);
 }
 
+$add = \filter_input(\INPUT_POST, 'add');
+if ($add=="user") {
+    $nameL = \filter_input(\INPUT_POST, 'nameL');
+    $nameF = \filter_input(\INPUT_POST, 'nameF');
+    $numPager = \filter_input(\INPUT_POST, 'numPager');
+    $numSms = \filter_input(\INPUT_POST, 'numSms');
+    $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
+    $userGroup = \filter_input(\INPUT_POST, 'userGroup');
+    if ($userGroup=="Choose group") {
+        $userGroup = "";
+    }
+    if ($nameF="" or $nameL="") {
+        echo '<script type="text/javascript" language="JavaScript">';
+        echo '    $(":jqmData(role="page"):last").on("pageshow", function(event) {';
+        echo '    $("#addUser", $(this)).popup("open");';
+        echo '    });';
+        echo '</script>';
+    }
+}
 $group = filter_input(INPUT_GET,'group');
 $groupfull = array(
     'CARDS' => 'Cardiologists',
@@ -112,10 +131,22 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
 <div data-role="page" id="main" >
 
 <div data-role="header">
-        <h4 style="white-space: normal; text-align: center" >Back End '<?php echo $userG;?>'</h4>
+        <h4 style="white-space: normal; text-align: center" >Back End</h4>
     </div><!-- /header -->
 
 <div data-role="content">
+    <?php
+    if ($add) { ?>
+    <ul data-role="listview" data-inset="true">
+        <li><a href="">First: <?php echo $nameF;?></a></li>
+        <li><a href="">Last: <?php echo $nameL;?></a></li>
+        <li><a href="">Group: <?php echo $userGroup;?></a></li>
+        <li><a href="">Pager: <?php echo $numPager;?></a></li>
+        <li><a href="">SMS: <?php echo $numSms;?></a></li>
+        <li><a href="">PushBullet: <?php echo $numPushBul;?></a></li>
+    </ul> <?php
+    }
+    ?>
     <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
     <a href="#editUser" class="ui-btn ui-icon-user ui-btn-icon-left">Edit a user</a>
 </div>
@@ -129,18 +160,18 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
 <!--Add a new user-->
 <div data-role="popup" id="addUser" style="padding:10px 20px;">
     <p>ADD USER</p>
-    <form method="post" action="#?action=add" data-ajax="false">
+    <form method="post" action="#" data-ajax="false">
         <div class="ui-grid-a">
             <div class="ui-block-a">
-                <input name="nameF" id="addNameF" value="" placeholder="First name" type="text">
+                <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text">
             </div>
             <div class="ui-block-b">
-                <input name="nameL" id="addNameL" value="" placeholder="Last name" type="text">
+                <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
             </div>
         </div>
-        <input name="numPager" id="addPagerNum" value="" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
-        <input name="numSms" id="addSmsNum" value="" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
-        <input name="numPushBul" id="addPushBul" value="" placeholder="Pushbullet email" type="text">
+        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+        <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+        <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
         <select name="userGroup" id="addGroup" data-native-menu="false">
             <option>Choose group</option>
             <option value="CARDS">Cardiologists</option>
