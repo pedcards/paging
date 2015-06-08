@@ -78,7 +78,7 @@ if ($add=="user") {
         dialog($err);
     } else {                                            // No errors, write 
         if (!($groups->$userGroup)) {
-            $groups->addChild($userGroup);
+            $groups->addChild('group',$userGroup);
         }
         $groupThis = $groups->$userGroup;
         if (!($groupThis->xpath("user[@name='".$nameL."']"))) {
@@ -117,31 +117,6 @@ $groupfull = array(
     'ADMIN' => 'Admin Office',
     'DATA' => 'Research, Data'
     );
-// Read "list.csv" into array
-$arrLine = array();
-$pagerblock = "";
-$row = 0;
-if (($handle = fopen("list.csv", "r")) !== FALSE) {
-    while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-        if ($arrLine[$row][0] === $group) {
-            $tmpLastName = $arrLine[$row][1];
-            $tmpFirstName = $arrLine[$row][2];
-            $tmpPageSys = $arrLine[$row][3];
-            $tmpPageNum = $arrLine[$row][4];
-            $tmpCellSys = $arrLine[$row][5];
-            $tmpCellNum = $arrLine[$row][6];
-            $tmpCellOpt = $arrLine[$row][7];
-            $tmpKey = $arrLine[$row][8];
-            $pagerline = 
-                    $tmpPageSys.",".$tmpPageNum.",".
-                    $tmpCellSys.",".$tmpCellNum.",".$tmpCellOpt.",".$tmpLastName ;
-            $pagerblock .= "<option value=\"".str_rot($pagerline)."\">".$tmpFirstName." ".$tmpLastName."</option>\r\n";
-            }
-            $row++;
-        } // Finish loop to get lines
-    } 
-    fclose($handle);
-    $modDate = date ("m/d/Y", filemtime("list.csv"));
 
 function str_rot($s, $n = -1) {
     //Rotate a string by a number.
@@ -183,11 +158,11 @@ function dialog($msg) {
 
 <div data-role="header">
         <h4 style="white-space: normal; text-align: center" >User Manager</h4>
-    </div><!-- /header -->
+</div><!-- /header -->
 
 <div data-role="content">
     <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
-    <a href="#editUser" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit a user</a>
+    <a href="#edit" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit a user</a>
 </div>
 
 <div data-role="footer" >
@@ -255,6 +230,34 @@ function dialog($msg) {
 
 </div><!-- /page -->
 
+<!-- Edit page -->
+<div data-role="page" id="edit">
+
+<div data-role="header">
+    <h4 style="white-space: normal; text-align: center" >Edit user</h4>
+</div><!-- /header -->
+
+<div data-role="content">
+    <form class="ui-filterable">
+        <input id="auto-editUser" data-type="search" placeholder="Enter user name">
+    </form>
+    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true">
+        <?php
+        $edUsers = $xml->xpath('//user');
+        foreach($edUsers as $edUser) {
+            $edNameL = $edUser['name'];
+            $edNameF = $edUser['first'];
+            $edGroup = $edUser->xpath('..')['group'];
+            echo '
+        <li class="ui-mini">
+            <a href="#"><i>'.$edNameL.', '.$edNameF.'</i> '.$edGroup.'</a>
+        </li>
+';
+        }
+        ?>
+    </ul>
+</div>
+</div>
 <!-- Start of process page -->
 <div data-role="page" id="proc" data-dom-cache="true"> <!-- page -->
 <?php
