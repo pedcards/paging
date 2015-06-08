@@ -9,14 +9,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 <!--==========================================-->
 <!-- Block for local copies of jquery/mobile. 
-    <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
-    <script src="./jqm/jquery-1.9.1.min.js"></script>
-    <script src="./jqm/jquery.mobile-1.3.2.min.js"></script>
+    <link rel="stylesheet" href="./jqm/jquery.mobile-1.4.5.min.css" />
+    <script src="./jqm/jquery-1.11.1.min.js"></script>
+    <script src="./jqm/jquery.mobile-1.4.5.min.js"></script>
 <!--==========================================-->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
     <script>
@@ -40,34 +40,71 @@
         });  
     </script>
     
-    <title>Paging v2</title>
+    <title>Paging v3</title>
 </head>
 <body>
 <?php
 $xml = simplexml_load_file("list.xml");
-$user = $xml->xpath("//users/user");
-$userG = $user[1]->group;
-
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
+if (!($xml->groups)) {
+    $xml->addChild('groups');
+}
+$groups = $xml->groups;
+$add = \filter_input(\INPUT_POST, 'add');
+if ($add=="user") {
+    $nameL = \filter_input(\INPUT_POST, 'nameL');
+    $nameF = \filter_input(\INPUT_POST, 'nameF');
+    $numPager = \filter_input(\INPUT_POST, 'numPager');
+    $numPagerSys = \filter_input(\INPUT_POST, 'numPagerSys');
+    $numSms = \filter_input(\INPUT_POST, 'numSms');
+    $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
+    $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
+    $userGroup = \filter_input(\INPUT_POST, 'userGroup');
+    if ($groups->xpath("//user[@name='".$nameL."']")) {
+        dialog('User already exists!');
     }
-    if ($n < 0) {
-        $n += ($letterLen);
+    if ($nameF=="" or $nameL=="") {
+        $err = "Full name required<br>";
     }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
+    if ($numPager=="") {
+        $err .= "Pager number required<br>";
+    }
+    if ($numPagerSys=="") {
+        $err .= "Paging system required<br>";
+    }
+    if ($userGroup=="Choose group") {
+        $err .= "Group required<br>";
+    }
+    if ($err) {
+        dialog($err);
+    } else {                                            // No errors, write 
+        if (!($groups->$userGroup)) {
+            $groups->addChild($userGroup);
+        }
+        $groupThis = $groups->$userGroup;
+        if (!($groupThis->xpath("user[@name='".$nameL."']"))) {
+            $user = $groupThis->addChild('user');
+            $user['name'] = $nameL;
+            $user['first'] = $nameF;
+        }
+        $user = $groupThis->xpath("user[@name='".$nameL."']");
+        if ($numPager) {
+            $user[0]->addChild('pager');
+            $user[0]->pager->addChild('number',$numPager);
+            $user[0]->pager->addChild('sys',$numPagerSys);
+        }
+        if ($numSms) {
+            $user[0]->addChild('sms');
+            $user[0]->sms->addChild('number',$numSms);
+            $user[0]->sms->addChild('sys',$numSmsSys);
+        }
+        if ($numPushBul) {
+            $user[0]->addChild('pushbul');
+            $user[0]->pushbul->addChild('number',$numPushBul);
+        }
+    }
+    $xml->asXML("list.xml");
 }
 
-$group = filter_input(INPUT_GET,'group');
 $groupfull = array(
     'CARDS' => 'Cardiologists',
     'FELLOWS' => 'Fellows',
@@ -106,43 +143,116 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
     fclose($handle);
     $modDate = date ("m/d/Y", filemtime("list.csv"));
 
+function str_rot($s, $n = -1) {
+    //Rotate a string by a number.
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    $letterLen=round(strlen($letters)/2);
+    if($n==-1) {
+        $n=(int)($letterLen/2); 
+    }//Find the "halfway rotate point"
+    $n = (int)$n % ($letterLen);
+    if (!$n) {
+        return $s;
+    }
+    if ($n < 0) {
+        $n += ($letterLen);
+    }
+    //if ($n == 13) return str_rot13($s);
+    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
+    return strtr($s, $letters, $rep);
+}
+
+function dialog($msg) {
+?>
+    <div data-role="page" id="dialogWin">
+        <div data-role="header">
+            <h2>ERROR!</h2>
+        </div>
+        <div data-role="content">
+            <a href="#" data-rel="back" class="ui-btn ui-btn-b ui-corner-all">
+                <?php echo "<br>".$msg."<br><br>[click to go back]<br>";?>
+            </a>
+        </div>
+    </div>
+<?php
+}
 ?>
 
 <!-- Start of first page -->
-<div data-role="page" id="main">
+<div data-role="page" id="main" >
 
-    <div data-role="header">
-        <h4 style="white-space: normal; text-align: center" >Back End '<?php echo $userG;?>'</h4>
+<div data-role="header">
+        <h4 style="white-space: normal; text-align: center" >User Manager</h4>
     </div><!-- /header -->
 
-    <ul data-role="listview">
-        <li><a href="?group=CARDS&#proc" >Cardiologists</a></li>
-        <li><a href="?group=FELLOWS" >Fellows</a></li>
-        <li><a href="?group=SURG" >CV Surgery/Anesthesia/Perfusion</a></li>
-        <li><a href="?group=CICU" >CICU</a></li>
-        <li><a href="?group=ARNP" >ARNP's</a></li>
-        <li><a href="?group=CATH" >Cath Lab</a></li>
-        <li><a href="?group=CLINIC" >Clinic RN, Social Work, Nutrition</a></li>
-        <li><a href="?group=ECHO" >Echo Lab</a></li>
-        <li><a href="?group=ADMIN" >Admin Office</a></li>
-        <li><a href="?group=DATA" >Research, Data, Computers</a></li>
-    </ul>
-    
-    <form name="mainlist" action="#proc" method="get">
-        <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="Cardiology">
-    </form>
+<div data-role="content">
+    <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
+    <a href="#editUser" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit a user</a>
+</div>
 
-    <div data-alertbox-close-time="5000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" class="ui-content jqm-alert-box" style="max-width:280px">
-        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-        <p>REMINDER!</p>
-        <p>This paging site is for internal Heart Center use. Please do not share this link with others outside of the organization. Thanks for your understanding!</p>
-    </div>
-
-    <div data-role="footer" >
+<div data-role="footer" >
         <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
+&COPY;(2007-2015) Terrence Chun, MD<br>
         </small></h5>
     </div><!-- /footer -->
+
+<!--Add a new user-->
+<div data-role="popup" id="addUser" style="padding:10px 20px;">
+    <p style="text-align: center">ADD USER</p>
+    <form method="post" action="#" data-ajax="false">
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+            </div>
+            <div class="ui-block-b">
+                <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+            </div>
+            <div class="ui-block-b" style="padding-top:2px;">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
+                    <label for="addPagerSys-a">Cook</label>
+                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
+                    <label for="addPagerSys-b">USA-M</label>
+                </fieldset>
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+            </div>
+            <div class="ui-block-b" style="padding-top:2px;">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT">
+                    <label for="addSmsSys-a">AT&amp;T</label>
+                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint">
+                    <label for="addSmsSys-b">Sprint</label>
+                </fieldset>
+            </div>
+        </div>
+        <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+        <select name="userGroup" id="addGroup" data-native-menu="false">
+            <option>Choose group</option>
+            <option value="CARDS">Cardiologists</option>
+            <option value="FELLOWS">Fellows</option>
+            <option value="SURG">CV Surgery</option>
+            <option value="CICU">Cardiac ICU</option>
+            <option value="MLP">Mid-Level Providers</option>
+            <option value="CATH">Cath Lab</option>
+            <option value="CLINIC">Clinic, Soc Work, Nutrition</option>
+            <option value="ECHO">Echo Lab</option>
+            <option value="ADMIN">Administration</option>
+            <option value="DATA">Data & Research</option>
+        </select>
+        <input type="hidden" name="add" value="user">
+        <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
+    </form>
+</div>
+
 </div><!-- /page -->
 
 <!-- Start of process page -->
