@@ -87,8 +87,14 @@ if ($add=="user") {
     if ($numPager=="") {
         $err .= "Pager number required<br>";
     }
+    if ($numPagerSys=="") {
+        $err .= "Paging system required<br>";
+    }
     if ($userGroup=="Choose group") {
         $err .= "Group required<br>";
+    }
+    if ($err) {
+        dialog($err);
     }
     if (!$err) {                                            // No errors, write 
         if (!($groups->$userGroup)) {
@@ -105,9 +111,10 @@ if ($add=="user") {
         $user = $groupThis->xpath("user[@name='".$nameL."']");
         if ($numPager) {
             $user[0]->addChild('pager');
+            $user[0]->pager->addChild('number',$numPager);
             $user[0]->pager->addChild('sys',$numPagerSys);
+            $xml->asXML("list.xml");
         }
-        $xml->saveXML();
     }
 }
 
@@ -195,9 +202,9 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         </div>
         <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
         <fieldset data-role="controlgroup" data-type="horizontal">
-            <input name="numPagerSys" id="addPagerSys-a" type="radio">
+            <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
             <label for="addPagerSys-a">Cook Paging</label>
-            <input name="numPagerSys" id="addPagerSys-b" type="radio">
+            <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
             <label for="addPagerSys-b">USA Mobility</label>
         </fieldset>
         
@@ -220,6 +227,27 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
     </form>
 </div>
+<?php
+function dialog($err) {
+?>
+    <div data-role="page" id="dialogWin">
+        <div data-role="header">
+            <h2>ERROR!</h2>
+        </div>
+        <div data-role="content">
+            <div class="ui-grid-b">
+                <div class="ui-block-a"></div>
+                <div class="ui-block-b">
+                    <a href="javascript:history.go(-1);" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-btn-b ui-corner-all">
+                        <?php echo "<br>" . $err . "<br>[click to go back]<br>";?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php
+}
+?>
 
 </div><!-- /page -->
 
