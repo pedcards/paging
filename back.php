@@ -47,31 +47,8 @@
 $xml = simplexml_load_file("list.xml");
 if (!($xml->groups)) {
     $xml->addChild('groups');
-    $xml->asXML("list.xml");
 }
 $groups = $xml->groups;
-$user = $xml->xpath("//users/user");
-$userG = $user[1]->group;
-
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
-}
-
 $add = \filter_input(\INPUT_POST, 'add');
 if ($add=="user") {
     $nameL = \filter_input(\INPUT_POST, 'nameL');
@@ -79,8 +56,12 @@ if ($add=="user") {
     $numPager = \filter_input(\INPUT_POST, 'numPager');
     $numPagerSys = \filter_input(\INPUT_POST, 'numPagerSys');
     $numSms = \filter_input(\INPUT_POST, 'numSms');
+    $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
     $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
+    if ($groups->xpath("//user[@name='".$nameL."']")) {
+        dialog('User already exists!');
+    }
     if ($nameF=="" or $nameL=="") {
         $err = "Full name required<br>";
     }
@@ -95,27 +76,24 @@ if ($add=="user") {
     }
     if ($err) {
         dialog($err);
-    }
-    if (!$err) {                                            // No errors, write 
+    } else {                                            // No errors, write 
         if (!($groups->$userGroup)) {
             $groups->addChild($userGroup);
-            $xml->asXML("list.xml");
         }
         $groupThis = $groups->$userGroup;
         if (!($groupThis->xpath("user[@name='".$nameL."']"))) {
             $user = $groupThis->addChild('user');
             $user['name'] = $nameL;
             $user['first'] = $nameF;
-            $xml->asXML("list.xml");
         }
         $user = $groupThis->xpath("user[@name='".$nameL."']");
         if ($numPager) {
             $user[0]->addChild('pager');
             $user[0]->pager->addChild('number',$numPager);
             $user[0]->pager->addChild('sys',$numPagerSys);
-            $xml->asXML("list.xml");
         }
     }
+    $xml->asXML("list.xml");
 }
 
 $groupfull = array(
@@ -156,6 +134,39 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
     fclose($handle);
     $modDate = date ("m/d/Y", filemtime("list.csv"));
 
+function str_rot($s, $n = -1) {
+    //Rotate a string by a number.
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    $letterLen=round(strlen($letters)/2);
+    if($n==-1) {
+        $n=(int)($letterLen/2); 
+    }//Find the "halfway rotate point"
+    $n = (int)$n % ($letterLen);
+    if (!$n) {
+        return $s;
+    }
+    if ($n < 0) {
+        $n += ($letterLen);
+    }
+    //if ($n == 13) return str_rot13($s);
+    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
+    return strtr($s, $letters, $rep);
+}
+
+function dialog($msg) {
+?>
+    <div data-role="page" id="dialogWin">
+        <div data-role="header">
+            <h2>ERROR!</h2>
+        </div>
+        <div data-role="content">
+            <a href="#" data-rel="back" class="ui-btn ui-btn-b ui-corner-all">
+                <?php echo "<br>".$msg."<br><br>[click to go back]<br>";?>
+            </a>
+        </div>
+    </div>
+<?php
+}
 ?>
 
 <!-- Start of first page -->
@@ -166,18 +177,6 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
     </div><!-- /header -->
 
 <div data-role="content">
-    <?php
-    if ($err) { ?>
-    <div class="ui-grid-b">
-        <div class="ui-block-a"></div>
-        <div class="ui-block-b">
-            <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-btn-b ui-corner-all">
-                <?php echo "ERROR!<br><br>" . $err . "<br>[click to try again]<br>";?>
-            </a>
-        </div>
-    </div> <?php
-    }
-    ?>
     <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
     <a href="#editUser" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit a user</a>
 </div>
@@ -200,15 +199,32 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
                 <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
             </div>
         </div>
-        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
-        <fieldset data-role="controlgroup" data-type="horizontal">
-            <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
-            <label for="addPagerSys-a">Cook Paging</label>
-            <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
-            <label for="addPagerSys-b">USA Mobility</label>
-        </fieldset>
-        
-        <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+            </div>
+            <div class="ui-block-b">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
+                    <label for="addPagerSys-a">Cook</label>
+                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
+                    <label for="addPagerSys-b">USA-M</label>
+                </fieldset>
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+            </div>
+            <div class="ui-block-b">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT">
+                    <label for="addSmsSys-a">AT&amp;T</label>
+                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint">
+                    <label for="addSmsSys-b">Sprint</label>
+                </fieldset>
+            </div>
+        </div>
         <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
         <select name="userGroup" id="addGroup" data-native-menu="false">
             <option>Choose group</option>
@@ -227,27 +243,6 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
     </form>
 </div>
-<?php
-function dialog($err) {
-?>
-    <div data-role="page" id="dialogWin">
-        <div data-role="header">
-            <h2>ERROR!</h2>
-        </div>
-        <div data-role="content">
-            <div class="ui-grid-b">
-                <div class="ui-block-a"></div>
-                <div class="ui-block-b">
-                    <a href="javascript:history.go(-1);" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-btn-b ui-corner-all">
-                        <?php echo "<br>" . $err . "<br>[click to go back]<br>";?>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php
-}
-?>
 
 </div><!-- /page -->
 
