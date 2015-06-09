@@ -162,7 +162,27 @@ function dialog($msg) {
 
 <div data-role="content">
     <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
-    <a href="#edit" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit a user</a>
+    <form class="ui-filterable">
+        <input id="auto-editUser" data-type="search" placeholder="Enter user name">
+    </form>
+    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true">
+        <?php
+        $edUsers = $xml->xpath('//user');
+        $edGroupOld = "";
+        foreach($edUsers as $edUser) {
+            $edNameL = $edUser['name'];
+            $edNameF = $edUser['first'];
+            $edGroup = $edUser->xpath('..')[0]->getName();
+            if (!($edGroup==$edGroupOld)) {
+                echo "\r\n".'        <li data-role="list-divider">'.$edGroup.'</li>'."\r\n";
+                $edGroupOld = $edGroup;
+            }
+            echo '            <li class="ui-mini">';
+            echo '<a href="#edit?nm='.$edNameL.'-'.$edNameF.'"><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '</li>'."\r\n";
+        }
+        ?>
+    </ul>
 </div>
 
 <div data-role="footer" >
@@ -232,85 +252,69 @@ function dialog($msg) {
 
 <!-- Edit page -->
 <div data-role="page" id="edit">
-
+<?php
+$edUser = filter_input(INPUT_GET,'nm');
+?>
 <div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >Edit user</h4>
+    <h4 style="white-space: normal; text-align: center" >Edit user <?php echo $edUser;?></h4>
 </div><!-- /header -->
 
 <div data-role="content">
-    <form class="ui-filterable">
-        <input id="auto-editUser" data-type="search" placeholder="Enter user name">
-    </form>
-    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true">
-        <?php
-        $edUsers = $xml->xpath('//user');
-        foreach($edUsers as $edUser) {
-            $edNameL = $edUser['name'];
-            $edNameF = $edUser['first'];
-            $edGroup = $edUser->xpath('..')['group'];
-            echo '
-        <li class="ui-mini">
-            <a href="#"><i>'.$edNameL.', '.$edNameF.'</i> '.$edGroup.'</a>
-        </li>
-';
-        }
-        ?>
-    </ul>
-</div>
-</div>
-<!-- Start of process page -->
-<div data-role="page" id="proc" data-dom-cache="true"> <!-- page -->
-<?php
-?>
-    <div data-role="header" data-add-back-btn="true" >
-        <a href="javascript:history.go(-1);" data-icon="arrow-l"><small>Back</small></a>
-        <h3><?php echo $group; ?></h3>
-    </div><!-- /header -->
-
-<form action="submit.php" method="POST" name="HTMLForm1" data-prefetch>
-    <input type="hidden" name="SERVER_IP" value="63.172.11.60">
-    <input type="hidden" name="SERVER_PORT" value="444">
-    <input type="hidden" name="WEBPAGE" value="yes">
-    <input type="hidden" name="ALPHA" value="a">
-    <input type="hidden" name="ACCEPT_PAGE" value="/paging/page_accepted.htm">
-    <input type="hidden" name="NUMBER" value="">
-    <input type="hidden" name="NUMBER2" value="">
-    <input type="hidden" name="NUMBER3" value="">
-    <input type="hidden" name="NUMBER4" value="">
-    <input type="hidden" name="NUMBER5" value="">
-    <input type="hidden" name="MYNAME" value="">
-    <input type="hidden" name="SUBJECT" value=  "">
-    <input type="hidden" name="MESSAGE" value="">
-
-<div data-role="content">
-    <div data-role="fieldcontain" >
-        <label for="NUMBER" >To:</label>
-        <select name="NUMBER" id="NUMBER">
-            <?php echo $pagerblock; ?>
+    <form method="post" action="#" data-ajax="false">
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="nameF" id="editNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+            </div>
+            <div class="ui-block-b">
+                <input name="nameL" id="editNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="numPager" id="editPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+            </div>
+            <div class="ui-block-b" style="padding-top:2px;">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numPagerSys" id="editPagerSys-a" type="radio" value="COOK">
+                    <label for="addPagerSys-a">Cook</label>
+                    <input name="numPagerSys" id="editPagerSys-b" type="radio" value="USAM">
+                    <label for="addPagerSys-b">USA-M</label>
+                </fieldset>
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a" style="padding-right:10px;">
+                <input name="numSms" id="editSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+            </div>
+            <div class="ui-block-b" style="padding-top:2px;">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                    <input name="numSmsSys" id="editSmsSys-a" type="radio" value="ATT">
+                    <label for="addSmsSys-a">AT&amp;T</label>
+                    <input name="numSmsSys" id="editSmsSys-b" type="radio" value="Sprint">
+                    <label for="addSmsSys-b">Sprint</label>
+                </fieldset>
+            </div>
+        </div>
+        <input name="numPushBul" id="editPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+        <select name="userGroup" id="editGroup" data-native-menu="false">
+            <option>Choose group</option>
+            <option value="CARDS">Cardiologists</option>
+            <option value="FELLOWS">Fellows</option>
+            <option value="SURG">CV Surgery</option>
+            <option value="CICU">Cardiac ICU</option>
+            <option value="MLP">Mid-Level Providers</option>
+            <option value="CATH">Cath Lab</option>
+            <option value="CLINIC">Clinic, Soc Work, Nutrition</option>
+            <option value="ECHO">Echo Lab</option>
+            <option value="ADMIN">Administration</option>
+            <option value="DATA">Data & Research</option>
         </select>
-        <label for="MYNAME">From:</label>
-        <input type="text" name="MYNAME" id="MYNAME" value="" placeholder="REQUIRED" maxlength="20"/>
-    </div>
-
-    <div data-role="fieldcontain" style="text-align: right">
-        <textarea name="MESSAGE" id="MESSAGE" maxlength="220"></textarea>
-    </div>
-    <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
-    <div style="text-align: center">
-        <input type="submit" value="SUBMIT!" data-inline="true" data-theme="b" />
-    </div>
+        <input type="hidden" name="add" value="edit">
+        <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
+    </form>
 </div>
-</form>
 
-    <div data-role="footer" data-position="fixed">
-        <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
-Data revised: <?php echo $modDate; ?><br>
-        </small></h5>
-    </div><!-- /footer -->
-</div><!-- /page -->
-
-<!-- Last modified 2/19/13 -->
+</div> <!-- end page -->
 
 </body>
 </html>
