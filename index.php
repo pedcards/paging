@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="apple-touch-icon" href="favicon.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-touch-fullscreen" content="YES" />
+    <meta name="apple-mobile-web-app-capable" content="YES" />
     <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+    <?php
+    $cdnJqm = '1.4.5';
+    $cdnJQ = '1.11.1';
+    echo '
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.css" />
+    <script src="http://code.jquery.com/jquery-'.$cdnJQ.'.min.js"></script>
+    <script src="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.js"></script>
+';  ?>
 <!--==========================================-->
 <!-- Block for local copies of jquery/mobile. 
     <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
@@ -109,7 +113,7 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
 <div data-role="page" id="main">
 
     <div data-role="header">
-        <h4 style="white-space: normal; text-align: center" ><?php echo $group; ?></h4>
+        <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
     </div><!-- /header -->
 
     <ul data-role="listview">
@@ -125,8 +129,8 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         <li><a href="?group=DATA" >Research, Data, Computers</a></li>
     </ul>
     
-    <form name="mainlist" action="#proc" method="get">
-        <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="Cardiology">
+    <form name="mainlist" action="back.php" method="get">
+        <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="User Manager">
     </form>
 
     <div data-alertbox-close-time="5000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" class="ui-content jqm-alert-box" style="max-width:280px">

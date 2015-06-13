@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="apple-touch-icon" href="favicon.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <?php
+    $cdnJqm = '1.4.5';
+    $cdnJQ = '1.11.1';
+    ?>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/<?php echo $cdnJqm;?>/jquery.mobile-<?php echo $cdnJqm;?>.min.css" />
+    <script src="http://code.jquery.com/jquery-<?php echo $cdnJQ;?>.min.js"></script>
+    <script src="http://code.jquery.com/mobile/<?php echo $cdnJqm;?>/jquery.mobile-<?php echo $cdnJqm;?>.min.js"></script>
 <!--==========================================-->
 <!-- Block for local copies of jquery/mobile. 
     <link rel="stylesheet" href="./jqm/jquery.mobile-1.4.5.min.css" />
