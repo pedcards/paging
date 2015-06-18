@@ -197,19 +197,22 @@ function dialog($msg) {
 
 <!--Add a new user-->
 <div data-role="popup" id="addUser" style="padding:10px 20px;">
+    <?php
+        $nameF=""; $nameL=""; 
+    ?>
     <p style="text-align: center">ADD USER</p>
     <form method="post" action="#" data-ajax="false">
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+                <input name="nameF" id="addNameF" value="" placeholder="First name" type="text" >
             </div>
             <div class="ui-block-b">
-                <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+                <input name="nameL" id="addNameL" value="" placeholder="Last name" type="text">
             </div>
         </div>
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+                <input name="numPager" id="addPagerNum" value="" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
             </div>
             <div class="ui-block-b" style="padding-top:2px;">
                 <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
@@ -222,7 +225,7 @@ function dialog($msg) {
         </div>
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+                <input name="numSms" id="addSmsNum" value="" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
             </div>
             <div class="ui-block-b" style="padding-top:2px;">
                 <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
@@ -233,7 +236,7 @@ function dialog($msg) {
                 </fieldset>
             </div>
         </div>
-        <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+        <input name="numPushBul" id="addPushBul" value="" placeholder="Pushbullet email" type="text">
         <select name="userGroup" id="addGroup" data-native-menu="false">
             <option>Choose group</option>
             <option value="CARDS">Cardiologists</option>
