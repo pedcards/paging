@@ -21,13 +21,14 @@
     <link rel="stylesheet" href="./jqm/jquery.mobile-1.4.5.min.css" />
     <script src="./jqm/jquery-1.11.1.min.js"></script>
     <script src="./jqm/jquery.mobile-1.4.5.min.js"></script>
-<!--==========================================-->
+    ========================================== -->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
-    <script>
+    <script type="text/javascript" src="./jqm/jqm.page.params.js"></script>
+<!--    <script>
             $(document).bind("mobileinit", function(){
                     $.mobile.defaultPageTransition = 'none';
             });
-    </script>
+    </script>-->
     
     <script type="text/javascript">
     // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
@@ -109,6 +110,9 @@ if ($add=="user") {
     $xml->asXML("list.xml");
 }
 
+$edUser = \filter_input(\INPUT_GET,'nm');
+
+
 $groupfull = array(
     'CARDS' => 'Cardiologists',
     'FELLOWS' => 'Fellows',
@@ -165,7 +169,7 @@ function dialog($msg) {
 </div><!-- /header -->
 
 <div data-role="content">
-    <a href="#addUser" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
+    <a href="#edit" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Enter user name">
     </form>
@@ -182,8 +186,9 @@ function dialog($msg) {
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="#edit?nm='.$edNameL.'-'.$edNameF.'"><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '<a href="back.php#edit?nm='.$edNameL.'-'.$edNameF.'" data-ajax="false"><i>'.$edNameL.', '.$edNameF.'</i></a>';
             echo '</li>'."\r\n";
+            // perhaps use Session variable?
         }
         ?>
     </ul>
@@ -195,8 +200,17 @@ function dialog($msg) {
         </small></h5>
     </div><!-- /footer -->
 
-<!--Add a new user-->
-<div data-role="popup" id="addUser" style="padding:10px 20px;">
+</div><!-- /page -->
+
+<!-- Edit page -->
+<div data-role="page" id="edit" data-dialog="true">
+<?php
+?>
+<div data-role="header">
+    <h4 style="white-space: normal; text-align: center" >Edit user <?php echo $edUser;?></h4>
+</div><!-- /header -->
+
+<div data-role="content">
     <?php
         $nameF=""; $nameL=""; 
     ?>
@@ -237,6 +251,8 @@ function dialog($msg) {
             </div>
         </div>
         <input name="numPushBul" id="addPushBul" value="" placeholder="Pushbullet email" type="text">
+        <input name="numPushOver" id="addPushOver" value="" placeholder="Pushover user code" type="text">
+        <input name="numBoxcar" id="addBoxcar" value="" placeholder="Boxcar user code" type="text">
         <select name="userGroup" id="addGroup" data-native-menu="false">
             <option>Choose group</option>
             <option value="CARDS">Cardiologists</option>
@@ -251,72 +267,6 @@ function dialog($msg) {
             <option value="DATA">Data & Research</option>
         </select>
         <input type="hidden" name="add" value="user">
-        <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
-    </form>
-</div>
-
-</div><!-- /page -->
-
-<!-- Edit page -->
-<div data-role="page" id="edit">
-<?php
-$edUser = filter_input(INPUT_GET,'nm');
-?>
-<div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >Edit user <?php echo $edUser;?></h4>
-</div><!-- /header -->
-
-<div data-role="content">
-    <form method="post" action="#" data-ajax="false">
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="nameF" id="editNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
-            </div>
-            <div class="ui-block-b">
-                <input name="nameL" id="editNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
-            </div>
-        </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numPager" id="editPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
-            </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numPagerSys" id="editPagerSys-a" type="radio" value="COOK">
-                    <label for="addPagerSys-a">Cook</label>
-                    <input name="numPagerSys" id="editPagerSys-b" type="radio" value="USAM">
-                    <label for="addPagerSys-b">USA-M</label>
-                </fieldset>
-            </div>
-        </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numSms" id="editSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
-            </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numSmsSys" id="editSmsSys-a" type="radio" value="ATT">
-                    <label for="addSmsSys-a">AT&amp;T</label>
-                    <input name="numSmsSys" id="editSmsSys-b" type="radio" value="Sprint">
-                    <label for="addSmsSys-b">Sprint</label>
-                </fieldset>
-            </div>
-        </div>
-        <input name="numPushBul" id="editPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
-        <select name="userGroup" id="editGroup" data-native-menu="false">
-            <option>Choose group</option>
-            <option value="CARDS">Cardiologists</option>
-            <option value="FELLOWS">Fellows</option>
-            <option value="SURG">CV Surgery</option>
-            <option value="CICU">Cardiac ICU</option>
-            <option value="MLP">Mid-Level Providers</option>
-            <option value="CATH">Cath Lab</option>
-            <option value="CLINIC">Clinic, Soc Work, Nutrition</option>
-            <option value="ECHO">Echo Lab</option>
-            <option value="ADMIN">Administration</option>
-            <option value="DATA">Data & Research</option>
-        </select>
-        <input type="hidden" name="add" value="edit">
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
     </form>
 </div>
