@@ -7,7 +7,7 @@
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
-    <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
     <?php
     $cdnJqm = '1.4.5';
@@ -23,13 +23,6 @@
     <script src="./jqm/jquery.mobile-1.4.5.min.js"></script>
     ========================================== -->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
-    <script type="text/javascript" src="./jqm/jqm.page.params.js"></script>
-<!--    <script>
-            $(document).bind("mobileinit", function(){
-                    $.mobile.defaultPageTransition = 'none';
-            });
-    </script>-->
-    
     <script type="text/javascript">
     // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
         $(document).ready(function() {  
@@ -110,9 +103,6 @@ if ($add=="user") {
     $xml->asXML("list.xml");
 }
 
-$edUser = \filter_input(\INPUT_GET,'nm');
-
-
 $groupfull = array(
     'CARDS' => 'Cardiologists',
     'FELLOWS' => 'Fellows',
@@ -169,7 +159,7 @@ function dialog($msg) {
 </div><!-- /header -->
 
 <div data-role="content">
-    <a href="#edit" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
+    <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Enter user name">
     </form>
@@ -178,15 +168,16 @@ function dialog($msg) {
         $edUsers = $xml->xpath('//user');
         $edGroupOld = "";
         foreach($edUsers as $edUser) {
-            $edNameL = $edUser['name'];
+            $edNameL = $edUser['last'];
             $edNameF = $edUser['first'];
+            $edUserId = $edUser['uid'];
             $edGroup = $edUser->xpath('..')[0]->getName();
             if (!($edGroup==$edGroupOld)) {
                 echo "\r\n".'        <li data-role="list-divider">'.$edGroup.'</li>'."\r\n";
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="back.php#edit?nm='.$edNameL.'-'.$edNameF.'" data-ajax="false"><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" data-ajax="false"><i>'.$edNameL.', '.$edNameF.'</i></a>';
             echo '</li>'."\r\n";
             // perhaps use Session variable?
         }
@@ -201,77 +192,6 @@ function dialog($msg) {
     </div><!-- /footer -->
 
 </div><!-- /page -->
-
-<!-- Edit page -->
-<div data-role="page" id="edit" data-dialog="true">
-<?php
-?>
-<div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >Edit user <?php echo $edUser;?></h4>
-</div><!-- /header -->
-
-<div data-role="content">
-    <?php
-        $nameF=""; $nameL=""; 
-    ?>
-    <p style="text-align: center">ADD USER</p>
-    <form method="post" action="#" data-ajax="false">
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="nameF" id="addNameF" value="" placeholder="First name" type="text" >
-            </div>
-            <div class="ui-block-b">
-                <input name="nameL" id="addNameL" value="" placeholder="Last name" type="text">
-            </div>
-        </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numPager" id="addPagerNum" value="" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
-            </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
-                    <label for="addPagerSys-a">Cook</label>
-                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
-                    <label for="addPagerSys-b">USA-M</label>
-                </fieldset>
-            </div>
-        </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numSms" id="addSmsNum" value="" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
-            </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT">
-                    <label for="addSmsSys-a">AT&amp;T</label>
-                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint">
-                    <label for="addSmsSys-b">Sprint</label>
-                </fieldset>
-            </div>
-        </div>
-        <input name="numPushBul" id="addPushBul" value="" placeholder="Pushbullet email" type="text">
-        <input name="numPushOver" id="addPushOver" value="" placeholder="Pushover user code" type="text">
-        <input name="numBoxcar" id="addBoxcar" value="" placeholder="Boxcar user code" type="text">
-        <select name="userGroup" id="addGroup" data-native-menu="false">
-            <option>Choose group</option>
-            <option value="CARDS">Cardiologists</option>
-            <option value="FELLOWS">Fellows</option>
-            <option value="SURG">CV Surgery</option>
-            <option value="CICU">Cardiac ICU</option>
-            <option value="MLP">Mid-Level Providers</option>
-            <option value="CATH">Cath Lab</option>
-            <option value="CLINIC">Clinic, Soc Work, Nutrition</option>
-            <option value="ECHO">Echo Lab</option>
-            <option value="ADMIN">Administration</option>
-            <option value="DATA">Data & Research</option>
-        </select>
-        <input type="hidden" name="add" value="user">
-        <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
-    </form>
-</div>
-
-</div> <!-- end page -->
 
 </body>
 </html>
