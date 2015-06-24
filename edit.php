@@ -18,130 +18,84 @@
 </head>
 <body>
 <?php
-$edUser = \filter_input(\INPUT_GET,'id');
 $xml = simplexml_load_file("list.xml");
-if (!($xml->groups)) {
-    $xml->addChild('groups');
-}
-$groups = $xml->groups;
-$add = \filter_input(\INPUT_POST, 'add');
-if ($add=="user") {
-    $nameL = \filter_input(\INPUT_POST, 'nameL');
-    $nameF = \filter_input(\INPUT_POST, 'nameF');
-    $numPager = \filter_input(\INPUT_POST, 'numPager');
-    $numPagerSys = \filter_input(\INPUT_POST, 'numPagerSys');
-    $numSms = \filter_input(\INPUT_POST, 'numSms');
-    $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
-    $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
-    $userGroup = \filter_input(\INPUT_POST, 'userGroup');
-    if ($groups->xpath("//user[@name='".$nameL."']")) {
-        dialog('User already exists!');
-    }
-    if ($nameF=="" or $nameL=="") {
-        $err = "Full name required<br>";
-    }
-    if ($numPager=="") {
-        $err .= "Pager number required<br>";
-    }
-    if ($numPagerSys=="") {
-        $err .= "Paging system required<br>";
-    }
-    if ($userGroup=="Choose group") {
-        $err .= "Group required<br>";
-    }
-    if ($err) {
-        dialog($err);
-    } else {                                            // No errors, write 
-        if (!($groups->$userGroup)) {
-            $groups->addChild('group',$userGroup);
-        }
-        $groupThis = $groups->$userGroup;
-        if (!($groupThis->xpath("user[@name='".$nameL."']"))) {
-            $user = $groupThis->addChild('user');
-            $user['name'] = $nameL;
-            $user['first'] = $nameF;
-        }
-        $user = $groupThis->xpath("user[@name='".$nameL."']");
-        if ($numPager) {
-            $user[0]->addChild('pager');
-            $user[0]->pager->addChild('number',$numPager);
-            $user[0]->pager->addChild('sys',$numPagerSys);
-        }
-        if ($numSms) {
-            $user[0]->addChild('sms');
-            $user[0]->sms->addChild('number',$numSms);
-            $user[0]->sms->addChild('sys',$numSmsSys);
-        }
-        if ($numPushBul) {
-            $user[0]->addChild('pushbul');
-            $user[0]->pushbul->addChild('number',$numPushBul);
-        }
-    }
-    $xml->asXML("list.xml");
-}
+//if (!($xml->groups)) {
+//    $xml->addChild('groups');
+//}
+$groups = ($xml->groups) ? $xml->groups : $xml->addChild('groups');
 
+$edUserId = \filter_input(\INPUT_GET,'id');
+if ($edUserId) {
+    $user = $groups->xpath("//user[@uid='".$edUserId."']")[0];
+    $nameL = $user['last'];
+    $nameF = $user['first'];
+    $numPager = $user->pager['num'];
+    $numPagerSys = $user->pager['sys'];
+    $numSms = $user->mobile['num'];
+    $numSmsSys = $user->mobile['sys'];
+    $numPushBul = $user->pushbul['eml'];
+    $numPushOver = $user->pushover['num'];
+    $numBoxcar = $user->boxcar['num'];
+    $userGroup = $user->xpath('..')[0]->getName();
+}
 ?>
 <!-- Edit page -->
 <div data-role="page" id="edit" data-dialog="true">
 <div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >Edit user <?php echo $edUser;?></h4>
+    <h4 style="white-space: normal; text-align: center" ><?php echo ($edUserId) ? 'Edit User' : 'Add User';?></h4>
 </div><!-- /header -->
 
 <div data-role="content">
-    <?php
-        $nameF=""; $nameL=""; 
-    ?>
-    <p style="text-align: center">ADD USER</p>
     <form method="post" action="back.php" data-ajax="false">
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="nameF" id="addNameF" value="" placeholder="First name" type="text" >
+                <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
             </div>
             <div class="ui-block-b">
-                <input name="nameL" id="addNameL" value="" placeholder="Last name" type="text">
+                <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
             </div>
         </div>
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numPager" id="addPagerNum" value="" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+                <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
             </div>
             <div class="ui-block-b" style="padding-top:2px;">
                 <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK">
+                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK" <?php echo ($numPagerSys=="COOK") ? 'checked="checked"' : '';?>>
                     <label for="addPagerSys-a">Cook</label>
-                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM">
+                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM" <?php echo ($numPagerSys=="USAM") ? 'checked="checked"' : '';?>>
                     <label for="addPagerSys-b">USA-M</label>
                 </fieldset>
             </div>
         </div>
         <div class="ui-grid-a">
             <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numSms" id="addSmsNum" value="" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+                <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
             </div>
             <div class="ui-block-b" style="padding-top:2px;">
                 <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT">
+                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT" <?php echo ($numSmsSys=="ATT") ? 'checked="checked"' : '';?>>
                     <label for="addSmsSys-a">AT&amp;T</label>
-                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint">
+                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint" <?php echo ($numSmsSys=="Sprint") ? 'checked="checked"' : '';?>>
                     <label for="addSmsSys-b">Sprint</label>
                 </fieldset>
             </div>
         </div>
-        <input name="numPushBul" id="addPushBul" value="" placeholder="Pushbullet email" type="text">
-        <input name="numPushOver" id="addPushOver" value="" placeholder="Pushover user code" type="text">
-        <input name="numBoxcar" id="addBoxcar" value="" placeholder="Boxcar user code" type="text">
+        <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+        <input name="numPushOver" id="addPushOver" value="<?php echo $numPushOver;?>" placeholder="Pushover user code" type="text">
+        <input name="numBoxcar" id="addBoxcar" value="<?php echo $numBoxcar;?>" placeholder="Boxcar user code" type="text">
         <select name="userGroup" id="addGroup" data-native-menu="false">
             <option>Choose group</option>
-            <option value="CARDS">Cardiologists</option>
-            <option value="FELLOWS">Fellows</option>
-            <option value="SURG">CV Surgery</option>
-            <option value="CICU">Cardiac ICU</option>
-            <option value="MLP">Mid-Level Providers</option>
-            <option value="CATH">Cath Lab</option>
-            <option value="CLINIC">Clinic, Soc Work, Nutrition</option>
-            <option value="ECHO">Echo Lab</option>
-            <option value="ADMIN">Administration</option>
-            <option value="DATA">Data & Research</option>
+            <option value="CARDS" <?php echo ($userGroup=="CARDS") ? 'selected="selected"' : '';?>>Cardiologists</option>
+            <option value="FELLOWS" <?php echo ($userGroup=="FELLOWS") ? 'selected="selected"' : '';?>>Fellows</option>
+            <option value="SURG" <?php echo ($userGroup=="SURG") ? 'selected="selected"' : '';?>>CV Surgery</option>
+            <option value="CICU" <?php echo ($userGroup=="CICU") ? 'selected="selected"' : '';?>>Cardiac ICU</option>
+            <option value="MLP <?php echo ($userGroup=="MLP") ? 'selected="selected"' : '';?>">Mid-Level Providers</option>
+            <option value="CATH" <?php echo ($userGroup=="CATH") ? 'selected="selected"' : '';?>>Cath Lab</option>
+            <option value="CLINIC" <?php echo ($userGroup=="CLINIC") ? 'selected="selected"' : '';?>>Clinic, Soc Work, Nutrition</option>
+            <option value="ECHO" <?php echo ($userGroup=="ECHO") ? 'selected="selected"' : '';?>>Echo Lab</option>
+            <option value="ADMIN" <?php echo ($userGroup=="ADMIN") ? 'selected="selected"' : '';?>>Administration</option>
+            <option value="DATA" <?php echo ($userGroup=="DATA") ? 'selected="selected"' : '';?>>Data & Research</option>
         </select>
         <input type="hidden" name="add" value="user">
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" >Save</button>
