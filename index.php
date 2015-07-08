@@ -6,45 +6,40 @@
     <link rel="apple-touch-icon" href="favicon.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-capable" content="YES" />
-    <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
     <?php
+    $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
-    echo '
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.css" />
-    <script src="http://code.jquery.com/jquery-'.$cdnJQ.'.min.js"></script>
-    <script src="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.js"></script>
-';  ?>
-<!--==========================================-->
-<!-- Block for local copies of jquery/mobile. 
+    
+    ?>
+    <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
+    <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
+    <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
+<!-- Block for local copies of jquery/mobile.
     <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
     <script src="./jqm/jquery-1.9.1.min.js"></script>
     <script src="./jqm/jquery.mobile-1.3.2.min.js"></script>
 <!--==========================================-->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
-    <script>
-            $(document).bind("mobileinit", function(){
-                    $.mobile.defaultPageTransition = 'none';
-            });
-    </script>
-    
+
     <script type="text/javascript">
     // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
-        $(document).ready(function() {  
-            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute  
-                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea  
-                var text = $(this).val();  //count the number of characters in the text  
-                var chars = text.length;  //check if there are more characters then allowed  
-                if(chars > limit){  //and if there are use substr to get the text before the limit  
-                    var new_text = text.substr(0, limit);  //and change the current text with the new text  
-                    $(this).val(new_text);  
-                }  
-            });  
-        });  
+        $(document).ready(function() {
+            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute
+                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea
+                var text = $(this).val();  //count the number of characters in the text
+                var chars = text.length;  //check if there are more characters then allowed
+                if(chars > limit){  //and if there are use substr to get the text before the limit
+                    var new_text = text.substr(0, limit);  //and change the current text with the new text
+                    $(this).val(new_text);
+                }
+            });
+        });
     </script>
-    
+
     <title>Paging v2</title>
 </head>
 <body>
@@ -54,7 +49,7 @@ function str_rot($s, $n = -1) {
     static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
     $letterLen=round(strlen($letters)/2);
     if($n==-1) {
-        $n=(int)($letterLen/2); 
+        $n=(int)($letterLen/2);
     }//Find the "halfway rotate point"
     $n = (int)$n % ($letterLen);
     if (!$n) {
@@ -96,14 +91,14 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
             $tmpCellNum = $arrLine[$row][6];
             $tmpCellOpt = $arrLine[$row][7];
             $tmpKey = $arrLine[$row][8];
-            $pagerline = 
+            $pagerline =
                     $tmpPageSys.",".$tmpPageNum.",".
                     $tmpCellSys.",".$tmpCellNum.",".$tmpCellOpt.",".$tmpLastName ;
             $pagerblock .= "<option value=\"".str_rot($pagerline)."\">".$tmpFirstName." ".$tmpLastName."</option>\r\n";
             }
             $row++;
         } // Finish loop to get lines
-    } 
+    }
     fclose($handle);
     $modDate = date ("m/d/Y", filemtime("list.csv"));
 
@@ -128,7 +123,7 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         <li><a href="?group=ADMIN" >Admin Office</a></li>
         <li><a href="?group=DATA" >Research, Data, Computers</a></li>
     </ul>
-    
+
     <form name="mainlist" action="back.php" method="get">
         <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="User Manager">
     </form>

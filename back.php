@@ -10,45 +10,62 @@
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
 <!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
     <?php
+    $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
+    
     ?>
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/<?php echo $cdnJqm;?>/jquery.mobile-<?php echo $cdnJqm;?>.min.css" />
-    <script src="http://code.jquery.com/jquery-<?php echo $cdnJQ;?>.min.js"></script>
-    <script src="http://code.jquery.com/mobile/<?php echo $cdnJqm;?>/jquery.mobile-<?php echo $cdnJqm;?>.min.js"></script>
+    <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
+    <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
+    <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
 <!--==========================================-->
-<!-- Block for local copies of jquery/mobile. 
-    <link rel="stylesheet" href="./jqm/jquery.mobile-1.4.5.min.css" />
-    <script src="./jqm/jquery-1.11.1.min.js"></script>
-    <script src="./jqm/jquery.mobile-1.4.5.min.js"></script>
-    ========================================== -->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
     <script type="text/javascript">
     // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
-        $(document).ready(function() {  
-            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute  
-                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea  
-                var text = $(this).val();  //count the number of characters in the text  
-                var chars = text.length;  //check if there are more characters then allowed  
-                if(chars > limit){  //and if there are use substr to get the text before the limit  
-                    var new_text = text.substr(0, limit);  //and change the current text with the new text  
-                    $(this).val(new_text);  
-                }  
-            });  
-        });  
+        $(document).ready(function() {
+            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute
+                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea
+                var text = $(this).val();  //count the number of characters in the text
+                var chars = text.length;  //check if there are more characters then allowed
+                if(chars > limit){  //and if there are use substr to get the text before the limit
+                    var new_text = text.substr(0, limit);  //and change the current text with the new text
+                    $(this).val(new_text);
+                }
+            });
+        });
     </script>
-    
+
     <title>Paging v3</title>
+<?php
+?>
 </head>
 <body>
 <?php
 $xml = simplexml_load_file("list.xml");
-if (!($xml->groups)) {
-    $xml->addChild('groups');
-}
-$groups = $xml->groups;
+$groups = ($xml->groups) ?: $xml->addChild('groups');
+$groupfull = array(
+    'CARDS' => 'Cardiologists',
+    'FELLOWS' => 'Fellows',
+    'SURG' => 'CV Surgery',
+    'CICU' => 'Cardiac ICU',
+    'MLP' => 'Mid Level Providers',
+    'CATH' => 'Cath Lab',
+    'CLINIC' => 'Clinic RN, Soc Work, Nutrition',
+    'ECHO' => 'Echo Lab',
+    'ADMIN' => 'Admin Office',
+    'DATA' => 'Research, Data'
+    );
+
 $add = \filter_input(\INPUT_POST, 'add');
-if ($add=="user") {
+$save = \filter_input(\INPUT_POST, 'save');
+if ($save!=='y'){
+    $uid = \filter_input(\INPUT_POST, 'uid');
+    $user = $groups->xpath("//user[@uid='".$uid."']")[0];
+    unset($user[0]);
+    $xml->asXML("list.xml");
+    $add = '';
+}
+if ($add) {
     $nameL = \filter_input(\INPUT_POST, 'nameL');
     $nameF = \filter_input(\INPUT_POST, 'nameF');
     $numPager = \filter_input(\INPUT_POST, 'numPager');
@@ -56,72 +73,61 @@ if ($add=="user") {
     $numSms = \filter_input(\INPUT_POST, 'numSms');
     $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
     $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
+    $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
+    $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
-    if ($groups->xpath("//user[@name='".$nameL."']")) {
-        dialog('User already exists!');
+    if ($add=="user") {
+        !($groups->xpath("//user[@last='".$nameL."' and @first='".$nameF."']")) ?: dialog('User already exists!');
     }
-    if ($nameF=="" or $nameL=="") {
-        $err = "Full name required<br>";
-    }
-    if ($numPager=="") {
-        $err .= "Pager number required<br>";
-    }
-    if ($numPagerSys=="") {
-        $err .= "Paging system required<br>";
-    }
-    if ($userGroup=="Choose group") {
-        $err .= "Group required<br>";
-    }
+        $err = ($nameF=="" or $nameL=="") ? "Full name required<br>" : '';
+        $err .= ($numPager=="") ? "Pager number required<br>" : '';
+        $err .= ($numPagerSys=="") ? "Paging system required<br>" : '';
+        $err .= ($userGroup=="Choose group") ? "Group required<br>" : '';
     if ($err) {
         dialog($err);
-    } else {                                            // No errors, write 
-        if (!($groups->$userGroup)) {
-            $groups->addChild('group',$userGroup);
-        }
-        $groupThis = $groups->$userGroup;
-        if (!($groupThis->xpath("user[@name='".$nameL."']"))) {
-            $user = $groupThis->addChild('user');
-            $user['name'] = $nameL;
+    } else {                                                // No errors, write
+        $groupThis = ($groups->$userGroup) ?: $groups->addChild($userGroup);
+        $user = ($groupThis->xpath("user[@last='".$nameL."' and @first='".$nameF."']")[0]) ?: $groupThis->addChild('user');
+            $user['last'] = $nameL;
             $user['first'] = $nameF;
+            $user['uid'] = uniqid();
+        ($user->pager) ?: $user->addChild('pager');
+            $user->pager['num'] = $numPager;
+            $user->pager['sys'] = $numPagerSys;
+        ($user->sms) ?: $user->addChild('sms');
+            $user->sms['num'] = $numSms;
+            $user->sms['sys'] = $numSmsSys;
+        ($user->pushbul) ?: $user->addChild('pushbul');
+            $user->pushbul['eml'] = $numPushBul;
+        ($user->pushover) ?: $user->addChild('pushover');
+            $user->pushover['num'] = $numPushOver;
+        ($user->boxcar) ?: $user->addChild('boxcar');
+            $user->boxcar['num'] = $numBoxcar;
+        foreach ($groupThis->user as $userSort) {
+            if (strcasecmp($userSort['last'].', '.$userSort['first'], $nameL.', '.$nameF) > 0) {
+                swapUser($userSort['uid'], $user['uid']);
+                break;
+            }
         }
-        $user = $groupThis->xpath("user[@name='".$nameL."']");
-        if ($numPager) {
-            $user[0]->addChild('pager');
-            $user[0]->pager->addChild('number',$numPager);
-            $user[0]->pager->addChild('sys',$numPagerSys);
+        foreach($groupfull as $grp => $grpStr) {
+            ($groups->$grp) ?: $groups->addChild($grp);
+            $domgrp = $groups->$grp;
+            $dom_All = dom_import_simplexml($groups[0]);
+            $dom_grp = dom_import_simplexml($domgrp[0]);
+            $dom_new = $dom_All->appendChild($dom_grp);
+            simplexml_import_dom($dom_new);
         }
-        if ($numSms) {
-            $user[0]->addChild('sms');
-            $user[0]->sms->addChild('number',$numSms);
-            $user[0]->sms->addChild('sys',$numSmsSys);
-        }
-        if ($numPushBul) {
-            $user[0]->addChild('pushbul');
-            $user[0]->pushbul->addChild('number',$numPushBul);
-        }
-    }
     $xml->asXML("list.xml");
+    }
 }
 
-$groupfull = array(
-    'CARDS' => 'Cardiologists',
-    'FELLOWS' => 'Fellows',
-    'SURG' => 'Surgery',
-    'CICU' => 'CICU',
-    'ARNP' => 'ARNP',
-    'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work',
-    'ECHO' => 'Echo Lab',
-    'ADMIN' => 'Admin Office',
-    'DATA' => 'Research, Data'
-    );
-
 function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+//Rotate a string by a number.
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
+    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
     $letterLen=round(strlen($letters)/2);
     if($n==-1) {
-        $n=(int)($letterLen/2); 
+        $n=(int)($letterLen/2);
     }//Find the "halfway rotate point"
     $n = (int)$n % ($letterLen);
     if (!$n) {
@@ -149,6 +155,17 @@ function dialog($msg) {
     </div>
 <?php
 }
+function swapUser($user1, $user2)
+{
+    global $groupThis;
+    $dom = dom_import_simplexml($groupThis);
+    
+    $new = $dom->insertBefore(
+        dom_import_simplexml($groupThis->xpath("//user[@uid='".$user2."']")[0]),
+        dom_import_simplexml($groupThis->xpath("//user[@uid='".$user1."']")[0])
+    );
+    return simplexml_import_dom($new);
+}
 ?>
 
 <!-- Start of first page -->
@@ -163,7 +180,7 @@ function dialog($msg) {
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Enter user name">
     </form>
-    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true">
+    <ul data-role="listview" data-filter="true" data-filter-reveal="" data-input="#auto-editUser" data-inset="true">
         <?php
         $edUsers = $xml->xpath('//user');
         $edGroupOld = "";
@@ -177,7 +194,8 @@ function dialog($msg) {
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="edit.php?id='.$edUserId.'" data-ajax="false"><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>';
             echo '</li>'."\r\n";
             // perhaps use Session variable?
         }
