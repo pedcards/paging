@@ -40,7 +40,7 @@
         });
     </script>
 
-    <title>Paging v2</title>
+    <title>Paging v3</title>
 </head>
 <body>
 <?php
@@ -67,41 +67,18 @@ $group = filter_input(INPUT_GET,'group');
 $groupfull = array(
     'CARDS' => 'Cardiologists',
     'FELLOWS' => 'Fellows',
-    'SURG' => 'Surgery',
-    'CICU' => 'CICU',
-    'ARNP' => 'ARNP',
+    'SURG' => 'CV Surgery',
+    'CICU' => 'Cardiac ICU',
+    'MLP' => 'Mid Level Providers',
     'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work',
+    'CLINIC' => 'Clinic RN, Soc Work, Nutrition',
     'ECHO' => 'Echo Lab',
     'ADMIN' => 'Admin Office',
     'DATA' => 'Research, Data'
     );
-// Read "list.csv" into array
-$arrLine = array();
-$pagerblock = "";
-$row = 0;
-if (($handle = fopen("list.csv", "r")) !== FALSE) {
-    while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-        if ($arrLine[$row][0] === $group) {
-            $tmpLastName = $arrLine[$row][1];
-            $tmpFirstName = $arrLine[$row][2];
-            $tmpPageSys = $arrLine[$row][3];
-            $tmpPageNum = $arrLine[$row][4];
-            $tmpCellSys = $arrLine[$row][5];
-            $tmpCellNum = $arrLine[$row][6];
-            $tmpCellOpt = $arrLine[$row][7];
-            $tmpKey = $arrLine[$row][8];
-            $pagerline =
-                    $tmpPageSys.",".$tmpPageNum.",".
-                    $tmpCellSys.",".$tmpCellNum.",".$tmpCellOpt.",".$tmpLastName ;
-            $pagerblock .= "<option value=\"".str_rot($pagerline)."\">".$tmpFirstName." ".$tmpLastName."</option>\r\n";
-            }
-            $row++;
-        } // Finish loop to get lines
-    }
-    fclose($handle);
-    $modDate = date ("m/d/Y", filemtime("list.csv"));
-
+$modDate = date ("m/d/Y", filemtime("list.xml"));
+$xml = simplexml_load_file("list.xml");
+$groups = $xml->groups;
 ?>
 
 <!-- Start of first page -->
@@ -109,91 +86,58 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
 
     <div data-role="header">
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
+        <a href="" class="ui-btn ui-shadow ui-icon-info ui-btn-icon-notext ui-corner-all" ></a>
+        <a href="back.php" class="ui-btn ui-shadow ui-icon-user ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
 
-    <ul data-role="listview">
-        <li><a href="?group=CARDS&#proc" >Cardiologists</a></li>
-        <li><a href="?group=FELLOWS" >Fellows</a></li>
-        <li><a href="?group=SURG" >CV Surgery/Anesthesia/Perfusion</a></li>
-        <li><a href="?group=CICU" >CICU</a></li>
-        <li><a href="?group=ARNP" >ARNP's</a></li>
-        <li><a href="?group=CATH" >Cath Lab</a></li>
-        <li><a href="?group=CLINIC" >Clinic RN, Social Work, Nutrition</a></li>
-        <li><a href="?group=ECHO" >Echo Lab</a></li>
-        <li><a href="?group=ADMIN" >Admin Office</a></li>
-        <li><a href="?group=DATA" >Research, Data, Computers</a></li>
+    <div data-role="content">
+        <form class="ui-filterable">
+            <input id="auto-editUser" data-type="search" placeholder="Enter user name">
+        </form>
+    <div style="margin-bottom: 24px;">
+    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true" data-theme="b">
+        <?php
+        $liUsers = $xml->xpath('//user');
+        $liGroupOld = "";
+        foreach($liUsers as $liUser) {
+            $liNameL = $liUser['last'];
+            $liNameF = $liUser['first'];
+            $liUserId = $liUser['uid'];
+            $liGroup = $liUser->xpath('..')[0]->getName();
+            if (!($liGroup==$liGroupOld)) {
+                echo "\r\n".'        <li data-role="list-divider">'.$groupfull[$liGroup].'</li>'."\r\n";
+                $liGroupOld = $liGroup;
+            }
+            echo '            <li class="ui-mini">';
+            echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" ><i>'.$liNameL.', '.$liNameF.'</i></a>';
+            echo '</li>'."\r\n";
+        }
+        ?>
     </ul>
-
-    <form name="mainlist" action="back.php" method="get">
-        <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="User Manager">
-    </form>
+    </div>
+    <ul data-role="listview">
+        <?php
+        foreach($groupfull as $grp => $grpStr) {
+            echo '<li><a href="proc.php?group='.$grp.'">'.$grpStr.'</a></li>';
+        }?>
+    </ul>
 
     <div data-alertbox-close-time="5000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" class="ui-content jqm-alert-box" style="max-width:280px">
         <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
         <p>REMINDER!</p>
         <p>This paging site is for internal Heart Center use. Please do not share this link with others outside of the organization. Thanks for your understanding!</p>
     </div>
+    </div>
 
     <div data-role="footer" >
         <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
+&COPY;(2007-2015) Terrence Chun, MD<br>
         </small></h5>
     </div><!-- /footer -->
 </div><!-- /page -->
 
-<!-- Start of process page -->
-<div data-role="page" id="proc" data-dom-cache="true"> <!-- page -->
-<?php
-?>
-    <div data-role="header" data-add-back-btn="true" >
-        <a href="javascript:history.go(-1);" data-icon="arrow-l"><small>Back</small></a>
-        <h3><?php echo $group; ?></h3>
-    </div><!-- /header -->
 
-<form action="submit.php" method="POST" name="HTMLForm1" data-prefetch>
-    <input type="hidden" name="SERVER_IP" value="63.172.11.60">
-    <input type="hidden" name="SERVER_PORT" value="444">
-    <input type="hidden" name="WEBPAGE" value="yes">
-    <input type="hidden" name="ALPHA" value="a">
-    <input type="hidden" name="ACCEPT_PAGE" value="/paging/page_accepted.htm">
-    <input type="hidden" name="NUMBER" value="">
-    <input type="hidden" name="NUMBER2" value="">
-    <input type="hidden" name="NUMBER3" value="">
-    <input type="hidden" name="NUMBER4" value="">
-    <input type="hidden" name="NUMBER5" value="">
-    <input type="hidden" name="MYNAME" value="">
-    <input type="hidden" name="SUBJECT" value=  "">
-    <input type="hidden" name="MESSAGE" value="">
-
-<div data-role="content">
-    <div data-role="fieldcontain" >
-        <label for="NUMBER" >To:</label>
-        <select name="NUMBER" id="NUMBER">
-            <?php echo $pagerblock; ?>
-        </select>
-        <label for="MYNAME">From:</label>
-        <input type="text" name="MYNAME" id="MYNAME" value="" placeholder="REQUIRED" maxlength="20"/>
-    </div>
-
-    <div data-role="fieldcontain" style="text-align: right">
-        <textarea name="MESSAGE" id="MESSAGE" maxlength="220"></textarea>
-    </div>
-    <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
-    <div style="text-align: center">
-        <input type="submit" value="SUBMIT!" data-inline="true" data-theme="b" />
-    </div>
-</div>
-</form>
-
-    <div data-role="footer" data-position="fixed">
-        <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
-Data revised: <?php echo $modDate; ?><br>
-        </small></h5>
-    </div><!-- /footer -->
-</div><!-- /page -->
-
-<!-- Last modified 2/19/13 -->
+<!-- Last modified 7/9/15 -->
 
 </body>
 </html>

@@ -173,6 +173,7 @@ function swapUser($user1, $user2)
 
 <div data-role="header">
         <h4 style="white-space: normal; text-align: center" >User Manager</h4>
+        <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-back ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
 </div><!-- /header -->
 
 <div data-role="content">
@@ -201,6 +202,7 @@ function swapUser($user1, $user2)
         }
         ?>
     </ul>
+    <a href="#import" class="ui-btn">Import CSV</a>
 </div>
 
 <div data-role="footer" >
@@ -210,6 +212,51 @@ function swapUser($user1, $user2)
     </div><!-- /footer -->
 
 </div><!-- /page -->
+
+<div data-role="page" id="import">
+<div data-role="header">
+    <h4 style="white-space: normal; text-align: center" >Import CSV</h4>
+</div>
+<div data-role="content">
+    <a href="#importConf" class="ui-btn ">Yes, import list.csv file.</a>
+    <a href="back.php" class="ui-btn ui-btn-b " data-ajax="false">NO, GET ME OUT OF HERE!</a>
+</div>
+    
+</div>
+
+<div data-role="page" id="importConf">
+<?php
+// Read "list.csv" into array
+$imXml = new SimpleXMLElement("<root />");
+$arrLine = array();
+$pagerblock = "";
+$row = 0;
+$imXml->addChild('groups');
+if (($handle = fopen("list.csv", "r")) !== FALSE) {
+    while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        $tmpGroup = $arrLine[$row][0];
+        if ($tmpGroup == 'Group') {
+            $tmpGroup = '';
+        }
+        $tmpLastName = $arrLine[$row][1];
+        $tmpFirstName = $arrLine[$row][2];
+        $tmpPageSys = $arrLine[$row][3];
+        $tmpPageNum = $arrLine[$row][4];
+        $tmpCellSys = $arrLine[$row][5];
+        $tmpCellNum = $arrLine[$row][6];
+        $tmpCellOpt = $arrLine[$row][7];
+        $tmpKey = $arrLine[$row][8];
+        echo $tmpGroup.'<br>';
+        
+        $imXml->groups->addChild($tmpGroup);
+        
+        $row++;
+    } // Finish loop to get lines
+} 
+    fclose($handle);
+    $imXml->asXML(date('YmdHis').'.xml');
+?>
+</div>
 
 </body>
 </html>
