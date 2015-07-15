@@ -109,7 +109,7 @@ $groups = $xml->groups;
                 $liGroupOld = $liGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" ><i>'.$liNameL.', '.$liNameF.'</i></a>';
+            echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
             echo '</li>'."\r\n";
         }
         ?>

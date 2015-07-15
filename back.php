@@ -238,6 +238,11 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         if ($tmpGroup == 'Group') {
             $tmpGroup = '';
         }
+        if ($tmpGroup == '') {
+            $row++;
+            continue;
+        }
+        usleep(1);
         $tmpLastName = $arrLine[$row][1];
         $tmpFirstName = $arrLine[$row][2];
         $tmpPageSys = $arrLine[$row][3];
@@ -246,9 +251,24 @@ if (($handle = fopen("list.csv", "r")) !== FALSE) {
         $tmpCellNum = $arrLine[$row][6];
         $tmpCellOpt = $arrLine[$row][7];
         $tmpKey = $arrLine[$row][8];
-        echo $tmpGroup.'<br>';
         
-        $imXml->groups->addChild($tmpGroup);
+        $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
+        $tmpUser = $tmpUserGrp->addChild('user');
+            $tmpUser['last'] = $tmpLastName;
+            $tmpUser['first'] = $tmpFirstName;
+            $tmpUser['uid'] = uniqid();
+        $tmpUser->addChild('pager');
+            $tmpUser->pager['num'] = $tmpPageNum;
+            $tmpUser->pager['sys'] = $tmpPageSys;
+        if ($tmpCellNum) {
+            $tmpUser->addChild('sms');
+            $tmpUser->sms['num'] = $tmpCellNum;
+            $tmpUser->sms['sys'] = $tmpCellSys;
+        }
+        if ($tmpCellOpt) {
+            $tmpUser->addChild('option');
+            $tmpUser->option['mode'] = $tmpCellOpt;
+        }
         
         $row++;
     } // Finish loop to get lines
