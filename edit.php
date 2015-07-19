@@ -84,32 +84,32 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
     $userF1name = $userF1['last'].", ".$userF1['first'];
 
 ?>
-    <div data-role="page" id="move" data-dialog="true">
-        <div data-role="header">
-            <h4 style="text-align: center">Reorder users</h4>
-            <a href="back.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all" data-ajax="false">go back</a>
-        </div>
-        
-        <div data-role="content">
-            <ul data-role="listview">
-                <?php if ($userP1) { echo '<li>'.$userP1name.'</li>';}?>
-                <li><b>---&nbsp;<?php echo $nameL.', '.$nameF;?></b></li>
-                <?php if ($userF1) { echo '<li>'.$userF1name.'</li>';}?>
-                
-            </ul>
-            
-        </div>
-        
-        <div data-role="footer">
-            <form method="post" action="#">
-                <input type="hidden" name="userPre" value="<?php echo $userP1['uid'];?>">
-                <input type="hidden" name="userFol" value="<?php echo $userF1['uid'];?>">
-                <button type="submit" style="width: 100%" <?php echo ($userP1) ?: 'disabled=""';?> class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-carat-u" name="action" value="up">UP</button>
-                <button type="submit" style="width: 100%" <?php echo ($userF1) ?: 'disabled=""';?> class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-carat-d" name="action" value="down">DOWN</button>
-                
-            </form>
-        </div>
+<div data-role="page" id="move" data-dialog="true">
+    <div data-role="header">
+        <h4 style="text-align: center">Reorder users</h4>
+        <a href="back.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all" data-ajax="false">go back</a>
     </div>
+
+    <div data-role="content">
+        <ul data-role="listview">
+            <?php if ($userP1) { echo '<li>'.$userP1name.'</li>';}?>
+            <li><b>---&nbsp;<?php echo $nameL.', '.$nameF;?></b></li>
+            <?php if ($userF1) { echo '<li>'.$userF1name.'</li>';}?>
+
+        </ul>
+
+    </div>
+
+    <div data-role="footer">
+        <form method="post" action="#">
+            <input type="hidden" name="userPre" value="<?php echo $userP1['uid'];?>">
+            <input type="hidden" name="userFol" value="<?php echo $userF1['uid'];?>">
+            <button type="submit" style="width: 100%" <?php echo ($userP1) ?: 'disabled=""';?> class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-carat-u" name="action" value="up">UP</button>
+            <button type="submit" style="width: 100%" <?php echo ($userF1) ?: 'disabled=""';?> class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-carat-d" name="action" value="down">DOWN</button>
+
+        </form>
+    </div>
+</div>
 <?php
 }
 ?>

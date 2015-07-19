@@ -105,7 +105,7 @@ $group = $xml->groups->$grp;
 <div data-role="content">
     <div data-role="fieldcontain" >
         <label for="NUMBER" >To:</label>
-        <select name="NUMBER" id="NUMBER" data-native-menu="false">
+        <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
             echo '<option>::: '.$groupfull[$grp].' :::</option>'."\r\n";
             foreach($group->user as $liUser) {
@@ -129,7 +129,7 @@ $group = $xml->groups->$grp;
     </div>
 
     <div data-role="fieldcontain" style="text-align: right">
-        <textarea name="MESSAGE" id="MESSAGE" maxlength="220"></textarea>
+        <textarea name="MESSAGE" id="MESSAGE" maxlength="200"></textarea>
     </div>
     <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
     <div style="text-align: center">

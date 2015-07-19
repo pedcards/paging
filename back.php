@@ -20,20 +20,6 @@
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
 <!--==========================================-->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
-    <script type="text/javascript">
-    // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
-        $(document).ready(function() {
-            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute
-                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea
-                var text = $(this).val();  //count the number of characters in the text
-                var chars = text.length;  //check if there are more characters then allowed
-                if(chars > limit){  //and if there are use substr to get the text before the limit
-                    var new_text = text.substr(0, limit);  //and change the current text with the new text
-                    $(this).val(new_text);
-                }
-            });
-        });
-    </script>
 
     <title>Paging v3</title>
 <?php
@@ -41,7 +27,7 @@
 </head>
 <body>
 <?php
-$xml = simplexml_load_file("list.xml");
+$xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 $groupfull = array(
     'CARDS' => 'Cardiologists',
@@ -58,7 +44,10 @@ $groupfull = array(
 
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
+$import = \filter_input(INPUT_POST, 'import');
+
 if ($save!=='y'){
+    // $save exists but not 'y', must have clicked Delete.
     $uid = \filter_input(\INPUT_POST, 'uid');
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
     unset($user[0]);
@@ -77,14 +66,14 @@ if ($add) {
     $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
     if ($add=="user") {
-        !($groups->xpath("//user[@last='".$nameL."' and @first='".$nameF."']")) ?: dialog('User already exists!');
+        !($groups->xpath("//user[@last='".$nameL."' and @first='".$nameF."']")) ?: errmsg('User already exists!');
     }
         $err = ($nameF=="" or $nameL=="") ? "Full name required<br>" : '';
         $err .= ($numPager=="") ? "Pager number required<br>" : '';
         $err .= ($numPagerSys=="") ? "Paging system required<br>" : '';
         $err .= ($userGroup=="Choose group") ? "Group required<br>" : '';
     if ($err) {
-        dialog($err);
+        errmsg($err);
     } else {                                                // No errors, write
         $groupThis = ($groups->$userGroup) ?: $groups->addChild($userGroup);
         $user = ($groupThis->xpath("user[@last='".$nameL."' and @first='".$nameF."']")[0]) ?: $groupThis->addChild('user');
@@ -120,28 +109,72 @@ if ($add) {
     $xml->asXML("list.xml");
     }
 }
+if ($import) {
+    // Read "list.csv" into array
+    $imXml = new SimpleXMLElement("<root />");
+    $arrLine = array();
+    $pagerblock = "";
+    $row = 0;
+    $imXml->addChild('groups');
+    if (($handle = fopen("list.csv", "r")) !== FALSE) {
+        while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            $tmpGroup = $arrLine[$row][0];
+            if ($tmpGroup == 'Group') {
+                $tmpGroup = '';
+            }
+            if ($tmpGroup == '') {
+                $row++;
+                continue;
+            }
+            usleep(1);
+            $tmpLastName = $arrLine[$row][1];
+            $tmpFirstName = $arrLine[$row][2];
+            $tmpPageSys = $arrLine[$row][3];
+            $tmpPageNum = $arrLine[$row][4];
+            $tmpCellSys = $arrLine[$row][5];
+            $tmpCellNum = $arrLine[$row][6];
+            $tmpCellOpt = $arrLine[$row][7];
+            $tmpKey = $arrLine[$row][8];
 
-function str_rot($s, $n = -1) {
-//Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
-    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2);
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
+            $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
+            $tmpUser = $tmpUserGrp->addChild('user');
+                $tmpUser['last'] = $tmpLastName;
+                $tmpUser['first'] = $tmpFirstName;
+                $tmpUser['uid'] = uniqid();
+            $tmpUser->addChild('pager');
+                $tmpUser->pager['num'] = $tmpPageNum;
+                $tmpUser->pager['sys'] = $tmpPageSys;
+            if ($tmpCellNum) {
+                $tmpUser->addChild('sms');
+                $tmpUser->sms['num'] = $tmpCellNum;
+                $tmpUser->sms['sys'] = $tmpCellSys;
+            }
+            if ($tmpCellOpt) {
+                $tmpUser->addChild('option');
+                $tmpUser->option['mode'] = $tmpCellOpt;
+            }
+            $row++;
+        } // Finish loop to get lines
+    } 
+    fclose($handle);
+    $tmpListName = date('YmdHis').'.xml';
+    $imXml->asXML($tmpListName);
+    ?>
+    <div data-role="page" id="importConf" data-overlay-theme="b">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Replace list.csv</h4>
+        </div>
+        <div data-role="content">
+        <?php
+            $msg = (copy('list.xml','list.'.date('YmdHis').'.bak')) ? 'List.xml backed up</br>' : 'Failed to backup list.xml</br>';
+            $msg .= (copy($tmpListName,'list.xml')) ? 'List.xml successfully replaced</br>' : 'Failed to replace list.xml</br>';
+            echo '<a href="back.php" class="ui-btn ui-btn-b" data-ajax="false">'.$msg.'</a>';
+        ?>
+        </div>
+    </div>
+<?php
 }
-
-function dialog($msg) {
+function errmsg($msg) {
 ?>
     <div data-role="page" id="dialogWin">
         <div data-role="header">
@@ -179,7 +212,7 @@ function swapUser($user1, $user2)
 <div data-role="content">
     <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
     <form class="ui-filterable">
-        <input id="auto-editUser" data-type="search" placeholder="Enter user name">
+        <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
     <ul data-role="listview" data-filter="true" data-filter-reveal="" data-input="#auto-editUser" data-inset="true">
         <?php
@@ -218,64 +251,11 @@ function swapUser($user1, $user2)
     <h4 style="white-space: normal; text-align: center" >Import CSV</h4>
 </div>
 <div data-role="content">
-    <a href="#importConf" class="ui-btn ">Yes, import list.csv file.</a>
+    <form method="post" id="import" action="#">
+        <button type="submit" class="ui-btn ui-btn-a" name="import" value="y">Yes, import list.csv file.</button>
+    </form>
     <a href="back.php" class="ui-btn ui-btn-b " data-ajax="false">NO, GET ME OUT OF HERE!</a>
 </div>
-    
-</div>
-
-<div data-role="page" id="importConf">
-<?php
-// Read "list.csv" into array
-$imXml = new SimpleXMLElement("<root />");
-$arrLine = array();
-$pagerblock = "";
-$row = 0;
-$imXml->addChild('groups');
-if (($handle = fopen("list.csv", "r")) !== FALSE) {
-    while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-        $tmpGroup = $arrLine[$row][0];
-        if ($tmpGroup == 'Group') {
-            $tmpGroup = '';
-        }
-        if ($tmpGroup == '') {
-            $row++;
-            continue;
-        }
-        usleep(1);
-        $tmpLastName = $arrLine[$row][1];
-        $tmpFirstName = $arrLine[$row][2];
-        $tmpPageSys = $arrLine[$row][3];
-        $tmpPageNum = $arrLine[$row][4];
-        $tmpCellSys = $arrLine[$row][5];
-        $tmpCellNum = $arrLine[$row][6];
-        $tmpCellOpt = $arrLine[$row][7];
-        $tmpKey = $arrLine[$row][8];
-        
-        $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
-        $tmpUser = $tmpUserGrp->addChild('user');
-            $tmpUser['last'] = $tmpLastName;
-            $tmpUser['first'] = $tmpFirstName;
-            $tmpUser['uid'] = uniqid();
-        $tmpUser->addChild('pager');
-            $tmpUser->pager['num'] = $tmpPageNum;
-            $tmpUser->pager['sys'] = $tmpPageSys;
-        if ($tmpCellNum) {
-            $tmpUser->addChild('sms');
-            $tmpUser->sms['num'] = $tmpCellNum;
-            $tmpUser->sms['sys'] = $tmpCellSys;
-        }
-        if ($tmpCellOpt) {
-            $tmpUser->addChild('option');
-            $tmpUser->option['mode'] = $tmpCellOpt;
-        }
-        
-        $row++;
-    } // Finish loop to get lines
-} 
-    fclose($handle);
-    $imXml->asXML(date('YmdHis').'.xml');
-?>
 </div>
 
 </body>
