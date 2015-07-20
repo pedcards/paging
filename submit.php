@@ -68,7 +68,7 @@ $pinarray = explode(",", trim(str_rot(filter_input(INPUT_POST,'NUMBER'))));  // 
     $pushover = $pinarray[5]; // pushover ID
     $boxcar = $pinarray[6]; // boxcar ID
     $sendto = $pinarray[7]; // A:$pin, B:both, C:cell
-    $sendname = $pinarray[8]; // recipient name
+    $uid = $pinarray[8]; // recipient UID
     if ($cellsys === "ATT") {
         $cellnum .= "@txt.att.net";
         }
@@ -86,12 +86,38 @@ fputcsv(
         date('c'),
         $ipaddress,
         $pin,
-        $sendname,
+        $uid,
         $fromName,
         $messagePost        // could use str_rot13($messagePost) for some privacy
     )
 ); 
 fclose($out);
+
+// Update the MRU cookie
+$cstr = "";
+$cookie = [];
+if (isset($_COOKIE["pagemru"])) {
+    $cookie = explode(",", $_COOKIE["pagemru"]);
+    $i = 0;
+    foreach($cookie as $cvals){
+        $i++;
+        if ($i==4){
+            break;
+        }
+        if (!in_array($uid, $cookie)){
+            $cstr .= ','.$cvals;
+        }
+    }
+}
+?>
+    <div data-role="page" id="main">
+        <p>
+<?php print_r($cookie); ?>
+        </p>
+    </div>
+    <?php
+setcookie("pagemru",$uid.$cstr,time()+(86400*30),"/");
+exit;
 
 // Error handling if no FROM specified
 if ($fromName == "") {
