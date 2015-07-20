@@ -46,9 +46,8 @@ $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
 $import = \filter_input(INPUT_POST, 'import');
 
-if ($save!=='y'){
+if (($save!=='y') and ($uid = \filter_input(\INPUT_POST, 'uid'))) {
     // $save exists but not 'y', must have clicked Delete.
-    $uid = \filter_input(\INPUT_POST, 'uid');
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
     unset($user[0]);
     $xml->asXML("list.xml");

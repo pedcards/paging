@@ -70,37 +70,40 @@ $groups = $xml->groups;
 <!-- Start of first page -->
 <div data-role="page" id="main">
 
+    <div data-role="panel" id="search">
+        <form class="ui-filterable">
+            <input id="auto-editUser" data-type="search" placeholder="Find user...">
+        </form>
+        <div style="margin-bottom: 24px;">
+        <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true" data-theme="b">
+            <?php
+            $liUsers = $xml->xpath('//user');
+            $liGroupOld = "";
+            foreach($liUsers as $liUser) {
+                $liNameL = $liUser['last'];
+                $liNameF = $liUser['first'];
+                $liUserId = $liUser['uid'];
+                $liGroup = $liUser->xpath('..')[0]->getName();
+                if (!($liGroup==$liGroupOld)) {
+                    //echo "\r\n".'        <li data-role="list-divider">'.$groupfull[$liGroup].'</li>'."\r\n";
+                    $liGroupOld = $liGroup;
+                }
+                echo '            <li class="ui-mini">';
+                echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
+                echo '</li>'."\r\n";
+            }
+            ?>
+        </ul>
+        </div>
+    </div>
+
     <div data-role="header">
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
-        <a href="" class="ui-btn ui-shadow ui-icon-info ui-btn-icon-notext ui-corner-all" ></a>
+        <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
         <a href="back.php" class="ui-btn ui-shadow ui-icon-user ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
 
     <div data-role="content">
-        <form class="ui-filterable">
-            <input id="auto-editUser" data-type="search" placeholder="Enter user name">
-        </form>
-    <div style="margin-bottom: 24px;">
-    <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true" data-theme="b">
-        <?php
-        $liUsers = $xml->xpath('//user');
-        $liGroupOld = "";
-        foreach($liUsers as $liUser) {
-            $liNameL = $liUser['last'];
-            $liNameF = $liUser['first'];
-            $liUserId = $liUser['uid'];
-            $liGroup = $liUser->xpath('..')[0]->getName();
-            if (!($liGroup==$liGroupOld)) {
-                //echo "\r\n".'        <li data-role="list-divider">'.$groupfull[$liGroup].'</li>'."\r\n";
-                $liGroupOld = $liGroup;
-            }
-            echo '            <li class="ui-mini">';
-            echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
-            echo '</li>'."\r\n";
-        }
-        ?>
-    </ul>
-    </div>
     <ul data-role="listview">
         <?php
         foreach($groupfull as $grp => $grpStr) {
