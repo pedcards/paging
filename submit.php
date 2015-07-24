@@ -115,7 +115,7 @@ if ($fromName == "") {
     <div data-role="page" data-dialog="true" id="dialog-fail" data-overlay-theme="b">
         <div data-role="header" data-theme="b" >
             <h1 style="color:red">FAIL</h1>
-            <a href="#" data-rel="back" data-ajax="false" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
+            <!--<a href="#" data-rel="back" data-ajax="false" class="ui-btn ui-shadow ui-icon-delete ui-btn-icon-notext ui-corner-all" >Search panel</a>-->
         </div>
         <DIV data-role="content" data-theme="a" >
             <p style="text-align:center">
