@@ -94,37 +94,28 @@ fputcsv(
 fclose($out);
 
 // Update the MRU cookie
-$cstr = "";
-$cookie = [];
-if (isset($_COOKIE["pagemru"])) {
-    $cookie = explode(",", $_COOKIE["pagemru"]);
-    $i = 0;
-    foreach($cookie as $cvals){
-        $i++;
-        if ($i==4){
-            break;
-        }
-        if (!in_array($uid, $cookie)){
-            $cstr .= ','.$cvals;
-        }
+$cstr = $uid;
+$cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+$i = 0;
+foreach($cookie as $cvals){
+    if ($cvals==$uid){
+        continue;
     }
+    $i++;
+    if ($i==5){
+        break;
+    }
+    $cstr .= ','.$cvals;
 }
-?>
-    <div data-role="page" id="main">
-        <p>
-<?php print_r($cookie); ?>
-        </p>
-    </div>
-    <?php
-setcookie("pagemru",$uid.$cstr,time()+(86400*30),"/");
-exit;
+setcookie("pagemru",$cstr,time()+(86400*30),"/");
 
 // Error handling if no FROM specified
 if ($fromName == "") {
 ?>
-    <div data-role="dialog" id="dialog-fail" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="dialog-fail" data-overlay-theme="b">
         <div data-role="header" data-theme="b" >
             <h1 style="color:red">FAIL</h1>
+            <a href="#" data-rel="back" data-ajax="false" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
         </div>
         <DIV data-role="content" data-theme="a" >
             <p style="text-align:center">
@@ -142,7 +133,7 @@ exit;
 // $usamobility = (strpos($pin, '469') !== 3);  // If prefix is not 469, this is USA Mobility number.
 if ($pagesys === "USAM") {
 ?>
-    <div data-role="dialog" id="dialog-usamobility" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="dialog-usamobility" data-overlay-theme="b">
         <div data-role="header" >
             <h1>USA Mobility</h1>
         </div>
@@ -172,7 +163,7 @@ if (($sendto === "B") || ($sendto === "C")) {
 // Option C, stop after sending SMS.
 if ($sendto === "C") {
 ?>
-    <div data-role="dialog" id="dialog-sms" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="dialog-sms" data-overlay-theme="b">
         <div data-role="header" >
             <h1>SMS</h1>
         </div>
@@ -215,7 +206,7 @@ if ($sendto === "D") {
     $result = curl_exec($ch);
 
 ?>
-    <div data-role="dialog" id="dialog-pbul" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="dialog-pbul" data-overlay-theme="b">
         <div data-role="header" >
             <h1>SMS</h1>
         </div>
@@ -248,7 +239,7 @@ if ($sendto === "E") {
     curl_exec($ch);
     curl_close($ch);
 ?>
-    <div data-role="dialog" id="dialog-pushover" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="dialog-pushover" data-overlay-theme="b">
         <div data-role="header" >
             <h1>SMS</h1>
         </div>
@@ -293,7 +284,7 @@ echo $snppSend;
 if (substr($snppSend,0,3) === "250") { 
     $success = 1;
 ?>
-    <div data-role="dialog" id="page-success" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="page-success" data-overlay-theme="b">
         <div data-role="header" >
             <h1 style="color:green">SUCCESS!</h1>
         </div>
@@ -314,7 +305,7 @@ if (substr($snppSend,0,3) === "250") {
 else if (($snppPage[0] === "4") || ($snppPage[0] === "5")) {
     $success = false;
 ?>
-    <div data-role="dialog" id="server-fail" data-overlay-theme="b">
+    <div data-role="page" data-dialog="true" id="server-fail" data-overlay-theme="b">
         <div data-role="header" data-theme="d" >
             <h1 style="color:red">SERVER ERROR</h1>
         </div>

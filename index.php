@@ -69,8 +69,12 @@ $groups = $xml->groups;
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
-
-    <div data-role="panel" id="search">
+    <script>
+        $('#main').on('panelopen','#search', function(){
+            $('#auto-editUser').focus();
+        });
+    </script>
+    <div data-role="panel" id="search" data-display="">
         <form class="ui-filterable">
             <input id="auto-editUser" data-type="search" placeholder="Find user...">
         </form>
@@ -95,6 +99,23 @@ $groups = $xml->groups;
             ?>
         </ul>
         </div>
+        <ul data-role="listview">
+            <?php
+            $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+            foreach($cookie as $cvals){
+                if ($cvals==''){
+                    continue;
+                }
+                $liUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
+                $liUserId = $liUser['uid'];
+                $liGroup = $liUser->xpath("..")[0]->getName();
+                echo '<li><a href="proc.php?group='.$liGroup.'&id='.$cvals.'" data-ajax="false">'.$liUser['first'].' '.$liUser['last'].'</a></li>'."\r\n";
+            }
+            if ($cookie){
+//                echo '<li>clear</li>'."\r\n";
+            }
+            ?>
+        </ul>
     </div>
 
     <div data-role="header">
