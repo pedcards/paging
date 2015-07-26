@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
-<!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
+    <!--==========================================-->
     <?php
     $isLoc = true;
     $cdnJqm = '1.4.5';
@@ -18,13 +18,9 @@
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
-<!-- Block for local copies of jquery/mobile.
-    <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
-    <script src="./jqm/jquery-1.9.1.min.js"></script>
-    <script src="./jqm/jquery.mobile-1.3.2.min.js"></script>
-<!--==========================================-->
-    <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
+    <!--==========================================-->
 
+    <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
 
     <title>Paging v3</title>
 </head>
@@ -74,13 +70,14 @@ $groups = $xml->groups;
             $('#auto-editUser').focus();
         });
     </script>
-    <div data-role="panel" id="search" data-display="">
+    <div data-role="panel" id="search" data-display="overlay">
         <form class="ui-filterable">
             <input id="auto-editUser" data-type="search" placeholder="Find user...">
         </form>
         <div style="margin-bottom: 24px;">
         <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true" data-theme="b">
             <?php
+            // auto reveal items from search bar
             $liUsers = $xml->xpath('//user');
             $liGroupOld = "";
             foreach($liUsers as $liUser) {
@@ -88,10 +85,9 @@ $groups = $xml->groups;
                 $liNameF = $liUser['first'];
                 $liUserId = $liUser['uid'];
                 $liGroup = $liUser->xpath('..')[0]->getName();
-                if (!($liGroup==$liGroupOld)) {
-                    //echo "\r\n".'        <li data-role="list-divider">'.$groupfull[$liGroup].'</li>'."\r\n";
-                    $liGroupOld = $liGroup;
-                }
+//                if (!($liGroup==$liGroupOld)) {                     // This if{} only for inserting changed headings. Might purge.
+//                    $liGroupOld = $liGroup;
+//                }
                 echo '            <li class="ui-mini">';
                 echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
                 echo '</li>'."\r\n";
@@ -101,6 +97,7 @@ $groups = $xml->groups;
         </div>
         <ul data-role="listview">
             <?php
+            // show cookies
             $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
             foreach($cookie as $cvals){
                 if ($cvals==''){
