@@ -92,6 +92,7 @@ $groups = $xml->groups;
                 echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
                 echo '</li>'."\r\n";
             }
+            // TODO: filter list section headers
             ?>
         </ul>
         </div>
@@ -107,9 +108,6 @@ $groups = $xml->groups;
                 $liUserId = $liUser['uid'];
                 $liGroup = $liUser->xpath("..")[0]->getName();
                 echo '<li><a href="proc.php?group='.$liGroup.'&id='.$cvals.'" data-ajax="false">'.$liUser['first'].' '.$liUser['last'].'</a></li>'."\r\n";
-            }
-            if ($cookie){
-//                echo '<li>clear</li>'."\r\n";
             }
             ?>
         </ul>

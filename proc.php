@@ -107,12 +107,17 @@ $group = $xml->groups->$grp;
         <label for="NUMBER" >To:</label>
         <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
-            echo '<option>::: '.$groupfull[$grp].' :::</option>'."\r\n";
+//            echo '<option>::: '.$groupfull[$grp].' :::</option>'."\r\n";
             foreach($group->user as $liUser) {
                 $liUid = $liUser['uid'];
                 $liNameL = $liUser['last'];
                 $liNameF = $liUser['first'];
-                $pagerline = 
+                if ($liUser['sec']){
+                    $liSec = $liUser['sec'];
+                    $pagerline = '';
+                } else {
+                    $liSec = '';
+                    $pagerline = 
                         $liUser->pager['sys'].','.$liUser->pager['num'].','.
                         $liUser->sms['sys'].','.$liUser->sms['num'].','.
                         $liUser->pushbul['eml'].','.
@@ -120,7 +125,8 @@ $group = $xml->groups->$grp;
                         $liUser->boxcar['num'].','.
                         $liUser->opt.','.
                         $liUid;
-                echo '<option value="'.str_rot($pagerline).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liNameF.' '.$liNameL.'</option>'."\r\n";
+                }
+                echo '<option value="'.str_rot($pagerline).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.(($liSec)?('::: '.$liSec.' :::'):($liNameF.' '.$liNameL)).'</option>'."\r\n";
             }
             ?>
         </select>

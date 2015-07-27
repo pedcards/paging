@@ -120,7 +120,9 @@ if ($fromName == "") {
         <DIV data-role="content" data-theme="a" >
             <p style="text-align:center">
                 <img src="images/dead_ipod.jpg" alt="bummer"><br>
-                The <b>FROM</b> field is <b>REQUIRED!</b>
+                <?php
+                echo ($pin)?'The <b>FROM</b> field is <b>REQUIRED!</b>':'Must select a user!'
+                ?>
             </p>
         </DIV>
     </div>

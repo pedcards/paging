@@ -110,6 +110,8 @@ if ($add) {
 }
 if ($import) {
     // Read "list.csv" into array
+    //
+    // TODO: Special element for section headers
     $imXml = new SimpleXMLElement("<root />");
     $arrLine = array();
     $pagerblock = "";
@@ -134,11 +136,21 @@ if ($import) {
             $tmpCellNum = $arrLine[$row][6];
             $tmpCellOpt = $arrLine[$row][7];
             $tmpKey = $arrLine[$row][8];
+            if (substr($tmpLastName, 0, 3)==":::") {
+                $tmpSection = substr($tmpLastName, 4);
+                $tmpLastName = ":::";
+                $tmpFirstName = ":::";
+            } else { 
+                $tmpSection = "";
+            }
 
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             $tmpUser = $tmpUserGrp->addChild('user');
                 $tmpUser['last'] = $tmpLastName;
                 $tmpUser['first'] = $tmpFirstName;
+                if ($tmpSection) {
+                    $tmpUser['sec'] = $tmpSection;
+                }
                 $tmpUser['uid'] = uniqid();
             $tmpUser->addChild('pager');
                 $tmpUser->pager['num'] = $tmpPageNum;
@@ -221,13 +233,14 @@ function swapUser($user1, $user2)
             $edNameL = $edUser['last'];
             $edNameF = $edUser['first'];
             $edUserId = $edUser['uid'];
+            $edSection = $edUser['sec'];
             $edGroup = $edUser->xpath('..')[0]->getName();
             if (!($edGroup==$edGroupOld)) {
                 echo "\r\n".'        <li data-role="list-divider">'.$edGroup.'</li>'."\r\n";
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.$edNameL.', '.$edNameF.'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ($edNameL.', '.$edNameF)).'</i></a>';
             echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>';
             echo '</li>'."\r\n";
             // perhaps use Session variable?
@@ -246,15 +259,15 @@ function swapUser($user1, $user2)
 </div><!-- /page -->
 
 <div data-role="page" id="import">
-<div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >Import CSV</h4>
-</div>
-<div data-role="content">
-    <form method="post" id="import" action="#">
-        <button type="submit" class="ui-btn ui-btn-a" name="import" value="y">Yes, import list.csv file.</button>
-    </form>
-    <a href="back.php" class="ui-btn ui-btn-b " data-ajax="false">NO, GET ME OUT OF HERE!</a>
-</div>
+    <div data-role="header">
+        <h4 style="white-space: normal; text-align: center" >Import CSV</h4>
+    </div>
+    <div data-role="content">
+        <form method="post" id="importform" action="#">
+            <button type="submit" class="ui-btn ui-btn-a" name="import" value="y">Yes, import list.csv file.</button>
+        </form>
+        <a href="back.php" class="ui-btn ui-btn-b " data-ajax="false">NO, GET ME OUT OF HERE!</a>
+    </div>
 </div>
 
 </body>
