@@ -94,21 +94,22 @@ fputcsv(
 fclose($out);
 
 // Update the MRU cookie
-$cstr = $uid;
-$cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
-$i = 0;
-foreach($cookie as $cvals){
-    if ($cvals==$uid){
-        continue;
+if ($pin) {
+    $cstr = $uid;
+    $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+    $i = 0;
+    foreach($cookie as $cvals){
+        if ($cvals==$uid){
+            continue;
+        }
+        $i++;
+        if ($i==5){
+            break;
+        }
+        $cstr .= ','.$cvals;
     }
-    $i++;
-    if ($i==5){
-        break;
-    }
-    $cstr .= ','.$cvals;
+    setcookie("pagemru",$cstr,time()+(86400*30),"/");
 }
-setcookie("pagemru",$cstr,time()+(86400*30),"/");
-
 // Error handling if no FROM specified
 if ($fromName == "") {
 ?>
