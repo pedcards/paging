@@ -26,25 +26,6 @@
 </head>
 <body>
 <?php
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2);
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
-}
-
 $group = filter_input(INPUT_GET,'group');
 $groupfull = array(
     'CARDS' => 'Cardiologists',
