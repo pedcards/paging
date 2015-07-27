@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
-<!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
+<!--==========================================-->
     <?php
     $isLoc = true;
     $cdnJqm = '1.4.5';
@@ -18,10 +18,6 @@
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
-<!-- Block for local copies of jquery/mobile.
-    <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
-    <script src="./jqm/jquery-1.9.1.min.js"></script>
-    <script src="./jqm/jquery.mobile-1.3.2.min.js"></script>
 <!--==========================================-->
     <script type="text/javascript">
     // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
@@ -107,7 +103,6 @@ $group = $xml->groups->$grp;
         <label for="NUMBER" >To:</label>
         <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
-//            echo '<option>::: '.$groupfull[$grp].' :::</option>'."\r\n";
             foreach($group->user as $liUser) {
                 $liUid = $liUser['uid'];
                 $liNameL = $liUser['last'];
@@ -115,6 +110,7 @@ $group = $xml->groups->$grp;
                 if ($liUser['sec']){
                     $liSec = $liUser['sec'];
                     $pagerline = '';
+                    $liName = '::: '.$liSec.' :::';
                 } else {
                     $liSec = '';
                     $pagerline = 
@@ -125,8 +121,9 @@ $group = $xml->groups->$grp;
                         $liUser->boxcar['num'].','.
                         $liUser->opt.','.
                         $liUid;
+                    $liName = $liNameF.' '.$liNameL;
                 }
-                echo '<option value="'.str_rot($pagerline).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.(($liSec)?('::: '.$liSec.' :::'):($liNameF.' '.$liNameL)).'</option>'."\r\n";
+                echo '<option value="'.str_rot($pagerline).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
             }
             ?>
         </select>

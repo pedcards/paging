@@ -5,7 +5,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
-<!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
+<!--==========================================-->
     <?php
     $isLoc = true;
     $cdnJqm = '1.4.5';
