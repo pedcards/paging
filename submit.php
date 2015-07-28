@@ -107,10 +107,14 @@ if ($pin) {
             break;
         }
         $cstr .= ','.$cvals;
+        //TODO: convert this to an implode() function?
     }
     setcookie("pagemru",$cstr,time()+(86400*30),"/");
 }
 // Error handling if no FROM specified
+
+// TODO: create function call for dialog boxes.
+
 if ($fromName == "") {
 ?>
     <div data-role="page" data-dialog="true" id="dialog-fail" data-overlay-theme="b">

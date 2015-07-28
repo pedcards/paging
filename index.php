@@ -66,14 +66,10 @@ $groups = $xml->groups;
                 $liNameF = $liUser['first'];
                 $liUserId = $liUser['uid'];
                 $liGroup = $liUser->xpath('..')[0]->getName();
-//                if (!($liGroup==$liGroupOld)) {                     // This if{} only for inserting changed headings. Might purge.
-//                    $liGroupOld = $liGroup;
-//                }
                 echo '            <li class="ui-mini">';
                 echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
                 echo '</li>'."\r\n";
             }
-            // TODO: filter list section headers
             ?>
         </ul>
         </div>

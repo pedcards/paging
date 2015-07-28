@@ -40,7 +40,8 @@
 <?php
 function str_rot($s, $n = -1) {
     //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
+    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
     $letterLen=round(strlen($letters)/2);
     if($n==-1) {
         $n=(int)($letterLen/2); 
