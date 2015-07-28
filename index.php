@@ -85,10 +85,14 @@ $groups = $xml->groups;
                 if ($cvals==''){
                     continue;
                 }
-                $liUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
-                $liUserId = $liUser['uid'];
-                $liGroup = $liUser->xpath("..")[0]->getName();
-                echo '<li><a href="proc.php?group='.$liGroup.'&id='.$cvals.'" data-ajax="false">'.$liUser['first'].' '.$liUser['last'].'</a></li>'."\r\n";
+                $ckUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
+                if (!$ckUser) {
+                    setcookie('pagemru',null,-1,'/');
+                    break;
+                }
+                $ckUserId = $ckUser['uid'];
+                $ckGroup = $ckUser->xpath("..")[0]->getName();
+                echo '<li><a href="proc.php?group='.$ckGroup.'&id='.$cvals.'" data-ajax="false">'.$ckUser['first'].' '.$ckUser['last'].'</a></li>'."\r\n";
             }
             ?>
         </ul>
