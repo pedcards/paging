@@ -52,7 +52,8 @@ function str_rot($s, $n = -1) {
     }
 
 // **** SNPP server Info ****
-$ip = '63.172.11.60';
+//$ip = '63.172.11.60';
+$ip = 'snpp.amsmsg.net';
 $port = '444';
 
 $success = 0;  // preset success to boolean false

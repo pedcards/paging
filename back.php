@@ -41,7 +41,9 @@ $groupfull = array(
     'ADMIN' => 'Admin Office',
     'DATA' => 'Research, Data'
     );
+    // TODO: Move groupfull to config file to keep array constant between pages
 
+//Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
 $import = \filter_input(INPUT_POST, 'import');
@@ -65,8 +67,11 @@ if ($add) {
     $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
     $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
-    if ($add=="user") {
-        !($groups->xpath("//user[@last='".$nameL."' and @first='".$nameF."']")) ?: errmsg('User already exists!');
+    if ($uid) {
+        $userGroupOld = $groups->xpath("//user[@uid='".$uid."']")[0]->xpath("..")[0]->getName();
+    }
+    if ($add=="user") {        // "user" for no previous UID, else "edit" for existing UID
+        !($groups->$userGroup->xpath("user[@last='".$nameL."' and @first='".$nameF."']")) ?: errmsg('User already exists in this group!');
     }
         $err = ($nameF=="" or $nameL=="") ? "Full name required<br>" : '';
         $err .= ($numPager=="") ? "Pager number required<br>" : '';
@@ -75,8 +80,10 @@ if ($add) {
     if ($err) {
         errmsg($err);
     } else {                                                // No errors, write
+        if ($userGroup !== $userGroupOld) {
+           unset($groups->$userGroupOld->xpath("user[@uid='".$uid."']")[0][0]);
+         }
         $groupThis = ($groups->$userGroup) ?: $groups->addChild($userGroup);
-        //TODO: need handling for change of existing user group
         $user = ($groupThis->xpath("user[@last='".$nameL."' and @first='".$nameF."']")[0]) ?: $groupThis->addChild('user');
             $user['last'] = $nameL;
             $user['first'] = $nameF;
@@ -150,42 +157,36 @@ if ($import) {
             $tmpCellSys = $arrLine[$row][5];
             $tmpCellNum = $arrLine[$row][6];
             $tmpSysOpt = $arrLine[$row][7];
-            $tmpSysType = $arrLine[$row][8];
+            $tmpNotifSys = $arrLine[$row][8];
             $tmpCis = $arrLine[$row][9];
             $tmpEml = $arrLine[$row][10];
-            // TODO: CIS and email address fields
             if (substr($tmpLastName, 0, 3)==":::") {
-                // TODO: Better section header handling
                 $tmpSection = substr($tmpLastName, 4);
-                $tmpLastName = ":::";
-                $tmpFirstName = ":::";
+                $tmpLastName = "";
+                $tmpFirstName = "";
             } else { 
                 $tmpSection = "";
             }
-
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
-            // TODO: Fix element creation. Don't need addChild if using attributes
             $tmpUser = $tmpUserGrp->addChild('user');
-                $tmpUser['last'] = $tmpLastName;
-                $tmpUser['first'] = $tmpFirstName;
-                if ($tmpSection) {
-                    $tmpUser['sec'] = $tmpSection;
-                }
+                (!$tmpLastName) ?: $tmpUser['last'] = $tmpLastName;
+                (!$tmpFirstName) ?: $tmpUser['first'] = $tmpFirstName;
+                (!$tmpSection) ?: $tmpUser['sec'] = $tmpSection;
                 $tmpUser['uid'] = uniqid();
-            $tmpUser->addChild('pager');
+                // TODO: search for same user name in group. If exists, keep same UID.
+            if ($tmpPageNum) {
                 $tmpUser->pager['num'] = $tmpPageNum;
                 $tmpUser->pager['sys'] = $tmpPageSys;
+            }
             if ($tmpCellNum) {
-                $tmpUser->addChild('sms');
                 $tmpUser->sms['num'] = $tmpCellNum;
                 $tmpUser->sms['sys'] = $tmpCellSys;
             }
             if ($tmpSysOpt) {
-                $tmpUser->addChild('option');
-                $tmpUser->option['mode'] = $tmpCellOpt;
+                $tmpUser->option['mode'] = $tmpSysOpt;
             }
             $row++;
-        } // Finish loop to get lines
+        }
     } 
     fclose($handle);
     $tmpListName = date('YmdHis').'.xml';
