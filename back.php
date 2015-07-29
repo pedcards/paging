@@ -45,8 +45,9 @@ $groupfull = array(
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
 $import = \filter_input(INPUT_POST, 'import');
+$uid = \filter_input(\INPUT_POST, 'uid');
 
-if (($save!=='y') and ($uid = \filter_input(\INPUT_POST, 'uid'))) {
+if (($save!=='y') && ($uid)) {
     // $save exists but not 'y', must have clicked Delete.
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
     unset($user[0]);
@@ -78,19 +79,34 @@ if ($add) {
         $user = ($groupThis->xpath("user[@last='".$nameL."' and @first='".$nameF."']")[0]) ?: $groupThis->addChild('user');
             $user['last'] = $nameL;
             $user['first'] = $nameF;
-            $user['uid'] = uniqid();
-        ($user->pager) ?: $user->addChild('pager');
+            $user['uid'] = ($uid) ?: uniqid();
+        if ($numPager) {
             $user->pager['num'] = $numPager;
             $user->pager['sys'] = $numPagerSys;
-        ($user->sms) ?: $user->addChild('sms');
+        } else {
+            unset($user->pager);
+        }
+        if ($numSms) {
             $user->sms['num'] = $numSms;
             $user->sms['sys'] = $numSmsSys;
-        ($user->pushbul) ?: $user->addChild('pushbul');
+        } else {
+            unset($user->sms);
+        }
+        if ($numPushBul) {
             $user->pushbul['eml'] = $numPushBul;
-        ($user->pushover) ?: $user->addChild('pushover');
+        } else {
+            unset($user->pushbul);
+        }
+        if ($numPushOver) {
             $user->pushover['num'] = $numPushOver;
-        ($user->boxcar) ?: $user->addChild('boxcar');
+        } else {
+            unset($user->pushover);
+        }
+        if ($numBoxcar) {
             $user->boxcar['num'] = $numBoxcar;
+        } else {
+            unset($user->boxcar);
+        }
         foreach ($groupThis->user as $userSort) {
             if (strcasecmp($userSort['last'].', '.$userSort['first'], $nameL.', '.$nameF) > 0) {
                 swapUser($userSort['uid'], $user['uid']);

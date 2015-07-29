@@ -50,21 +50,20 @@ $groupfull = array(
     );
 
 $edUserId = \filter_input(\INPUT_GET,'id');
-if ($edUserId) {
-    $user = $groups->xpath("//user[@uid='".$edUserId."']")[0];
-    $nameL = $user['last'];
-    $nameF = $user['first'];
-    $sec = $user['sec'];
-    $numPager = $user->pager['num'];
-    $numPagerSys = $user->pager['sys'];
-    $numSms = $user->sms['num'];
-    $numSmsSys = $user->sms['sys'];
-    $numPushBul = $user->pushbul['eml'];
-    $numPushOver = $user->pushover['num'];
-    $numBoxcar = $user->boxcar['num'];
-    $userGroup = $user->xpath('..')[0];
-    $userGroupName = $userGroup->getName();
-}
+    $user = ($edUserId) ? $groups->xpath("//user[@uid='".$edUserId."']")[0] : '';
+    $nameL = ($edUserId) ? $user['last'] : '';
+    $nameF = ($edUserId) ? $user['first'] : '';
+    $sec = ($edUserId) ? $user['sec'] : '';
+    $numPager = ($edUserId) ? $user->pager['num'] : '';
+    $numPagerSys = ($edUserId) ? $user->pager['sys'] : '';
+    $numSms = ($edUserId) ? $user->sms['num'] : '';
+    $numSmsSys = ($edUserId) ? $user->sms['sys'] : '';
+    $numPushBul = ($edUserId) ? $user->pushbul['eml'] : '';
+    $numPushOver = ($edUserId) ? $user->pushover['num'] : '';
+    $numBoxcar = ($edUserId) ? $user->boxcar['num'] : '';
+    $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
+    $userGroupName = ($edUserId) ? $userGroup->getName() : '';
+
 if (\filter_input(\INPUT_GET, 'move') == 'Y') {
     $moveway = \filter_input(\INPUT_POST,'action');
     if ($moveway=='up') {
