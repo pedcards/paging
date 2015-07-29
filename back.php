@@ -76,6 +76,7 @@ if ($add) {
         errmsg($err);
     } else {                                                // No errors, write
         $groupThis = ($groups->$userGroup) ?: $groups->addChild($userGroup);
+        //TODO: need handling for change of existing user group
         $user = ($groupThis->xpath("user[@last='".$nameL."' and @first='".$nameF."']")[0]) ?: $groupThis->addChild('user');
             $user['last'] = $nameL;
             $user['first'] = $nameF;
@@ -148,9 +149,13 @@ if ($import) {
             $tmpPageNum = $arrLine[$row][4];
             $tmpCellSys = $arrLine[$row][5];
             $tmpCellNum = $arrLine[$row][6];
-            $tmpCellOpt = $arrLine[$row][7];
-            $tmpKey = $arrLine[$row][8];
+            $tmpSysOpt = $arrLine[$row][7];
+            $tmpSysType = $arrLine[$row][8];
+            $tmpCis = $arrLine[$row][9];
+            $tmpEml = $arrLine[$row][10];
+            // TODO: CIS and email address fields
             if (substr($tmpLastName, 0, 3)==":::") {
+                // TODO: Better section header handling
                 $tmpSection = substr($tmpLastName, 4);
                 $tmpLastName = ":::";
                 $tmpFirstName = ":::";
@@ -159,6 +164,7 @@ if ($import) {
             }
 
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
+            // TODO: Fix element creation. Don't need addChild if using attributes
             $tmpUser = $tmpUserGrp->addChild('user');
                 $tmpUser['last'] = $tmpLastName;
                 $tmpUser['first'] = $tmpFirstName;
@@ -174,7 +180,7 @@ if ($import) {
                 $tmpUser->sms['num'] = $tmpCellNum;
                 $tmpUser->sms['sys'] = $tmpCellSys;
             }
-            if ($tmpCellOpt) {
+            if ($tmpSysOpt) {
                 $tmpUser->addChild('option');
                 $tmpUser->option['mode'] = $tmpCellOpt;
             }

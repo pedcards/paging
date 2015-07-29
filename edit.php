@@ -174,6 +174,11 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
         <input type="hidden" name="uid" value="<?php echo $edUserId;?>">
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" name="save" value="y">Save</button>
     </form>
+    <?php
+    // TODO: Radiobuttons for selected notifications
+    //          A = pager only, B (both) = pager + notifs, C = notif only
+    // TODO: Radiobuttons for notif services, in accordion listview.
+    ?>
 </div>
 
 <div data-role="popup" id="delConf">
