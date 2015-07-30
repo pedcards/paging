@@ -172,8 +172,7 @@ if ($import) {
                 (!$tmpLastName) ?: $tmpUser['last'] = $tmpLastName;
                 (!$tmpFirstName) ?: $tmpUser['first'] = $tmpFirstName;
                 (!$tmpSection) ?: $tmpUser['sec'] = $tmpSection;
-                $tmpUser['uid'] = uniqid();
-                // TODO: search for same user name in group. If exists, keep same UID.
+                $tmpUser['uid'] = ($groups->$tmpGroup->xpath("user[@last='".$tmpLastName."' and @first='".$tmpFirstName."']")[0]['uid']) ?: uniqid();
             if ($tmpPageNum) {
                 $tmpUser->pager['num'] = $tmpPageNum;
                 $tmpUser->pager['sys'] = $tmpPageSys;
