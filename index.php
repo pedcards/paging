@@ -21,6 +21,12 @@
     <!--==========================================-->
 
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
+    <script type="text/javascript">
+        function clearMru() {
+            document.cookie = "pagemru=; expires=-1; path=/";
+            location.reload();
+        }
+    </script>
 
     <title>Paging v3</title>
 </head>
@@ -34,7 +40,11 @@ $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+if (\filter_input(INPUT_POST,'clearck')=="y"){
+    setcookie('pagemru',null,-1,'/');
+}
 ?>
+
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
@@ -65,6 +75,9 @@ foreach ($groups->children() as $grp0) {
             ?>
         </ul>
         </div>
+        <form method="post" id="clearcookie" action="index.php" data-ajax="false">
+            <input type="hidden" name="clearck" value="y">
+        </form>
         <ul data-role="listview">
             <?php
             // show cookies
@@ -78,9 +91,13 @@ foreach ($groups->children() as $grp0) {
                     setcookie('pagemru',null,-1,'/');
                     break;
                 }
+                $ckCt ++;
                 $ckUserId = $ckUser['uid'];
                 $ckGroup = $ckUser->xpath("..")[0]->getName();
                 echo '<li><a href="proc.php?group='.$ckGroup.'&id='.$cvals.'" data-ajax="false">'.$ckUser['first'].' '.$ckUser['last'].'</a></li>'."\r\n";
+            }
+            if ($ckCt) {
+                echo '<li data-icon="delete"><a href="" onclick="clearMru();">Clear!</a></li>'."\r\n";
             }
             ?>
         </ul>
