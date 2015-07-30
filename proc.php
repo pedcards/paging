@@ -107,18 +107,23 @@ $group = $xml->groups->$grp;
                     $liName = '::: '.$liSec.' :::';
                 } else {
                     $liSec = '';
-                    $pagerline = 
-                        $liUser->pager['sys'].','.$liUser->pager['num'].','.
-                        $liUser->sms['sys'].','.$liUser->sms['num'].','.
-                        $liUser->pushbul['eml'].','.
-                        $liUser->pushover['num'].','.
-                        $liUser->boxcar['num'].','.
-                        $liUser->opt.','.
-                        $liUid;
+                    $pagerline = array(
+                        $liUser->pager['sys'],
+                        $liUser->pager['num'],
+                        $liUser->sms['sys'],
+                        $liUser->sms['num'],
+                        $liUser->pushbul['eml'],
+                        $liUser->pushover['num'],
+                        $liUser->boxcar['num'],
+                        $liUser->option['mode'],
+                        $liUser->option['svc'],
+                        $liUid
+                    );
                     $liName = $liNameF.' '.$liNameL;
                 }
-                echo '<option value="'.str_rot($pagerline).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
+                echo '<option value="'.str_rot(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
             }
+            // TODO: only send opt nums if selected. no need to send for everyone.
             ?>
         </select>
         <label for="MYNAME">From:</label>

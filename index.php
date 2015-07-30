@@ -97,7 +97,7 @@ if (\filter_input(INPUT_POST,'clearck')=="y"){
                 echo '<li><a href="proc.php?group='.$ckGroup.'&id='.$cvals.'" data-ajax="false">'.$ckUser['first'].' '.$ckUser['last'].'</a></li>'."\r\n";
             }
             if ($ckCt) {
-                echo '<li data-icon="delete"><a href="" onclick="clearMru();">Clear!</a></li>'."\r\n";
+                echo '<li data-icon="delete"><a href="" onclick="clearMru();">Clear list</a></li>'."\r\n";
             }
             ?>
         </ul>

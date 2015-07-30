@@ -69,7 +69,8 @@ $pinarray = explode(",", trim(str_rot(filter_input(INPUT_POST,'NUMBER'))));  // 
     $pushover = $pinarray[5]; // pushover ID
     $boxcar = $pinarray[6]; // boxcar ID
     $sendto = $pinarray[7]; // A:$pin, B:both, C:cell
-    $uid = $pinarray[8]; // recipient UID
+    $sendSvc = $pinarray[8]; // extra service: sms,pbl,pov,bxc
+    $uid = $pinarray[9]; // recipient UID
     if ($cellsys === "ATT") {
         $cellnum .= "@txt.att.net";
         }
