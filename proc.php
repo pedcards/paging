@@ -78,20 +78,6 @@ $group = $xml->groups->$grp;
     </div><!-- /header -->
 
 <form action="submit.php" method="POST" name="HTMLForm1" data-prefetch>
-    <input type="hidden" name="SERVER_IP" value="63.172.11.60">
-    <input type="hidden" name="SERVER_PORT" value="444">
-    <input type="hidden" name="WEBPAGE" value="yes">
-    <input type="hidden" name="ALPHA" value="a">
-    <input type="hidden" name="ACCEPT_PAGE" value="/paging/page_accepted.htm">
-    <input type="hidden" name="NUMBER" value="">
-    <input type="hidden" name="NUMBER2" value="">
-    <input type="hidden" name="NUMBER3" value="">
-    <input type="hidden" name="NUMBER4" value="">
-    <input type="hidden" name="NUMBER5" value="">
-    <input type="hidden" name="MYNAME" value="">
-    <input type="hidden" name="SUBJECT" value=  "">
-    <input type="hidden" name="MESSAGE" value="">
-
 <div data-role="content">
     <div data-role="fieldcontain" >
         <label for="NUMBER" >To:</label>

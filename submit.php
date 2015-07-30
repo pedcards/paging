@@ -90,7 +90,7 @@ fputcsv(
         $pin,
         $uid,
         $fromName,
-        $messagePost        // could use str_rot13($messagePost) for some privacy
+        $messagePost        // TODO: could use str_rot13($messagePost) for some privacy
     )
 ); 
 fclose($out);
@@ -109,7 +109,6 @@ if ($pin) {
             break;
         }
         $cstr .= ','.$cvals;
-        //TODO: convert this to an implode() function?
     }
     setcookie("pagemru",$cstr,time()+(86400*30),"/");
 }
