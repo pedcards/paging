@@ -60,20 +60,13 @@ function str_rot($s, $n = -1) {
 
 $grp = filter_input(INPUT_GET,'group');
 $uid = filter_input(INPUT_GET,'id');
-$groupfull = array(
-    'CARDS' => 'Cardiologists',
-    'FELLOWS' => 'Fellows',
-    'SURG' => 'CV Surgery',
-    'CICU' => 'Cardiac ICU',
-    'MLP' => 'Mid Level Providers',
-    'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work, Nutrition',
-    'ECHO' => 'Echo Lab',
-    'ADMIN' => 'Admin Office',
-    'DATA' => 'Research, Data'
-    );
 $modDate = date ("m/d/Y", filemtime("list.xml"));
 $xml = simplexml_load_file("list.xml");
+$groups = $xml->groups;
+$groupfull = array();
+foreach ($groups->children() as $grp0) {
+    $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
 $group = $xml->groups->$grp;
 ?>
 

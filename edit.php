@@ -36,18 +36,9 @@ function swapUser($user1, $user2)
 <?php
 $xml = simplexml_load_file("list.xml");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
-$groupfull = array(
-    'CARDS' => 'Cardiologists',
-    'FELLOWS' => 'Fellows',
-    'SURG' => 'CV Surgery',
-    'CICU' => 'Cardiac ICU',
-    'MLP' => 'Mid Level Providers',
-    'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work, Nutrition',
-    'ECHO' => 'Echo Lab',
-    'ADMIN' => 'Admin Office',
-    'DATA' => 'Research, Data'
-    );
+foreach ($groups->children() as $grp0) {
+    $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
 
 $edUserId = \filter_input(\INPUT_GET,'id');
     $user = ($edUserId) ? $groups->xpath("//user[@uid='".$edUserId."']")[0] : '';

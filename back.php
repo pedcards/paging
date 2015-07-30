@@ -29,20 +29,9 @@
 <?php
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
-$groupfull = array(
-    'CARDS' => 'Cardiologists',
-    'FELLOWS' => 'Fellows',
-    'SURG' => 'CV Surgery',
-    'CICU' => 'Cardiac ICU',
-    'MLP' => 'Mid Level Providers',
-    'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work, Nutrition',
-    'ECHO' => 'Echo Lab',
-    'ADMIN' => 'Admin Office',
-    'DATA' => 'Research, Data'
-    );
-    // TODO: Move groupfull to config file to keep array constant between pages
-
+foreach ($groups->children() as $grp0) {
+    $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
 //Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
@@ -160,14 +149,15 @@ if ($import) {
             $tmpNotifSys = $arrLine[$row][8];
             $tmpCis = $arrLine[$row][9];
             $tmpEml = $arrLine[$row][10];
+            $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             if (substr($tmpLastName, 0, 3)==":::") {
                 $tmpSection = substr($tmpLastName, 4);
+                (!$tmpFirstName) ?: $tmpUserGrp['full'] = $tmpFirstName;
                 $tmpLastName = "";
                 $tmpFirstName = "";
             } else { 
                 $tmpSection = "";
             }
-            $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             $tmpUser = $tmpUserGrp->addChild('user');
                 (!$tmpLastName) ?: $tmpUser['last'] = $tmpLastName;
                 (!$tmpFirstName) ?: $tmpUser['first'] = $tmpFirstName;
