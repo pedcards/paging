@@ -145,9 +145,11 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
             <div class="ui-block-b" style="padding-top:2px;">
                 <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
                     <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT" <?php echo ($numSmsSys=="ATT") ? 'checked="checked"' : '';?>>
-                    <label for="addSmsSys-a">AT&amp;T</label>
-                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="Sprint" <?php echo ($numSmsSys=="Sprint") ? 'checked="checked"' : '';?>>
-                    <label for="addSmsSys-b">Sprint</label>
+                    <label for="addSmsSys-a" width="500">AT&amp;T</label>
+                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="VZN" <?php echo ($numSmsSys=="VZN") ? 'checked="checked"' : '';?>>
+                    <label for="addSmsSys-b">Vzn</label>
+                    <input name="numSmsSys" id="addSmsSys-c" type="radio" value="TMO" <?php echo ($numSmsSys=="TMO") ? 'checked="checked"' : '';?>>
+                    <label for="addSmsSys-c">T-Mbl</label>
                 </fieldset>
             </div>
         </div>

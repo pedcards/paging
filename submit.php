@@ -61,21 +61,11 @@ $success = 0;  // preset success to boolean false
 // Get values from form page
 $fromName = ucwords(trim(filter_input(INPUT_POST,'MYNAME')));
 $pinarray = explode(",", trim(str_rot(filter_input(INPUT_POST,'NUMBER'))));  // Pin Number from form page
-    $pagesys = $pinarray[0]; // Cook vs USA Mobility
-    $pin = $pinarray[1]; // pager number
-    $cellsys = $pinarray[2]; // cell system
-    $cellnum = $pinarray[3]; // cell number
-    $pushbul = $pinarray[4]; // pushbullet eml
-    $pushover = $pinarray[5]; // pushover ID
-    $boxcar = $pinarray[6]; // boxcar ID
-    $sendto = $pinarray[7]; // A:$pin, B:both, C:cell
-    $sendSvc = $pinarray[8]; // extra service: sms,pbl,pov,bxc
-    $uid = $pinarray[9]; // recipient UID
-    if ($cellsys === "ATT") {
-        $cellnum .= "@txt.att.net";
-        }
-    elseif ($cellsys === "VZN") {
-        }
+    $uid = $pinarray[0]; // recipient UID
+    $pagesys = $pinarray[1]; // Cook vs USA Mobility
+    $pin = $pinarray[2]; // pager number
+    $sendto = $pinarray[3]; // A:$pin, B:both, C:service
+    $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
 $messagePost = trim(filter_input(INPUT_POST,'MESSAGE'));  // Get message from form page
 $messageMerged = "[From: ".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 $message = str_replace("\r\n" , "\n" , $messageMerged);  // Filter LF,CR and replace with newline.
@@ -121,7 +111,6 @@ if ($fromName == "") {
     <div data-role="page" data-dialog="true" id="dialog-fail" data-overlay-theme="b">
         <div data-role="header" data-theme="b" >
             <h1 style="color:red">FAIL</h1>
-            <!--<a href="#" data-rel="back" data-ajax="false" class="ui-btn ui-shadow ui-icon-delete ui-btn-icon-notext ui-corner-all" >Search panel</a>-->
         </div>
         <DIV data-role="content" data-theme="a" >
             <p style="text-align:center">

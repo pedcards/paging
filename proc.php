@@ -93,17 +93,32 @@ $group = $xml->groups->$grp;
                     $liName = '::: '.$liSec.' :::';
                 } else {
                     $liSec = '';
+                    $liOpt = $liUser->option['mode'];
+                    $liOptStr = substr(uniqid("",true),-(rand(10,20)));
+                    if (($liOpt == "B") || ($liOpt == "C")) {
+                        $liOptSvc = "sms"; // $liUser->option['svc']
+                        if ($liOptSvc == "sms") {
+                            $liOptStr = $liUser->sms['num'].
+                                (($liUser->sms['sys']=="ATT") ? "@txt.att.net":'').
+                                (($liUser->sms['sys']=="VZN") ? "@vtext.com":'').
+                                (($liUser->sms['sys']=="TMO") ? "@tmomail.net":'');
+                        }
+                        if ($liOptSvc == "pbl") {
+                            $liOptStr = $liUser->pushbul['eml'];
+                        }
+                        if ($liOptSvc == "pov") {
+                            $liOptStr = $liUser->pushover['num'];
+                        }
+                        if ($liOptSvc == "bxc") {
+                            $liOptStr = $liUser->boxcar['num'];
+                        }
+                    }
                     $pagerline = array(
+                        $liUid,
                         $liUser->pager['sys'],
                         $liUser->pager['num'],
-                        $liUser->sms['sys'],
-                        $liUser->sms['num'],
-                        $liUser->pushbul['eml'],
-                        $liUser->pushover['num'],
-                        $liUser->boxcar['num'],
-                        $liUser->option['mode'],
-                        $liUser->option['svc'],
-                        $liUid
+                        $liOpt,
+                        $liOptStr
                     );
                     $liName = $liNameF.' '.$liNameL;
                 }
