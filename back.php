@@ -56,6 +56,8 @@ if ($add) {
     $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
     $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
+    $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
+    $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
     if ($uid) {
         $userGroupOld = $groups->xpath("//user[@uid='".$uid."']")[0]->xpath("..")[0]->getName();
     }
@@ -103,6 +105,16 @@ if ($add) {
             $user->boxcar['num'] = $numBoxcar;
         } else {
             unset($user->boxcar);
+        }
+        if ($numSysOpt) {
+            $user->option['mode'] = $numSysOpt;
+        } else {
+            $user->option['mode'] = 'A';
+        }
+        if ($numNotifSys) {
+            $user->option['sys'] = $numNotifSys;
+        } else {
+            unset($user->option['sys']);
         }
         foreach ($groupThis->user as $userSort) {
             if (strcasecmp($userSort['last'].', '.$userSort['first'], $nameL.', '.$nameF) > 0) {

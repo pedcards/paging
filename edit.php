@@ -52,6 +52,8 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $numPushBul = ($edUserId) ? $user->pushbul['eml'] : '';
     $numPushOver = ($edUserId) ? $user->pushover['num'] : '';
     $numBoxcar = ($edUserId) ? $user->boxcar['num'] : '';
+    $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
+    $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
     $userGroupName = ($edUserId) ? $userGroup->getName() : '';
 
@@ -117,61 +119,92 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
 
 <div data-role="content">
     <form method="post" id="edForm" action="back.php" data-ajax="false">
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+        <div class="ui-corner-all custom-corners">
+            <div class="ui-bar ui-bar-a">
+                <h3>Paging info</h3>
             </div>
-            <div class="ui-block-b">
-                <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+            <div class="ui-bar ui-bar-a">
+                <div class="ui-grid-a">
+                    <div class="ui-block-a" style="padding-right:10px;">
+                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+                    </div>
+                    <div class="ui-block-b">
+                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+                    </div>
+                </div>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a" style="padding-right:10px;">
+                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+                    </div>
+                    <div class="ui-block-b" style="padding-top:2px;">
+                        <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
+                            <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK" <?php echo ($numPagerSys=="COOK") ? 'checked="checked"' : '';?>>
+                            <label for="addPagerSys-a">Cook</label>
+                            <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM" <?php echo ($numPagerSys=="USAM") ? 'checked="checked"' : '';?>>
+                            <label for="addPagerSys-b">USA-M</label>
+                        </fieldset>
+                    </div>
+                </div>
+                <select name="userGroup" id="addGroup" data-native-menu="false">
+                    <option>Choose group</option>
+                    <?php
+                    foreach($groupfull as $grp => $grpStr) {
+                        echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'">'.$grpStr.'</option>';
+                    }?>
+                </select>
             </div>
         </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <input name="numSysOpt" id="addSysOpt-a" data-mini="true" type="radio" value="A" <?php echo (($numSysOpt=="A")||($numSysOpt=="")) ? 'checked="checked"' : '';?>>
+            <label for="addSysOpt-a">&nbsp;&nbsp;Pager&nbsp;&nbsp;</label>
+            <input name="numSysOpt" id="addSysOpt-b" data-mini="true" type="radio" value="B" <?php echo ($numSysOpt=="B") ? 'checked="checked"' : '';?>>
+            <label for="addSysOpt-b">Pager+Opt</label>
+            <input name="numSysOpt" id="addSysOpt-c" data-mini="true" type="radio" value="C" <?php echo ($numSysOpt=="C") ? 'checked="checked"' : '';?>>
+            <label for="addSysOpt-c">&nbsp;Opt only&nbsp;</label>
+        </fieldset>
+        <div class="ui-corner-all custom-corners">
+            <div class="ui-bar ui-bar-a">
+                <h3>Optional alert systems</h3>
             </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK" <?php echo ($numPagerSys=="COOK") ? 'checked="checked"' : '';?>>
-                    <label for="addPagerSys-a">Cook</label>
-                    <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM" <?php echo ($numPagerSys=="USAM") ? 'checked="checked"' : '';?>>
-                    <label for="addPagerSys-b">USA-M</label>
-                </fieldset>
+            <div class="ui-bar ui-bar-a" >
+                <select name="numNotifSys" id="addOptSys" data-mini="true" data-native-menu="false">
+                    <option>System</option>
+                    <option value="sms" <?php echo ($numNotifSys=="sms") ? 'selected="selected"':'';?>>Text message</option>
+                    <option value="pbl" <?php echo ($numNotifSys=="pbl") ? 'selected="selected"':'';?>>Pushbullet</option>
+                    <option value="pov" <?php echo ($numNotifSys=="pov") ? 'selected="selected"':'';?>>Pushover</option>
+                    <option value="bxc" <?php echo ($numNotifSys=="bxc") ? 'selected="selected"':'';?>>Boxcar</option>
+                </select>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a" style="padding-right:10px;">
+                        <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
+                    </div>
+                    <div class="ui-block-b" style="padding-top:2px;">
+                        <select name="numSmsSys" id="addSmsSys" data-mini="true" data-native-menu="false">
+                            <option>Choose carrier</option>
+                            <option value="ATT" <?php echo ($numSmsSys=="ATT") ? 'selected="selected"':'';?>>AT&amp;T</option>
+                            <option value="VZN" <?php echo ($numSmsSys=="VZN") ? 'selected="selected"':'';?>>Verizon</option>
+                            <option value="TMO" <?php echo ($numSmsSys=="TMO") ? 'selected="selected"':'';?>>T-Mobile</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addPushBul">Pushbullet</label>
+                    <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addPushOver">Pushover</label>
+                    <input name="numPushOver" id="addPushOver" value="<?php echo $numPushOver;?>" placeholder="Pushover user code" type="text">
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addBoxcar">Boxcar</label>
+                    <input name="numBoxcar" id="addBoxcar" value="<?php echo $numBoxcar;?>" placeholder="Boxcar user code" type="text">
+                </div>
             </div>
         </div>
-        <div class="ui-grid-a">
-            <div class="ui-block-a" style="padding-right:10px;">
-                <input name="numSms" id="addSmsNum" value="<?php echo $numSms;?>" placeholder="SMS (10-digits)" pattern="[0-9]{10}" type="text">
-            </div>
-            <div class="ui-block-b" style="padding-top:2px;">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                    <input name="numSmsSys" id="addSmsSys-a" type="radio" value="ATT" <?php echo ($numSmsSys=="ATT") ? 'checked="checked"' : '';?>>
-                    <label for="addSmsSys-a" width="500">AT&amp;T</label>
-                    <input name="numSmsSys" id="addSmsSys-b" type="radio" value="VZN" <?php echo ($numSmsSys=="VZN") ? 'checked="checked"' : '';?>>
-                    <label for="addSmsSys-b">Vzn</label>
-                    <input name="numSmsSys" id="addSmsSys-c" type="radio" value="TMO" <?php echo ($numSmsSys=="TMO") ? 'checked="checked"' : '';?>>
-                    <label for="addSmsSys-c">T-Mbl</label>
-                </fieldset>
-            </div>
-        </div>
-        <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
-        <input name="numPushOver" id="addPushOver" value="<?php echo $numPushOver;?>" placeholder="Pushover user code" type="text">
-        <input name="numBoxcar" id="addBoxcar" value="<?php echo $numBoxcar;?>" placeholder="Boxcar user code" type="text">
-        <select name="userGroup" id="addGroup" data-native-menu="false">
-            <option>Choose group</option>
-            <?php
-            foreach($groupfull as $grp => $grpStr) {
-                echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'">'.$grpStr.'</option>';
-            }?>
-        </select>
         <input type="hidden" name="add" value="<?php echo ($edUserId) ? 'edit' : 'user';?>">
         <input type="hidden" name="uid" value="<?php echo $edUserId;?>">
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" name="save" value="y">Save</button>
     </form>
-    <?php
-    // TODO: Radiobuttons for selected notifications
-    //          A = pager only, B (both) = pager + notifs, C = notif only
-    // TODO: Radiobuttons for notif services, in accordion listview.
-    ?>
 </div>
 
 <div data-role="popup" id="delConf">
