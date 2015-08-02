@@ -96,7 +96,7 @@ $group = $xml->groups->$grp;
                     $liOpt = $liUser->option['mode'];
                     $liOptStr = substr(uniqid("",true),-(rand(10,20)));
                     if (($liOpt == "B") || ($liOpt == "C")) {
-                        $liOptSvc = "sms"; // $liUser->option['svc']
+                        $liOptSvc = $liUser->option['sys'];
                         if ($liOptSvc == "sms") {
                             $liOptStr = $liUser->sms['num'].
                                 (($liUser->sms['sys']=="ATT") ? "@txt.att.net":'').
@@ -118,13 +118,13 @@ $group = $xml->groups->$grp;
                         $liUser->pager['sys'],
                         $liUser->pager['num'],
                         $liOpt,
+                        $liOptSvc,
                         $liOptStr
                     );
                     $liName = $liNameF.' '.$liNameL;
                 }
                 echo '<option value="'.str_rot(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
             }
-            // TODO: only send opt nums if selected. no need to send for everyone.
             ?>
         </select>
         <label for="MYNAME">From:</label>

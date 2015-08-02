@@ -168,7 +168,8 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
             </div>
             <div class="ui-bar ui-bar-a" >
                 <select name="numNotifSys" id="addOptSys" data-mini="true" data-native-menu="false">
-                    <option>System</option>
+                    <option >Choose notification...</option>
+                    <option value="nul">None</option>
                     <option value="sms" <?php echo ($numNotifSys=="sms") ? 'selected="selected"':'';?>>Text message</option>
                     <option value="pbl" <?php echo ($numNotifSys=="pbl") ? 'selected="selected"':'';?>>Pushbullet</option>
                     <option value="pov" <?php echo ($numNotifSys=="pov") ? 'selected="selected"':'';?>>Pushover</option>

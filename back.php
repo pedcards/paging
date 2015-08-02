@@ -68,6 +68,12 @@ if ($add) {
         $err .= ($numPager=="") ? "Pager number required<br>" : '';
         $err .= ($numPagerSys=="") ? "Paging system required<br>" : '';
         $err .= ($userGroup=="Choose group") ? "Group required<br>" : '';
+$err .= (($numSysOpt!=="A")&&(($numNotifSys==='')||($numNotifSys==='nul')||($numNotifSys==='Choose notification...'))) ? "No opt alert selected!<br>" : '';
+        $err .= (($numSms)&&($numSmsSys=='')) ? "Cell provider required<br>" : '';
+        $err .= (($numNotifSys=="sms")&&($numSms=='')) ? "Specify cell phone number<br>" : '';
+        $err .= (($numNotifSys=="pbl")&&($numPushBul=='')) ? "Specify Pushbullet email<br>" : '';
+        $err .= (($numNotifSys=="pov")&&($numPushOver=='')) ? "Specify Pushover user code<br>" : '';
+        $err .= (($numNotifSys=="bxc")&&($numBoxcar=='')) ? "Specify Boxcar user code<br>" : '';
     if ($err) {
         errmsg($err);
     } else {                                                // No errors, write
@@ -157,7 +163,7 @@ if ($import) {
             $tmpPageNum = $arrLine[$row][4];
             $tmpCellSys = $arrLine[$row][5];
             $tmpCellNum = $arrLine[$row][6];
-            $tmpSysOpt = $arrLine[$row][7];
+            $tmpSysOpt = ($arrLine[$row][7]) ?: 'A';
             $tmpNotifSys = $arrLine[$row][8];
             $tmpCis = $arrLine[$row][9];
             $tmpEml = $arrLine[$row][10];

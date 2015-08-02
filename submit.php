@@ -15,7 +15,8 @@
 <?php
 function str_rot($s, $n = -1) {
     //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
+//To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
     $letterLen=round(strlen($letters)/2);
     if($n==-1) {
         $n=(int)($letterLen/2); 
@@ -31,7 +32,24 @@ function str_rot($s, $n = -1) {
     $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
     return strtr($s, $letters, $rep);
 }
-
+function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
+    if ($msg1=='sent') {
+        $msg1 = 'Page sent!*<br>';
+        $msg2 = '<small>*hopefully you won\'t regret what you just sent!</small><br>';
+    }
+    echo '<div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="'.$bg.'">'."\r\n";
+    echo '    <div data-role="header" data-theme="'.$bar.'">'."\r\n";
+    echo '        <h1 style="color:'.$tcolor.'">'.$title.'</h1>'."\r\n";
+    echo '    <div>';
+    echo '    <div data-role="content" data-theme="'.$fg.'">'."\r\n";
+    echo '        <p style="text-align:center">'."\r\n";
+    echo '            '.$msg1."<br>\r\n";
+    echo '            <img src="images/'.$img.'" alt="'.$alt.'"><br>'."\r\n";
+    echo '            '.$msg2."<br>\r\n";
+    echo '        </p>'."\r\n";
+    echo '    </div>'."\r\n";
+    echo '</div>'."\r\n";
+}
 // **** Referrer info for logfile ****
     $logfile = 'logs/'.date('Ym').'.csv';
     $ipaddress = '';
@@ -66,6 +84,7 @@ $pinarray = explode(",", trim(str_rot(filter_input(INPUT_POST,'NUMBER'))));  // 
     $pin = $pinarray[2]; // pager number
     $sendto = $pinarray[3]; // A:$pin, B:both, C:service
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
+    $sendStr = $pinarray[5]; // user string
 $messagePost = trim(filter_input(INPUT_POST,'MESSAGE'));  // Get message from form page
 $messageMerged = "[From: ".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 $message = str_replace("\r\n" , "\n" , $messageMerged);  // Filter LF,CR and replace with newline.
@@ -107,151 +126,112 @@ if ($pin) {
 // TODO: create function call for dialog boxes.
 
 if ($fromName == "") {
-?>
-    <div data-role="page" data-dialog="true" id="dialog-fail" data-overlay-theme="b">
-        <div data-role="header" data-theme="b" >
-            <h1 style="color:red">FAIL</h1>
-        </div>
-        <DIV data-role="content" data-theme="a" >
-            <p style="text-align:center">
-                <img src="images/dead_ipod.jpg" alt="bummer"><br>
-                <?php
-                echo ($pin)?'The <b>FROM</b> field is <b>REQUIRED!</b>':'Must select a user!'
-                ?>
-            </p>
-        </DIV>
-    </div>
-<?php
-exit;
+    dialog('FAIL','red','', (($pin)?'The <b>FROM</b> field is <b>REQUIRED!</b>':'Must select a user!'), 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    exit;
+}
+
+// Send SMS email
+$smsMsg = 'Page';
+if (($sendto == "B") || ($sendto == "C")) {
+    if ($sendSvc == 'sms'){
+        $headers = "From: ".$fromName."@heart.center\r\n".
+            "X-Mailer: php";
+        mail($sendStr, "", $messagePost."\n==========\n<<<Do not reply to this message!>>>", $headers);
+        $diag = array(
+            'SMS','green',
+            'Text message sent to cell phone!',
+            '<small>*May take a while to be received.</small>',
+            'sms-128.png', 'sms',
+            '', '', 'b');
+        $smsMsg = "SMS and Page";
+    }
+    if ($sendSvc == 'pbl'){
+        $data = array(
+            "email" => $sendStr,
+            "type" => "note",
+            "title" => "[FROM: ".$fromName."] ".$messagePost,
+            "body" => $messagePost
+            );
+        $data_string = json_encode($data);
+        $ch = curl_init('https://api.pushbullet.com/v2/pushes');
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ouJTM6bJedxmqB4iY1pLNsIFp4b843qB',
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data_string))
+        );
+        $result = curl_exec($ch);
+        $diag = array(
+            'Pushbullet','green',
+            'Pushbullet message sent!','',
+            'sms-128.png','pushbullet',
+            '','','b');
+        $smsMsg = "Pushbullet and Page";
+    }
+    if ($sendSvc=='pov'){
+        curl_setopt_array($ch = curl_init(), array(
+            CURLOPT_URL => "https://api.pushover.net/1/messages.json",
+            CURLOPT_POSTFIELDS => array(
+                "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
+                "user" => $sendStr,
+                "title" => "FROM: ".$fromName,
+                "message" => $messagePost
+            ),
+            CURLOPT_SAFE_UPLOAD => true,
+        ));
+        curl_exec($ch);
+        curl_close($ch);
+        $diag = array(
+            'Pushover','green', 
+            'Pushover message sent!', '', 
+            'sms-128.png', 'pushover', 
+            '', '', 'b');
+        $smsMsg = "Pushover and Page";
+    }
+    if ($sendSvc=='bxc'){
+        curl_setopt_array($chpush = curl_init(), array(
+            CURLOPT_URL => "https://new.boxcar.io/api/notifications",
+            CURLOPT_POSTFIELDS => array(
+                "user_credentials" => $sendStr,
+                "notification[title]" => 'FROM: '.$fromName,
+                "notification[long_message]" => $messagePost,
+                "notification[sound]" => "bird-1",
+            ),
+            CURLOPT_SAFE_UPLOAD => true,
+        ));
+        $ret = curl_exec($chpush);
+        curl_close($chpush);
+        $diag = array(
+            'Boxcar','green', 
+            'Boxcar message sent!', '', 
+            'sms-128.png', 'boxcar', 
+            '', '', 'b');
+        $smsMsg = "Boxcar and Page";
+    }
+}
+
+// Option C, stop after sending SMS.
+if ($sendto === "C") {
+    dialog($diag[0],$diag[1],$diag[2],$diag[3],$diag[4],$diag[5],$diag[6],$diag[7],$diag[8]);
+    exit;
 }
 
 // Block for submitting to USA Mobility number
 // $valid = ereg('^[0-9]{10}$' , $pin);  // Test pin for 10 numeric digits. Anything else is considered invalid.
 // $usamobility = (strpos($pin, '469') !== 3);  // If prefix is not 469, this is USA Mobility number.
 if ($pagesys === "USAM") {
-?>
-    <div data-role="page" data-dialog="true" id="dialog-usamobility" data-overlay-theme="b">
-        <div data-role="header" >
-            <h1>USA Mobility</h1>
-        </div>
-        <DIV data-role="content" >
-            <p style="text-align:center">
-                Page sent!*<br>
-                <img src="images/pager.jpg" alt="pager"><br>
-                <small>*hopefully you won't regret what you just sent!</small>
-            </p>
-        </DIV>
-        <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
-            <input type="hidden" name="PIN" value="<?php echo $pin; ?>">
-            <input type="hidden" name="MSSG" value="<?php echo $message; ?>">
-            <input type="hidden" name="Q1" value="0">
-            <script type="text/javascript">document.Terminal.submit();</script>
-        </form>
-    </div>
-<?php exit;
-}
-
-// Send SMS email
-if (($sendto === "B") || ($sendto === "C")) {
-    $headers = "From: ".$fromName."@heart.center\r\n".
-        "X-Mailer: php";
-    mail($cellnum, "", $messagePost."\n==========\n<<<Do not reply to this message!>>>", $headers);
-}
-// Option C, stop after sending SMS.
-if ($sendto === "C") {
-?>
-    <div data-role="page" data-dialog="true" id="dialog-sms" data-overlay-theme="b">
-        <div data-role="header" >
-            <h1>SMS</h1>
-        </div>
-        <DIV data-role="content"  >
-            <p style="text-align:center">
-                Text message sent to cell phone!<br>
-                <img src="images/sms-128.png" alt="sms"><br>
-                <small>*May take a while to be received.</small>
-            </p>
-        </DIV>
-    </div>
-<?php exit;
-}
-
-    $smsMsg = "Page";
-    if ($sendto === "B") {
-        $smsMsg = "SMS and Page";
-        }
-
-// Send Pushbullet
-if ($sendto === "D") {
-    $data = array(
-        "email" => "tchun47@gmail.com",
-        "type" => "note",
-        "title" => "[FROM: ".$fromName."] ".$messagePost,
-        "body" => $messagePost
-        );
-    $data_string = json_encode($data);
-
-    $ch = curl_init('https://api.pushbullet.com/v2/pushes');
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Authorization: Bearer ouJTM6bJedxmqB4iY1pLNsIFp4b843qB',
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($data_string))
-    );
-
-    $result = curl_exec($ch);
-
-?>
-    <div data-role="page" data-dialog="true" id="dialog-pbul" data-overlay-theme="b">
-        <div data-role="header" >
-            <h1>SMS</h1>
-        </div>
-        <DIV data-role="content"  >
-            <p style="text-align:center">
-                Text message sent to cell phone!<br>
-                <img src="images/sms-128.png" alt="sms"><br>
-                <small>*May take a while to be received.<br>
-                <? echo $result;?>
-                </small>
-                
-            </p>
-        </DIV>
-    </div>
-<?php 
-}
-
-// Send PushOver
-if ($sendto === "E") {
-    curl_setopt_array($ch = curl_init(), array(
-        CURLOPT_URL => "https://api.pushover.net/1/messages.json",
-        CURLOPT_POSTFIELDS => array(
-            "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
-            "user" => "ussgHSjm3HpytUncU6Sg1jimxj7TiJ",
-            "title" => "FROM: ".$fromName,
-            "message" => $messagePost
-        ),
-        CURLOPT_SAFE_UPLOAD => true,
-    ));
-    curl_exec($ch);
-    curl_close($ch);
-?>
-    <div data-role="page" data-dialog="true" id="dialog-pushover" data-overlay-theme="b">
-        <div data-role="header" >
-            <h1>SMS</h1>
-        </div>
-        <DIV data-role="content"  >
-            <p style="text-align:center">
-                PushOver message sent!<br>
-                <img src="images/sms-128.png" alt="sms"><br>
-                <small>*May take a while to be received.<br>
-                <? echo $result;?>
-                </small>
-                
-            </p>
-        </DIV>
-    </div>
-<?php 
+    dialog('USA Mobility','green', 'sent', 'sent', 'pager.jpg', 'pager', '', '', 'b');
+    ?>
+    <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
+        <input type="hidden" name="PIN" value="<?php echo $pin; ?>">
+        <input type="hidden" name="MSSG" value="<?php echo $message; ?>">
+        <input type="hidden" name="Q1" value="0">
+        <script type="text/javascript">document.Terminal.submit();</script>
+    </form>
+    <?php
+    exit;
 }
 
 // Block for submitting to CookMail
@@ -276,46 +256,19 @@ fclose($snppPointer);  // Close the connection
 // Testing for a server response code 250 (good).
 // If doesn't meet this, then error back.
 
-echo $snppSend;
+//echo $snppSend;
 
 if (substr($snppSend,0,3) === "250") { 
     $success = 1;
-?>
-    <div data-role="page" data-dialog="true" id="page-success" data-overlay-theme="b">
-        <div data-role="header" >
-            <h1 style="color:green">SUCCESS!</h1>
-        </div>
-        <DIV data-role="content" >
-            <p style="text-align:center">
-                <?php echo $smsMsg; ?> sent!*<br>
-                <img src="images/pager.jpg" alt="pager"><br>
-                <small>*hopefully you won't regret what you just sent!</small>
-            </p>
-        </DIV>
-    </div>
-
-<?PHP
+    dialog('SUCCESS!', 'green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b');
     exit;
     }
 
   // Testing for a server response code 550 (bad). Pager number was not valid. Error back.
 else if (($snppPage[0] === "4") || ($snppPage[0] === "5")) {
     $success = false;
-?>
-    <div data-role="page" data-dialog="true" id="server-fail" data-overlay-theme="b">
-        <div data-role="header" data-theme="d" >
-            <h1 style="color:red">SERVER ERROR</h1>
-        </div>
-        <DIV data-role="content" >
-            <p style="text-align:center">
-                ERROR!!!
-                <img src="images/dead_ipod.jpg" alt="bummer"><br>
-                Message failed to send!<br>
-            </p>
-        </DIV>
-    </div>
-<?PHP
-    }
+    dialog('SERVER ERROR', 'red', 'ERROR!!!', 'Message failed to send!<br>'.$snppSend, 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+}
 ?>
 
 </body>
