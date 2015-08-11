@@ -33,10 +33,6 @@ function str_rot($s, $n = -1) {
     return strtr($s, $letters, $rep);
 }
 function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
-    if ($msg1=='sent') {
-        $msg1 = 'Page sent!*<br>';
-        $msg2 = '<small>*hopefully you won\'t regret what you just sent!</small><br>';
-    }
     echo '<div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="'.$bg.'">'."\r\n";
     echo '    <div data-role="header" data-theme="'.$bar.'">'."\r\n";
     echo '        <h1 style="color:'.$tcolor.'">'.$title.'</h1>'."\r\n";
@@ -146,11 +142,12 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "SMS and Page";
     }
     if ($sendSvc == 'pbl'){
+        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
         $data = array(
             "email" => $sendStr,
             "type" => "note",
-            "title" => "[FROM: ".$fromName."] ".$messagePost,
-            "body" => $messagePost
+            "title" => "FROM: ".$fromName,
+            "body" => $msgRepl
             );
         $data_string = json_encode($data);
         $ch = curl_init('https://api.pushbullet.com/v2/pushes');
@@ -171,13 +168,15 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushbullet and Page";
     }
     if ($sendSvc=='pov'){
+        $frmRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $fromName);
+        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
         curl_setopt_array($ch = curl_init(), array(
             CURLOPT_URL => "https://api.pushover.net/1/messages.json",
             CURLOPT_POSTFIELDS => array(
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
-                "title" => "FROM: ".$fromName,
-                "message" => $messagePost
+                "title" => "[FROM: ".$frmRepl.'] '.$msgRepl,
+                "message" => '<end>'
             ),
             CURLOPT_SAFE_UPLOAD => true,
         ));
@@ -191,12 +190,13 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushover and Page";
     }
     if ($sendSvc=='bxc'){
+        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
         curl_setopt_array($chpush = curl_init(), array(
             CURLOPT_URL => "https://new.boxcar.io/api/notifications",
             CURLOPT_POSTFIELDS => array(
                 "user_credentials" => $sendStr,
                 "notification[title]" => 'FROM: '.$fromName,
-                "notification[long_message]" => $messagePost,
+                "notification[long_message]" => $msgRepl,
                 "notification[sound]" => "bird-1",
             ),
             CURLOPT_SAFE_UPLOAD => true,
@@ -219,10 +219,8 @@ if ($sendto === "C") {
 }
 
 // Block for submitting to USA Mobility number
-// $valid = ereg('^[0-9]{10}$' , $pin);  // Test pin for 10 numeric digits. Anything else is considered invalid.
-// $usamobility = (strpos($pin, '469') !== 3);  // If prefix is not 469, this is USA Mobility number.
 if ($pagesys === "USAM") {
-    dialog('USA Mobility','green', 'sent', 'sent', 'pager.jpg', 'pager', '', '', 'b');
+    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b');
     ?>
     <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
         <input type="hidden" name="PIN" value="<?php echo $pin; ?>">
