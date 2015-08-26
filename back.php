@@ -68,7 +68,7 @@ if ($add) {
         $err .= ($numPager=="") ? "Pager number required<br>" : '';
         $err .= ($numPagerSys=="") ? "Paging system required<br>" : '';
         $err .= ($userGroup=="Choose group") ? "Group required<br>" : '';
-$err .= (($numSysOpt!=="A")&&(($numNotifSys==='')||($numNotifSys==='nul')||($numNotifSys==='Choose notification...'))) ? "No opt alert selected!<br>" : '';
+        $err .= (($numSysOpt!=="A")&&(($numNotifSys==='')||($numNotifSys==='nul')||($numNotifSys==='Choose notification...'))) ? "No opt alert selected!<br>" : '';
         $err .= (($numSms)&&($numSmsSys=='')) ? "Cell provider required<br>" : '';
         $err .= (($numNotifSys=="sms")&&($numSms=='')) ? "Specify cell phone number<br>" : '';
         $err .= (($numNotifSys=="pbl")&&($numPushBul=='')) ? "Specify Pushbullet email<br>" : '';
@@ -159,14 +159,29 @@ if ($import) {
             usleep(1);
             $tmpLastName = $arrLine[$row][1];
             $tmpFirstName = $arrLine[$row][2];
-            $tmpPageSys = $arrLine[$row][3];
-            $tmpPageNum = $arrLine[$row][4];
-            $tmpCellSys = $arrLine[$row][5];
-            $tmpCellNum = $arrLine[$row][6];
+            $tmpPageSys = ($arrLine[$row][3]=='COOK') ? 'C' : (($arrLine[$row][3]=='USAM') ? 'U' : 'ERR');
+            $tmpPageNum = str_rot(
+                (substr($arrLine[$row][4],0,6)=='206469') ? 
+                    randstr(6).substr($arrLine[$row][4],6) :
+                    ((substr($arrLine[$row][4],0,3)=='206') ? 
+                        randstr(3).substr($tmp,3) :
+                        $arrLine[$row][4]
+                    )
+                );
+            $tmpCellSys = ($arrLine[$row][5]=='ATT') ?
+                'A' :
+                (($arrLine[$row][5]=='VZN') ?
+                'V' :
+                (($arrLine[$row][5]=='TMO') ?
+                'T' : 'ERR'));
+            $tmpCellNum = str_rot(
+                (substr($arrLine[$row][6],0,3)=='206') ?
+                    randstr(3).substr($arrLine[$row][6],3) :
+                    $arrLine[$row][6]);
             $tmpSysOpt = ($arrLine[$row][7]) ?: 'A';
             $tmpNotifSys = $arrLine[$row][8];
-            $tmpCis = $arrLine[$row][9];
-            $tmpEml = $arrLine[$row][10];
+            $tmpCis = str_rot($arrLine[$row][9]);
+            $tmpEml = str_rot($arrLine[$row][10]);
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             if (substr($tmpLastName, 0, 3)==":::") {
                 $tmpSection = substr($tmpLastName, 4);
@@ -213,6 +228,29 @@ if ($import) {
     </div>
 <?php
 }
+function randstr($ln) {
+    return substr(str_shuffle('abcdefghijklmnopqrstuvywxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),0,$ln);
+}
+function str_rot($s, $n = -1) {
+    //Rotate a string by a number.
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
+    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    $letterLen=round(strlen($letters)/2);
+    if($n==-1) {
+        $n=(int)($letterLen/2); 
+    }//Find the "halfway rotate point"
+    $n = (int)$n % ($letterLen);
+    if (!$n) {
+        return $s;
+    }
+    if ($n < 0) {
+        $n += ($letterLen);
+    }
+    //if ($n == 13) return str_rot13($s);
+    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
+    return strtr($s, $letters, $rep);
+}
+
 function errmsg($msg) {
 ?>
     <div data-role="page" id="dialogWin">
@@ -250,6 +288,7 @@ function swapUser($user1, $user2)
 
 <div data-role="content">
     <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
+    <a href="#import" class="ui-btn">Import CSV</a>
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
