@@ -164,7 +164,7 @@ if ($import) {
                 (substr($arrLine[$row][4],0,6)=='206469') ? 
                     randstr(6).substr($arrLine[$row][4],6) :
                     ((substr($arrLine[$row][4],0,3)=='206') ? 
-                        randstr(3).substr($tmp,3) :
+                        randstr(3).substr($arrLine[$row][4],3) :
                         $arrLine[$row][4]
                     )
                 );

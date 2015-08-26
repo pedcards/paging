@@ -30,6 +30,35 @@ function swapUser($user1, $user2)
     );
     return simplexml_import_dom($new);
 }
+function str_rot($s, $n = -1) {
+    //Rotate a string by a number.
+    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
+    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
+    $letterLen=round(strlen($letters)/2);
+    if($n==-1) {
+        $n=(int)($letterLen/2); 
+    }//Find the "halfway rotate point"
+    $n = (int)$n % ($letterLen);
+    if (!$n) {
+        return $s;
+    }
+    if ($n < 0) {
+        $n += ($letterLen);
+    }
+    //if ($n == 13) return str_rot13($s);
+    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
+    return strtr($s, $letters, $rep);
+}
+function unscram($str, $t='') {
+    $str1 = str_rot($str);
+    if (preg_match("/[a-zA-z]{6}/",$str1)) {
+        return '206469'.substr($str1,6);
+    } elseif (preg_match("/[a-zA-z]{3}/", $str1)) {
+        return '206'.substr($str1,3);
+    } else {
+        return $str1;
+    }
+}
     ?>
 </head>
 <body>
@@ -45,13 +74,13 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $nameL = ($edUserId) ? $user['last'] : '';
     $nameF = ($edUserId) ? $user['first'] : '';
     $sec = ($edUserId) ? $user['sec'] : '';
-    $numPager = ($edUserId) ? $user->pager['num'] : '';
+    $numPager = ($edUserId) ? unscram($user->pager['num']) : '';
     $numPagerSys = ($edUserId) ? $user->pager['sys'] : '';
-    $numSms = ($edUserId) ? $user->sms['num'] : '';
+    $numSms = ($edUserId) ? unscram($user->sms['num']) : '';
     $numSmsSys = ($edUserId) ? $user->sms['sys'] : '';
-    $numPushBul = ($edUserId) ? $user->pushbul['eml'] : '';
-    $numPushOver = ($edUserId) ? $user->pushover['num'] : '';
-    $numBoxcar = ($edUserId) ? $user->boxcar['num'] : '';
+    $numPushBul = ($edUserId) ? str_rot($user->pushbul['eml']) : '';
+    $numPushOver = ($edUserId) ? str_rot($user->pushover['num']) : '';
+    $numBoxcar = ($edUserId) ? str_rot($user->boxcar['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
