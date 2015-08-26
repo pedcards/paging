@@ -99,9 +99,9 @@ $group = $xml->groups->$grp;
                         $liOptSvc = $liUser->option['sys'];
                         if ($liOptSvc == "sms") {
                             $liOptStr = $liUser->sms['num'].
-                                (($liUser->sms['sys']=="ATT") ? "@txt.att.net":'').
-                                (($liUser->sms['sys']=="VZN") ? "@vtext.com":'').
-                                (($liUser->sms['sys']=="TMO") ? "@tmomail.net":'');
+                                (($liUser->sms['sys']=="A") ? "@txt.att.net":'').
+                                (($liUser->sms['sys']=="V") ? "@vtext.com":'').
+                                (($liUser->sms['sys']=="T") ? "@tmomail.net":'');
                         }
                         if ($liOptSvc == "pbl") {
                             $liOptStr = $liUser->pushbul['eml'];

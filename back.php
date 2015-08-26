@@ -98,17 +98,17 @@ if ($add) {
             unset($user->sms);
         }
         if ($numPushBul) {
-            $user->pushbul['eml'] = $numPushBul;
+            $user->pushbul['eml'] = str_rot($numPushBul);
         } else {
             unset($user->pushbul);
         }
         if ($numPushOver) {
-            $user->pushover['num'] = $numPushOver;
+            $user->pushover['num'] = str_rot($numPushOver);
         } else {
             unset($user->pushover);
         }
         if ($numBoxcar) {
-            $user->boxcar['num'] = $numBoxcar;
+            $user->boxcar['num'] = str_rot($numBoxcar);
         } else {
             unset($user->boxcar);
         }
