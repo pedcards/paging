@@ -8,30 +8,17 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-capable" content="YES" />
         <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
+        <?php
+        $isLoc = true;
+        $cdnJqm = '1.4.5';
+        $cdnJQ = '1.11.1';
+        $instr = "(c)2007-2015 by Terrence Chun, MD.";
+        ?>
         <title>Heart Center Paging</title>
     </head>
 <body>
 
 <?php
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
-//To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
-}
 function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
     echo '<div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="'.$bg.'">'."\r\n";
     echo '    <div data-role="header" data-theme="'.$bar.'">'."\r\n";
@@ -45,6 +32,15 @@ function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
     echo '        </p>'."\r\n";
     echo '    </div>'."\r\n";
     echo '</div>'."\r\n";
+}
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
 // **** Referrer info for logfile ****
     $logfile = 'logs/'.date('Ym').'.csv';
@@ -74,7 +70,7 @@ $success = 0;  // preset success to boolean false
 
 // Get values from form page
 $fromName = ucwords(trim(filter_input(INPUT_POST,'MYNAME')));
-$pinarray = explode(",", trim(str_rot(filter_input(INPUT_POST,'NUMBER'))));  // Pin Number from form page
+$pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER'))));  // Pin Number from form page
     $uid = $pinarray[0]; // recipient UID
     $pagesys = $pinarray[1]; // Cook vs USA Mobility
     $pin = $pinarray[2]; // pager number

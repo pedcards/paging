@@ -13,7 +13,7 @@
     $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
-    
+    $instr = "(c)2007-2015 by Terrence Chun, MD.";
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -86,29 +86,29 @@ if ($add) {
             $user['first'] = $nameF;
             $user['uid'] = ($uid) ?: uniqid();
         if ($numPager) {
-            $user->pager['num'] = $numPager;
+            $user->pager['num'] = simple_encrypt($numPager);
             $user->pager['sys'] = $numPagerSys;
         } else {
             unset($user->pager);
         }
         if ($numSms) {
-            $user->sms['num'] = $numSms;
+            $user->sms['num'] = simple_encrypt($numSms);
             $user->sms['sys'] = $numSmsSys;
         } else {
             unset($user->sms);
         }
         if ($numPushBul) {
-            $user->pushbul['eml'] = str_rot($numPushBul);
+            $user->pushbul['eml'] = simple_encrypt($numPushBul);
         } else {
             unset($user->pushbul);
         }
         if ($numPushOver) {
-            $user->pushover['num'] = str_rot($numPushOver);
+            $user->pushover['num'] = simple_encrypt($numPushOver);
         } else {
             unset($user->pushover);
         }
         if ($numBoxcar) {
-            $user->boxcar['num'] = str_rot($numBoxcar);
+            $user->boxcar['num'] = simple_encrypt($numBoxcar);
         } else {
             unset($user->boxcar);
         }
@@ -160,28 +160,18 @@ if ($import) {
             $tmpLastName = $arrLine[$row][1];
             $tmpFirstName = $arrLine[$row][2];
             $tmpPageSys = ($arrLine[$row][3]=='COOK') ? 'C' : (($arrLine[$row][3]=='USAM') ? 'U' : 'ERR');
-            $tmpPageNum = str_rot(
-                (substr($arrLine[$row][4],0,6)=='206469') ? 
-                    randstr(6).substr($arrLine[$row][4],6) :
-                    ((substr($arrLine[$row][4],0,3)=='206') ? 
-                        randstr(3).substr($arrLine[$row][4],3) :
-                        $arrLine[$row][4]
-                    )
-                );
+            $tmpPageNum = simple_encrypt($arrLine[$row][4]);
             $tmpCellSys = ($arrLine[$row][5]=='ATT') ?
-                'A' :
+                    'A' :
                 (($arrLine[$row][5]=='VZN') ?
-                'V' :
+                    'V' :
                 (($arrLine[$row][5]=='TMO') ?
-                'T' : 'ERR'));
-            $tmpCellNum = str_rot(
-                (substr($arrLine[$row][6],0,3)=='206') ?
-                    randstr(3).substr($arrLine[$row][6],3) :
-                    $arrLine[$row][6]);
+                    'T' : 'ERR'));
+            $tmpCellNum = simple_encrypt($arrLine[$row][6]); 
             $tmpSysOpt = ($arrLine[$row][7]) ?: 'A';
             $tmpNotifSys = $arrLine[$row][8];
-            $tmpCis = str_rot($arrLine[$row][9]);
-            $tmpEml = str_rot($arrLine[$row][10]);
+            $tmpCis = simple_encrypt($arrLine[$row][9]);
+            $tmpEml = simple_encrypt($arrLine[$row][10]);
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             if (substr($tmpLastName, 0, 3)==":::") {
                 $tmpSection = substr($tmpLastName, 4);
@@ -228,29 +218,6 @@ if ($import) {
     </div>
 <?php
 }
-function randstr($ln) {
-    return substr(str_shuffle('abcdefghijklmnopqrstuvywxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),0,$ln);
-}
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
-    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
-}
-
 function errmsg($msg) {
 ?>
     <div data-role="page" id="dialogWin">
@@ -276,11 +243,29 @@ function swapUser($user1, $user2)
     );
     return simplexml_import_dom($new);
 }
+function simple_encrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return trim(base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, $salt, $text, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND))));
+}
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+}
+
 ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main" >
-
 <div data-role="header">
         <h4 style="white-space: normal; text-align: center" >User Manager</h4>
         <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-back ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>

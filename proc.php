@@ -13,7 +13,7 @@
     $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
-    
+    $instr = "(c)2007-2015 by Terrence Chun, MD.";
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -38,24 +38,23 @@
 <BODY>
 
 <?php
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
-    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
+function simple_encrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
     }
-    if ($n < 0) {
-        $n += ($letterLen);
+    if (!$text) {
+        return $text;
     }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
+    return trim(base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, $salt, $text, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND))));
+}
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
 
 $grp = filter_input(INPUT_GET,'group');
@@ -98,32 +97,32 @@ $group = $xml->groups->$grp;
                     if (($liOpt == "B") || ($liOpt == "C")) {
                         $liOptSvc = $liUser->option['sys'];
                         if ($liOptSvc == "sms") {
-                            $liOptStr = $liUser->sms['num'].
+                            $liOptStr = simple_decrypt($liUser->sms['num']).
                                 (($liUser->sms['sys']=="A") ? "@txt.att.net":'').
                                 (($liUser->sms['sys']=="V") ? "@vtext.com":'').
                                 (($liUser->sms['sys']=="T") ? "@tmomail.net":'');
                         }
                         if ($liOptSvc == "pbl") {
-                            $liOptStr = $liUser->pushbul['eml'];
+                            $liOptStr = simple_decrypt($liUser->pushbul['eml']);
                         }
                         if ($liOptSvc == "pov") {
-                            $liOptStr = $liUser->pushover['num'];
+                            $liOptStr = simple_decrypt($liUser->pushover['num']);
                         }
                         if ($liOptSvc == "bxc") {
-                            $liOptStr = $liUser->boxcar['num'];
+                            $liOptStr = simple_decrypt($liUser->boxcar['num']);
                         }
                     }
                     $pagerline = array(
                         $liUid,
                         $liUser->pager['sys'],
-                        $liUser->pager['num'],
+                        simple_decrypt($liUser->pager['num']),
                         $liOpt,
                         $liOptSvc,
                         $liOptStr
                     );
                     $liName = $liNameF.' '.$liNameL;
                 }
-                echo '<option value="'.str_rot(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
+                echo '<option value="'.  simple_encrypt(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
             }
             ?>
         </select>

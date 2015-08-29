@@ -10,6 +10,7 @@
     $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
+    $instr = "(c)2007-2015 by Terrence Chun, MD.";
     
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
@@ -30,35 +31,25 @@ function swapUser($user1, $user2)
     );
     return simplexml_import_dom($new);
 }
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; 
-    //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
+function simple_encrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
     }
-    if ($n < 0) {
-        $n += ($letterLen);
+    if (!$text) {
+        return $text;
     }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
+    return trim(base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, $salt, $text, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND))));
 }
-function unscram($str, $t='') {
-    $str1 = str_rot($str);
-    if (preg_match("/[a-zA-z]{6}/",$str1)) {
-        return '206469'.substr($str1,6);
-    } elseif (preg_match("/[a-zA-z]{3}/", $str1)) {
-        return '206'.substr($str1,3);
-    } else {
-        return $str1;
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
     }
+    if (!$text) {
+        return $text;
+    }
+    return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
+
     ?>
 </head>
 <body>
@@ -74,13 +65,13 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $nameL = ($edUserId) ? $user['last'] : '';
     $nameF = ($edUserId) ? $user['first'] : '';
     $sec = ($edUserId) ? $user['sec'] : '';
-    $numPager = ($edUserId) ? unscram($user->pager['num']) : '';
+    $numPager = ($edUserId) ? simple_decrypt($user->pager['num']) : '';
     $numPagerSys = ($edUserId) ? $user->pager['sys'] : '';
-    $numSms = ($edUserId) ? unscram($user->sms['num']) : '';
+    $numSms = ($edUserId) ? simple_decrypt($user->sms['num']) : '';
     $numSmsSys = ($edUserId) ? $user->sms['sys'] : '';
-    $numPushBul = ($edUserId) ? str_rot($user->pushbul['eml']) : '';
-    $numPushOver = ($edUserId) ? str_rot($user->pushover['num']) : '';
-    $numBoxcar = ($edUserId) ? str_rot($user->boxcar['num']) : '';
+    $numPushBul = ($edUserId) ? simple_decrypt($user->pushbul['eml']) : '';
+    $numPushOver = ($edUserId) ? simple_decrypt($user->pushover['num']) : '';
+    $numBoxcar = ($edUserId) ? simple_decrypt($user->boxcar['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
@@ -167,9 +158,9 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     </div>
                     <div class="ui-block-b" style="padding-top:2px;">
                         <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
-                            <input name="numPagerSys" id="addPagerSys-a" type="radio" value="COOK" <?php echo ($numPagerSys=="COOK") ? 'checked="checked"' : '';?>>
+                            <input name="numPagerSys" id="addPagerSys-a" type="radio" value="C" <?php echo ($numPagerSys=="C") ? 'checked="checked"' : '';?>>
                             <label for="addPagerSys-a">Cook</label>
-                            <input name="numPagerSys" id="addPagerSys-b" type="radio" value="USAM" <?php echo ($numPagerSys=="USAM") ? 'checked="checked"' : '';?>>
+                            <input name="numPagerSys" id="addPagerSys-b" type="radio" value="U" <?php echo ($numPagerSys=="U") ? 'checked="checked"' : '';?>>
                             <label for="addPagerSys-b">USA-M</label>
                         </fieldset>
                     </div>
@@ -211,9 +202,9 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     <div class="ui-block-b" style="padding-top:2px;">
                         <select name="numSmsSys" id="addSmsSys" data-mini="true" data-native-menu="false">
                             <option>Choose carrier</option>
-                            <option value="ATT" <?php echo ($numSmsSys=="ATT") ? 'selected="selected"':'';?>>AT&amp;T</option>
-                            <option value="VZN" <?php echo ($numSmsSys=="VZN") ? 'selected="selected"':'';?>>Verizon</option>
-                            <option value="TMO" <?php echo ($numSmsSys=="TMO") ? 'selected="selected"':'';?>>T-Mobile</option>
+                            <option value="A" <?php echo ($numSmsSys=="A") ? 'selected="selected"':'';?>>AT&amp;T</option>
+                            <option value="V" <?php echo ($numSmsSys=="V") ? 'selected="selected"':'';?>>Verizon</option>
+                            <option value="T" <?php echo ($numSmsSys=="T") ? 'selected="selected"':'';?>>T-Mobile</option>
                         </select>
                     </div>
                 </div>
