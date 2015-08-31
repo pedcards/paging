@@ -54,10 +54,76 @@ function simple_decrypt($text, $salt = "") {
 </head>
 <body>
 <?php
+$isAdmin = false;
 $xml = simplexml_load_file("list.xml");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
+if (\filter_input(\INPUT_GET, 'auth') == '1') {
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Edit authorization</h4>
+            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="?auth=2">
+                <input name="auth" id="authName" placeholder="CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+            </form>
+        </div>
+    </div>
+    
+    <?php
+}
+if (\filter_input(\INPUT_GET, 'auth') == '2') {
+    $authName = \filter_input(\INPUT_POST, 'auth');
+    $users = $groups->xpath("//user/auth");
+    foreach ($users as $user0) {
+        $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
+    }
+    $eml = $userauth[$authName];
+    if (!$eml) {
+        ?>
+        <div data-role="page" id="noAuth" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >ERROR</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-corner-all">Go back</a>
+            </div>
+        </div>
+        <?php
+    }
+    $key = 'BRQA';
+//    mail($eml, 
+//            "Heart Center Paging", 
+//            "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
+//            .'The access token is "'.$key.'"'."\r\n\r\n"
+//            ."The code will self-destruct in 20 minutes.\r\n"
+//            ."Please act responsibly."
+//            );
+    $cookieTime = time()+5*60;
+    setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
+    setcookie("pageeditT",$cookieTime);
+    ?>
+    <div data-role="page" id="auth2" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Enter auth code <?php echo $ref;?></h4>
+            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="back.php">
+                <input name="auth" id="authCode" placeholder="" type="text" >
+                <input name="authname" type="hidden" id="authUser" value="<?php echo $authName;?>">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+            </form>
+        </div>
+    </div>
+    
+    <?php
 }
 
 $edUserId = \filter_input(\INPUT_GET,'id');
@@ -133,7 +199,7 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
 <div data-role="header">
     <h4 style="white-space: normal; text-align: center" ><?php echo ($edUserId) ? 'Edit User' : 'Add User';?></h4>
     <a href="back.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-    <?php if ($edUserId) { echo '    <a href="#delConf" data-rel="popup" data-position-to="window" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-forbidden ui-corner-all" >DELETE</a>';}?>
+    <?php if ($edUserId && $isAdmin) { echo '    <a href="#delConf" data-rel="popup" data-position-to="window" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-forbidden ui-corner-all" >DELETE</a>';}?>
 
 </div><!-- /header -->
 

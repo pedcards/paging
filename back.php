@@ -27,6 +27,35 @@
 </head>
 <body>
 <?php
+$isAdmin = false;
+$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
+$cookie = filter_input(INPUT_COOKIE,'pageedit');
+if (!$cookie) {
+    noAuth();
+}
+$user = filter_input(INPUT_POST, 'authname');
+$authCode = filter_input(INPUT_POST,'auth');
+if ($authCode) {
+    (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
+}
+function noAuth($title='Authorization Required',$button='Get Authorized!',$page='1') {
+    global $user;
+    ?>
+    <div data-role="page" id="noAuth" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
+            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="edit.php?auth=<?php echo $page;?>">
+                <input type="hidden" name="auth" value="<?php echo $user;?>">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
+            </form>
+        </div>
+    </div>
+    <?php
+}
+
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -139,7 +168,7 @@ if ($add) {
     $xml->asXML("list.xml");
     }
 }
-if ($import) {
+if ($import) {          // Need to make this non-destructive, only overwrite non-existent info
     // Read "list.csv" into array
     $imXml = new SimpleXMLElement("<root />");
     $arrLine = array();
@@ -196,6 +225,10 @@ if ($import) {
             }
             if ($tmpSysOpt) {
                 $tmpUser->option['mode'] = $tmpSysOpt;
+            }
+            if ($tmpCis) {
+                $tmpUser->auth['cis'] = $tmpCis;
+                $tmpUser->auth['eml'] = $tmpEml;
             }
             $row++;
         }
@@ -261,13 +294,18 @@ function simple_decrypt($text, $salt = "") {
     }
     return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
-
+function timeformat($diff) {
+    $hh = floor($diff/3600);
+    $mm = floor($diff/60)-$hh*3600;
+    $ss = $diff-$mm*60-$hh*3600;
+    return str_pad($mm, 2, "00", STR_PAD_LEFT).':'.str_pad($ss, 2, "00", STR_PAD_LEFT);
+}
 ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main" >
 <div data-role="header">
-        <h4 style="white-space: normal; text-align: center" >User Manager</h4>
+    <h4 style="white-space: normal; text-align: center" >User Manager [<?php echo timeformat($cookieTime-time());?> remaining]</h4>
         <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-back ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
 </div><!-- /header -->
 
@@ -293,7 +331,7 @@ function simple_decrypt($text, $salt = "") {
             }
             echo '            <li class="ui-mini">';
             echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ($edNameL.', '.$edNameF)).'</i></a>';
-            echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>';
+            if ($isAdmin) { echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>'; }
             echo '</li>'."\r\n";
             // perhaps use Session variable?
         }
