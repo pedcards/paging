@@ -28,34 +28,6 @@
 <body>
 <?php
 $isAdmin = false;
-$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
-$cookie = filter_input(INPUT_COOKIE,'pageedit');
-if (!$cookie) {
-    noAuth();
-}
-$user = filter_input(INPUT_POST, 'authname');
-$authCode = filter_input(INPUT_POST,'auth');
-if ($authCode) {
-    (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
-}
-function noAuth($title='Authorization Required',$button='Get Authorized!',$page='1') {
-    global $user;
-    ?>
-    <div data-role="page" id="noAuth" data-dialog="true">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
-            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="edit.php?auth=<?php echo $page;?>">
-                <input type="hidden" name="auth" value="<?php echo $user;?>">
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
-            </form>
-        </div>
-    </div>
-    <?php
-}
-
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -87,6 +59,8 @@ if ($add) {
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
     $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
     $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
+    $userCis = \filter_input(\INPUT_POST, 'userCis');
+    $userEml = \filter_input(\INPUT_POST, 'userEml');
     if ($uid) {
         $userGroupOld = $groups->xpath("//user[@uid='".$uid."']")[0]->xpath("..")[0]->getName();
     }
@@ -151,6 +125,12 @@ if ($add) {
         } else {
             unset($user->option['sys']);
         }
+        if ($userCis) {
+            $user->auth['cis'] = $userCis;
+        }
+        if ($userEml) {
+            $user->auth['eml'] = $userEml;
+        }
         foreach ($groupThis->user as $userSort) {
             if (strcasecmp($userSort['last'].', '.$userSort['first'], $nameL.', '.$nameF) > 0) {
                 swapUser($userSort['uid'], $user['uid']);
@@ -167,6 +147,33 @@ if ($add) {
         }
     $xml->asXML("list.xml");
     }
+}
+$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
+$cookie = filter_input(INPUT_COOKIE,'pageedit');
+if (!$cookie) {
+    noAuth();
+}
+$user = filter_input(INPUT_POST, 'authname');
+$authCode = filter_input(INPUT_POST,'auth');
+if ($authCode) {
+    (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
+}
+function noAuth($title='Authorization Required',$button='Get Authorized!',$page='1') {
+    global $user;
+    ?>
+    <div data-role="page" id="noAuth" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
+            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="edit.php?auth=<?php echo $page;?>">
+                <input type="hidden" name="auth" value="<?php echo $user;?>">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
+            </form>
+        </div>
+    </div>
+    <?php
 }
 if ($import) {          // Need to make this non-destructive, only overwrite non-existent info
     // Read "list.csv" into array
@@ -207,6 +214,7 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 (!$tmpFirstName) ?: $tmpUserGrp['full'] = $tmpFirstName;
                 $tmpLastName = "";
                 $tmpFirstName = "";
+                $tmpSysOpt = "";
             } else { 
                 $tmpSection = "";
             }

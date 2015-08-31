@@ -143,6 +143,8 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $numBoxcar = ($edUserId) ? simple_decrypt($user->boxcar['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
+    $userCis = ($edUserId) ? simple_decrypt($user->auth['cis']) : '';
+    $userEml = ($edUserId) ? simple_decrypt($user->auth['eml']) : '';
     $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
     $userGroupName = ($edUserId) ? $userGroup->getName() : '';
 
@@ -241,6 +243,16 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                         echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'">'.$grpStr.'</option>';
                     }?>
                 </select>
+                <?php if ($isAdmin) { ?>
+                <div class="ui-field-contain">
+                    <label for="addCis">CIS logon</label>
+                    <input name="userCis" id="addCis" value="<?php echo $userCis;?>" type="text">
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addEml">SCH email</label>
+                    <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*(@seattlechildrens.org)" type="text">
+                </div>
+                <?php } ?>
             </div>
         </div>
         <fieldset data-role="controlgroup" data-type="horizontal">
