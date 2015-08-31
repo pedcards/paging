@@ -65,7 +65,7 @@ if (\filter_input(\INPUT_GET, 'auth') == '1') {
     <div data-role="page" id="auth1" data-dialog="true">
         <div data-role="header">
             <h4 style="white-space: normal; text-align: center" >Edit authorization</h4>
-            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
             <form method="post" action="?auth=2">
@@ -78,6 +78,7 @@ if (\filter_input(\INPUT_GET, 'auth') == '1') {
     <?php
 }
 if (\filter_input(\INPUT_GET, 'auth') == '2') {
+    $ref = $_SERVER['HTTP_REFERER'];
     $authName = \filter_input(\INPUT_POST, 'auth');
     $users = $groups->xpath("//user/auth");
     foreach ($users as $user0) {
@@ -97,26 +98,28 @@ if (\filter_input(\INPUT_GET, 'auth') == '2') {
         </div>
         <?php
     }
-    $key = 'BRQA';
-//    mail($eml, 
-//            "Heart Center Paging", 
-//            "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
-//            .'The access token is "'.$key.'"'."\r\n\r\n"
-//            ."The code will self-destruct in 20 minutes.\r\n"
-//            ."Please act responsibly."
-//            );
-    $cookieTime = time()+5*60;
-    setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
-    setcookie("pageeditT",$cookieTime);
+    if (strpos($ref,'auth')) {
+        $key = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwyxz'),0,4);
+        mail($eml, 
+                "Heart Center Paging", 
+                "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
+                .'The access token is "'.$key.'"'."\r\n\r\n"
+                ."The code will self-destruct in 20 minutes.\r\n"
+                ."Please act responsibly."
+                );
+        $cookieTime = time()+20*60;
+        setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
+        setcookie("pageeditT",$cookieTime);
+    }
     ?>
     <div data-role="page" id="auth2" data-dialog="true">
         <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Enter auth code <?php echo $ref;?></h4>
+            <h4 style="white-space: normal; text-align: center" >Check email for auth code</h4>
             <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
             <form method="post" action="back.php">
-                <input name="auth" id="authCode" placeholder="" type="text" >
+                <input name="auth" id="authCode" placeholder="Enter auth code" type="text" >
                 <input name="authname" type="hidden" id="authUser" value="<?php echo $authName;?>">
                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
             </form>

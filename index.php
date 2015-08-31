@@ -106,7 +106,7 @@ if (\filter_input(INPUT_POST,'clearck')=="y"){
     <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
         <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
-        <a href="back.php" class="ui-btn ui-shadow ui-icon-user ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
+        <a href="back.php" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
 
     <div data-role="content">

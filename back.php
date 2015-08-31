@@ -310,8 +310,14 @@ function timeformat($diff) {
 </div><!-- /header -->
 
 <div data-role="content">
-    <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
-    <a href="#import" class="ui-btn">Import CSV</a>
+    <?php
+    if ($isAdmin) {
+        ?>
+        <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
+        <a href="#import" class="ui-btn">Import CSV</a>
+        <?php
+    }
+    ?>
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
@@ -337,7 +343,6 @@ function timeformat($diff) {
         }
         ?>
     </ul>
-    <a href="#import" class="ui-btn">Import CSV</a>
 </div>
 
 <div data-role="footer" >
