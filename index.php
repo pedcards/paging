@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="apple-touch-icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="images/pager.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
@@ -20,7 +20,7 @@
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
     <!--==========================================-->
 
-    <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
+    <script type="text/javascript" src="./jqm/jqm-windows.alertbox.min.js"></script>
     <script type="text/javascript">
         function clearMru() {
             document.cookie = "pagemru=; expires=-1; path=/";
@@ -33,7 +33,7 @@
 <body>
 <?php
 $group = filter_input(INPUT_GET,'group');
-$modDate = date ("m/d/Y", filemtime("list.xml"));
+$modDate = \date("m/d/Y", filemtime("list.xml"));
 $xml = simplexml_load_file("list.xml");
 $groups = $xml->groups;
 $groupfull = array();
@@ -43,8 +43,20 @@ foreach ($groups->children() as $grp0) {
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1,'/');
 }
+$pagealert = filter_input(INPUT_COOKIE, 'pagealert');
+$alerttext =
+        '<p>Paging version 3.0</p>'
+        . '<p>New and improved!</p>'
+        . '<p>Features:<br>'
+        . '* Search bar! (upper left)<br>'
+        . '* Recently used numbers!<br>'
+        . '* Encryption!<br>'
+        . '* Extra notification services!'
+        . '</p>'
+        ;
+$texthash = md5($alerttext);
+setcookie('pagealert', $texthash, time()+30*86400);
 ?>
-
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
@@ -114,14 +126,15 @@ if (\filter_input(INPUT_POST,'clearck')=="y"){
         <?php
         foreach($groupfull as $grp => $grpStr) {
             echo '<li><a href="proc.php?group='.$grp.'">'.$grpStr.'</a></li>';
-        }?>
+        }
+        ?>
     </ul>
-
-    <div data-alertbox-close-time="5000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" class="ui-content jqm-alert-box" style="max-width:280px">
-        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-        <p>REMINDER!</p>
-        <p>This paging site is for internal Heart Center use. Please do not share this link with others outside of the organization. Thanks for your understanding!</p>
-    </div>
+    <?php if ($pagealert!==$texthash) { ?>
+        <div class="ui-content jqm-alert-box" data-alertbox-close-time="20000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" >
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            <?php echo $alerttext;?>
+        </div> 
+    <?php } ?>
     </div>
 
     <div data-role="footer" >

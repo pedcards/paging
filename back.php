@@ -27,7 +27,7 @@
 </head>
 <body>
 <?php
-$isAdmin = false;
+$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),array('tchun1')));
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -153,15 +153,16 @@ $cookie = filter_input(INPUT_COOKIE,'pageedit');
 if (!$cookie) {
     noAuth();
 }
-$user = filter_input(INPUT_POST, 'authname');
+$user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
 if ($authCode) {
     (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
+    setcookie('pageuser', $user);
 }
-function noAuth($title='Authorization Required',$button='Get Authorized!',$page='1') {
-    global $user;
+function noAuth($title='User info editor',$button='Request authorization',$page='1') {
+    global $user, $authCode;
     ?>
-    <div data-role="page" id="noAuth" data-dialog="true">
+    <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
         <div data-role="header">
             <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
             <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
@@ -169,6 +170,7 @@ function noAuth($title='Authorization Required',$button='Get Authorized!',$page=
         <div data-role="content">
             <form method="post" action="edit.php?auth=<?php echo $page;?>">
                 <input type="hidden" name="auth" value="<?php echo $user;?>">
+                <input type="hidden" name="key" value="<?php echo $authCode;?>">
                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
             </form>
         </div>
@@ -313,7 +315,7 @@ function timeformat($diff) {
 <!-- Start of first page -->
 <div data-role="page" id="main" >
 <div data-role="header">
-    <h4 style="white-space: normal; text-align: center" >User Manager [<?php echo timeformat($cookieTime-time());?> remaining]</h4>
+    <h4 style="white-space: normal; text-align: center" ><?php echo ($isAdmin) ? 'Super ' : '';?>User Manager<br>[<?php echo timeformat($cookieTime-time());?> remaining]</h4>
         <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-back ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
 </div><!-- /header -->
 

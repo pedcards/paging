@@ -54,7 +54,7 @@ function simple_decrypt($text, $salt = "") {
 </head>
 <body>
 <?php
-$isAdmin = false;
+$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),array('tchun1')));
 $xml = simplexml_load_file("list.xml");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -64,13 +64,13 @@ if (\filter_input(\INPUT_GET, 'auth') == '1') {
     ?>
     <div data-role="page" id="auth1" data-dialog="true">
         <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Edit authorization</h4>
+            <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
             <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
             <form method="post" action="?auth=2">
                 <input name="auth" id="authName" placeholder="CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Email auth code</button>
             </form>
         </div>
     </div>
@@ -114,12 +114,12 @@ if (\filter_input(\INPUT_GET, 'auth') == '2') {
     ?>
     <div data-role="page" id="auth2" data-dialog="true">
         <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Check email for auth code</h4>
+            <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
             <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
             <form method="post" action="back.php">
-                <input name="auth" id="authCode" placeholder="Enter auth code" type="text" >
+                <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
                 <input name="authname" type="hidden" id="authUser" value="<?php echo $authName;?>">
                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
             </form>
@@ -217,10 +217,10 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
             <div class="ui-bar ui-bar-a">
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
                     </div>
                     <div class="ui-block-b">
-                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text">
+                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
                     </div>
                 </div>
                 <div class="ui-grid-a">
@@ -236,7 +236,7 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                         </fieldset>
                     </div>
                 </div>
-                <select name="userGroup" id="addGroup" data-native-menu="false">
+                <select name="userGroup" id="addGroup" data-native-menu="false" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
                     <option>Choose group</option>
                     <?php
                     foreach($groupfull as $grp => $grpStr) {
