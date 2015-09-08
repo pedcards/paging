@@ -126,10 +126,10 @@ if ($add) {
             unset($user->option['sys']);
         }
         if ($userCis) {
-            $user->auth['cis'] = $userCis;
+            $user->auth['cis'] = simple_encrypt($userCis);
         }
         if ($userEml) {
-            $user->auth['eml'] = $userEml;
+            $user->auth['eml'] = simple_encrypt($userEml);
         }
         foreach ($groupThis->user as $userSort) {
             if (strcasecmp($userSort['last'].', '.$userSort['first'], $nameL.', '.$nameF) > 0) {
