@@ -56,6 +56,36 @@ $alerttext =
         ;
 $texthash = md5($alerttext);
 setcookie('pagealert', $texthash, time()+30*86400);
+$call = array(
+    'Ward_A', 'Ward_F',
+    'ICU_A', 'ICU_F',
+    'Reg_Con',
+    'EP',
+    'Txp',
+    'ARNP_IP','ARNP_OP','ARNP_CL'
+);
+$chip = simplexml_load_file('../patlist/currlist.xml');
+$fc_call = $chip->lists->forecast->xpath("call[@date='".date("Ymd")."']")[0];
+$chip_ep = $fc_call->ARNP_IP;
+$chip_el = getUid($chip_ep);
+
+function getUid($in) {
+    global $xml;
+    $trans = array(
+        "Terry" => "Terrence",
+        "Steve" => "Stephen",
+        "Tom" => "Thomas",
+        "Jenny" => "Jennifer",
+        "Matt" => "Matthew",
+        "John" => "Jonathon",
+        "Mike" => "Michael",
+        "Meg" => "Margaret"
+    );
+    $names = explode(" ", $in);
+    $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
+    return $el['uid'];
+}
+
 ?>
 
 <!-- Start of first page -->
@@ -82,6 +112,25 @@ setcookie('pagealert', $texthash, time()+30*86400);
                 $liGroup = $liUser->xpath('..')[0]->getName();
                 echo '            <li class="ui-mini">';
                 echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
+                echo '</li>'."\r\n";
+            }
+            ?>
+        </ul>
+        </div>
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed-icon="phone">
+            <h4>On call list</h4>
+        <ul data-role="listview">
+            <?php
+            foreach($call as $callU){
+                $chName = $fc_call->$callU;
+                if (! $chName) {
+                    continue;
+                }
+                $liUserId = getUid($chName);
+                $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
+                $liGroup = $liUser->xpath('..')[0]->getName();
+                echo '            <li class="ui-mini">';
+                echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><b>'.$callU.':</b><i> '.$chName.'</i></a>';
                 echo '</li>'."\r\n";
             }
             ?>
