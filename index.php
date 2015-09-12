@@ -59,15 +59,30 @@ setcookie('pagealert', $texthash, time()+30*86400);
 $call = array(
     'Ward_A', 'Ward_F',
     'ICU_A', 'ICU_F',
+    'CICU',
     'Reg_Con',
     'EP',
     'Txp',
     'ARNP_IP','ARNP_OP','ARNP_CL'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
-$fc_call = $chip->lists->forecast->xpath("call[@date='".date("Ymd")."']")[0];
-$chip_ep = $fc_call->ARNP_IP;
-$chip_el = getUid($chip_ep);
+$call_dt = date("Ymd");
+$call_d = date("l");
+$call_t = date("H");
+if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t <= 8)) {
+    $call = array(
+        'PM_We_A', 'PM_We_F',
+        ($call_t >= 17 || $call_t <= 8) ? 'CICU_PM' : 'CICU',
+        'EP',
+        'Txp',
+        'ARNP_IP'
+    );
+}
+if ($call_t <= 8) {
+    $call_dt = date("Ymd", time()-60*60*24);
+}
+
+$fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
 
 function getUid($in) {
     global $xml;
@@ -79,13 +94,38 @@ function getUid($in) {
         "Matt" => "Matthew",
         "John" => "Jonathon",
         "Mike" => "Michael",
-        "Meg" => "Margaret"
+        "Katherine" => "Katie"
     );
     $names = explode(" ", $in);
     $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
     return $el['uid'];
 }
-
+function fuzzyname($str1) {
+    global $xml;
+    $users = $xml->xpath('//user');
+    $shortest = -1;
+    foreach ($users as $user) {
+        $name = $user['first']." ".$user['last'];
+        $lev = levenshtein($str1, $name);
+        if ($lev == 0) {
+            $closest = $name;
+            $shortest = 0;
+            $uid = $user['uid'];
+            break;
+        }
+        if ($lev <= $shortest || $shortest < 0) {
+            $closest = $name;
+            $shortest = $lev;
+            $uid = $user['uid'];
+        }
+    }
+    $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+    return array(
+        'first'=>$user['first'],
+        'last'=>$user['last'],
+        'uid'=>$user['uid']
+    );
+}
 ?>
 
 <!-- Start of first page -->
@@ -127,6 +167,10 @@ function getUid($in) {
                     continue;
                 }
                 $liUserId = getUid($chName);
+                if (! $liUserId) {
+                    $liUserId = fuzzyname($chName)['uid'];
+                    $chName .= ' (?)';
+                }
                 $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
                 $liGroup = $liUser->xpath('..')[0]->getName();
                 echo '            <li class="ui-mini">';
@@ -166,6 +210,7 @@ function getUid($in) {
 
     <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
+        <!--<h6> <?php echo preg_match('/(Friday|Saturday)/',$call_d);?></h6>-->
         <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
         <a href="back.php" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
