@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="favicon.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta name="apple-mobile-web-app-capable" content="no" />
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
 <!--==========================================-->
     <?php

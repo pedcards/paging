@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <HTML>
     <head>
-        <meta content="yes" name="apple-mobile-web-app-capable" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link href="" rel="apple-touch-icon" />
-        <link href="" rel="apple-touch-startup-image" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-capable" content="YES" />
-        <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="no" />
+        <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
         <?php
         $isLoc = true;
         $cdnJqm = '1.4.5';
@@ -99,7 +96,8 @@ fclose($out);
 // Update the MRU cookie
 if ($pin) {
     $cstr = $uid;
-    $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+    //$cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+    $cookie = explode(",", filter_input(INPUT_COOKIE,  session_name('pagemru')));
     $i = 0;
     foreach($cookie as $cvals){
         if ($cvals==$uid){
@@ -111,7 +109,8 @@ if ($pin) {
         }
         $cstr .= ','.$cvals;
     }
-    setcookie("pagemru",$cstr,time()+(86400*30),"/");
+    //setcookie("pagemru",$cstr,time()+(86400*30),"/");
+    setcookie(session_name('pagemru'),$cstr,time()+(86400*30));
 }
 // Error handling if no FROM specified
 

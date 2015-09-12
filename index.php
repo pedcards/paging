@@ -6,11 +6,10 @@
     <link rel="apple-touch-icon" href="images/pager.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta name="apple-mobile-web-app-capable" content="no" />
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
     <!--==========================================-->
     <?php
-    session_start();
     $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
@@ -24,7 +23,7 @@
     <script type="text/javascript" src="./jqm/jqm-windows.alertbox.min.js"></script>
     <script type="text/javascript">
         function clearMru() {
-            document.cookie = "pagemru=; expires=-1; path=/";
+            document.cookie = "pagemru=; expires=-1";
             location.reload();
         }
     </script>
@@ -42,7 +41,7 @@ foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
 if (\filter_input(INPUT_POST,'clearck')=="y"){
-    setcookie('pagemru',null,-1,'/');
+    setcookie('pagemru',null,-1);
 }
 $pagealert = filter_input(INPUT_COOKIE, 'pagealert');
 $alerttext =
@@ -52,7 +51,7 @@ $alerttext =
         . '* Search bar! (upper left)<br>'
         . '* Recently used numbers!<br>'
         . '* Encryption!<br>'
-        . '* Extra notification services!'
+        . '* Extra notification services!<br>'
         . '</p>'
         ;
 $texthash = md5($alerttext);
@@ -179,7 +178,7 @@ function fuzzyname($str1) {
         </div>
         <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="clock">
             <?php
-            if (filter_input(INPUT_COOKIE,'pagemru')){
+            if (filter_input(INPUT_COOKIE,session_name('pagemru'))){
                 echo '            <h4>Recently used numbers</h4>';
             }
             ?>
@@ -189,14 +188,14 @@ function fuzzyname($str1) {
         <ul data-role="listview">
             <?php
             // show cookies
-            $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+            $cookie = explode(",", filter_input(INPUT_COOKIE,session_name('pagemru')));
             foreach($cookie as $cvals){
                 if ($cvals==''){
                     continue;
                 }
                 $ckUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
                 if (!$ckUser) {
-                    setcookie('pagemru',null,-1,'/');
+                    setcookie(session_name('pagemru'),null,-1);
                     break;
                 }
                 $ckCt ++;
@@ -215,7 +214,7 @@ function fuzzyname($str1) {
 
     <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
-        <!--<h6> <?php echo preg_match('/(Friday|Saturday)/',$call_d);?></h6>-->
+        <h6> <?php print_r($_SERVER['REMOTE_USER']);?></h6>
         <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
         <a href="back.php" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
