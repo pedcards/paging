@@ -73,7 +73,7 @@ if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t <= 
     $call = array(
         'PM_We_A', 'PM_We_F',
         ($call_t >= 17 || $call_t <= 8) ? 'CICU_PM' : 'CICU',
-        'EP',
+        ($call_t >= 17 && $call_d == 'Friday') ?: 'EP',
         'Txp',
         'ARNP_IP'
     );
@@ -130,11 +130,6 @@ function fuzzyname($str1) {
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
-    <script>
-        $('#main').on('panelopen','#search', function(){
-            $('#auto-editUser').focus();
-        });
-    </script>
     <div data-role="panel" id="search" data-display="overlay">
         <form class="ui-filterable">
             <input id="auto-editUser" data-type="search" placeholder="Find user...">
@@ -157,6 +152,7 @@ function fuzzyname($str1) {
             ?>
         </ul>
         </div>
+        <div data-role="collapsibleset" data-inset="false">
         <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed-icon="phone">
             <h4>On call list</h4>
         <ul data-role="listview">
@@ -169,7 +165,7 @@ function fuzzyname($str1) {
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
                     $liUserId = fuzzyname($chName)['uid'];
-                    $chName .= ' (?)';
+                    $chName .= '*';
                 }
                 $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
                 $liGroup = $liUser->xpath('..')[0]->getName();
@@ -180,6 +176,12 @@ function fuzzyname($str1) {
             ?>
         </ul>
         </div>
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed-icon="clock">
+            <?php
+            if (filter_input(INPUT_COOKIE,'pagemru')){
+                echo '            <h4>Recently used numbers</h4>';
+            }
+            ?>
         <form method="post" id="clearcookie" action="index.php" data-ajax="false">
             <input type="hidden" name="clearck" value="y">
         </form>
@@ -206,6 +208,8 @@ function fuzzyname($str1) {
             }
             ?>
         </ul>
+        </div>
+        </div>
     </div>
 
     <div data-role="header" data-theme="b" >

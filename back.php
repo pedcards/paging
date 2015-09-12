@@ -165,7 +165,7 @@ function noAuth($title='User info editor',$button='Request authorization',$page=
     <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
         <div data-role="header">
             <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
-            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
             <form method="post" action="edit.php?auth=<?php echo $page;?>">
