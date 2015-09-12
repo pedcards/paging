@@ -10,6 +10,7 @@
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
     <!--==========================================-->
     <?php
+    session_start();
     $isLoc = true;
     $cdnJqm = '1.4.5';
     $cdnJQ = '1.11.1';
@@ -153,7 +154,7 @@ function fuzzyname($str1) {
         </ul>
         </div>
         <div data-role="collapsibleset" data-inset="false">
-        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed-icon="phone">
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="phone">
             <h4>On call list</h4>
         <ul data-role="listview">
             <?php
@@ -176,7 +177,7 @@ function fuzzyname($str1) {
             ?>
         </ul>
         </div>
-        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed-icon="clock">
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="clock">
             <?php
             if (filter_input(INPUT_COOKIE,'pagemru')){
                 echo '            <h4>Recently used numbers</h4>';
