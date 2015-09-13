@@ -17,18 +17,20 @@
 
 <?php
 function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
-    echo '<div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="'.$bg.'">'."\r\n";
-    echo '    <div data-role="header" data-theme="'.$bar.'">'."\r\n";
-    echo '        <h1 style="color:'.$tcolor.'">'.$title.'</h1>'."\r\n";
-    echo '    <div>';
-    echo '    <div data-role="content" data-theme="'.$fg.'">'."\r\n";
-    echo '        <p style="text-align:center">'."\r\n";
-    echo '            '.$msg1."<br>\r\n";
-    echo '            <img src="images/'.$img.'" alt="'.$alt.'"><br>'."\r\n";
-    echo '            '.$msg2."<br>\r\n";
-    echo '        </p>'."\r\n";
-    echo '    </div>'."\r\n";
-    echo '</div>'."\r\n";
+    ?>
+    <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
+        <div data-role="header" data-theme="<?php echo $bar;?>">
+            <h1 style="color:<?php echo $tcolor;?>"><?php echo $title;?></h1>
+        </div>
+        <div data-role="content" data-theme="<?php echo $fg;?>">
+            <p style="text-align:center">
+                <?php echo $msg1;?><br>
+                <img src="images/<?php echo $img;?>" alt="<?php echo $alt;?>"><br>
+                <?php echo $msg2;?><br>
+            </p>
+        </div>
+    </div>
+    <?php
 }
 function simple_decrypt($text, $salt = "") {
     if (!$salt) {
@@ -39,6 +41,10 @@ function simple_decrypt($text, $salt = "") {
     }
     return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
+function smartnum($text) {
+    return preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $text);
+}
+
 // **** Referrer info for logfile ****
     $logfile = 'logs/'.date('Ym').'.csv';
     $ipaddress = '';
@@ -119,13 +125,13 @@ if ($fromName == "") {
     exit;
 }
 
-// Send SMS email
+// Send other services
 $smsMsg = 'Page';
 if (($sendto == "B") || ($sendto == "C")) {
     if ($sendSvc == 'sms'){
         $headers = "From: ".$fromName."@heart.center\r\n".
             "X-Mailer: php";
-        mail($sendStr, "", $messagePost."\n==========\n<<<Do not reply to this message!>>>", $headers);
+        mail(smartnum($sendStr), "", smartnum($messagePost)."\n==========\n<<<Do not reply to this message!>>>", $headers);
         $diag = array(
             'SMS','green',
             'Text message sent to cell phone!',
@@ -135,12 +141,11 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "SMS and Page";
     }
     if ($sendSvc == 'pbl'){
-        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
         $data = array(
             "email" => $sendStr,
             "type" => "note",
-            "title" => "FROM: ".$fromName,
-            "body" => $msgRepl
+            "title" => "FROM: ".smartnum($fromName),
+            "body" => smartnum($messagePost)
             );
         $data_string = json_encode($data);
         $ch = curl_init('https://api.pushbullet.com/v2/pushes');
@@ -161,15 +166,15 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushbullet and Page";
     }
     if ($sendSvc=='pov'){
-        $frmRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $fromName);
-        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
+        $frmRepl = smartnum($fromName);
+        $msgRepl = smartnum($messagePost);
         curl_setopt_array($ch = curl_init(), array(
             CURLOPT_URL => "https://api.pushover.net/1/messages.json",
             CURLOPT_POSTFIELDS => array(
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
-                "title" => "[FROM: ".$frmRepl.'] '.$msgRepl,
-                "message" => '<end>'
+                "title" => "[FROM: ".$frmRepl.']',
+                "message" => $msgRepl
             ),
             CURLOPT_SAFE_UPLOAD => true,
         ));
@@ -183,13 +188,12 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushover and Page";
     }
     if ($sendSvc=='bxc'){
-        $msgRepl = preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $messagePost);
         curl_setopt_array($chpush = curl_init(), array(
             CURLOPT_URL => "https://new.boxcar.io/api/notifications",
             CURLOPT_POSTFIELDS => array(
                 "user_credentials" => $sendStr,
-                "notification[title]" => 'FROM: '.$fromName,
-                "notification[long_message]" => $msgRepl,
+                "notification[title]" => 'FROM: '.smartnum($fromName),
+                "notification[long_message]" => smartnum($messagePost),
                 "notification[sound]" => "bird-1",
             ),
             CURLOPT_SAFE_UPLOAD => true,
