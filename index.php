@@ -100,13 +100,13 @@ function getUid($in) {
     $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
     return $el['uid'];
 }
-function fuzzyname($str1) {
+function fuzzyname($str) {
     global $xml;
     $users = $xml->xpath('//user');
     $shortest = -1;
     foreach ($users as $user) {
         $name = $user['first']." ".$user['last'];
-        $lev = levenshtein($str1, $name);
+        $lev = levenshtein($str, $name);
         if ($lev == 0) {
             $closest = $name;
             $shortest = 0;
@@ -135,7 +135,7 @@ function fuzzyname($str1) {
             <input id="auto-editUser" data-type="search" placeholder="Find user...">
         </form>
         <div style="margin-bottom: 24px;">
-        <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="true" data-theme="b">
+        <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="false" data-theme="b">
             <?php
             // auto reveal items from search bar
             $liUsers = $xml->xpath('//user');
@@ -178,7 +178,7 @@ function fuzzyname($str1) {
         </div>
         <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="clock">
             <?php
-            if (filter_input(INPUT_COOKIE,session_name('pagemru'))){
+            if (filter_input(INPUT_COOKIE,'pagemru')){
                 echo '            <h4>Recently used numbers</h4>';
             }
             ?>
@@ -188,14 +188,14 @@ function fuzzyname($str1) {
         <ul data-role="listview">
             <?php
             // show cookies
-            $cookie = explode(",", filter_input(INPUT_COOKIE,session_name('pagemru')));
+            $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
             foreach($cookie as $cvals){
                 if ($cvals==''){
                     continue;
                 }
                 $ckUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
                 if (!$ckUser) {
-                    setcookie(session_name('pagemru'),null,-1);
+                    setcookie('pagemru',null,-1);
                     break;
                 }
                 $ckCt ++;
@@ -214,7 +214,6 @@ function fuzzyname($str1) {
 
     <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
-        <h6> <?php print_r($_SERVER['REMOTE_USER']);?></h6>
         <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
         <a href="back.php" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->

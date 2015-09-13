@@ -96,8 +96,7 @@ fclose($out);
 // Update the MRU cookie
 if ($pin) {
     $cstr = $uid;
-    //$cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
-    $cookie = explode(",", filter_input(INPUT_COOKIE,  session_name('pagemru')));
+    $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
     $i = 0;
     foreach($cookie as $cvals){
         if ($cvals==$uid){
@@ -109,8 +108,7 @@ if ($pin) {
         }
         $cstr .= ','.$cvals;
     }
-    //setcookie("pagemru",$cstr,time()+(86400*30),"/");
-    setcookie(session_name('pagemru'),$cstr,time()+(86400*30));
+    setcookie('pagemru',$cstr,time()+(86400*30));
 }
 // Error handling if no FROM specified
 
