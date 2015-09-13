@@ -129,7 +129,7 @@ if ($fromName == "") {
 $smsMsg = 'Page';
 if (($sendto == "B") || ($sendto == "C")) {
     if ($sendSvc == 'sms'){
-        $headers = "From: ".$fromName."@heart.center\r\n".
+        $headers = "From: ".$fromName."@paging\r\n".
             "X-Mailer: php";
         mail(smartnum($sendStr), "", smartnum($messagePost)."\n==========\n<<<Do not reply to this message!>>>", $headers);
         $diag = array(

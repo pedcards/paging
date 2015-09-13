@@ -101,10 +101,10 @@ if (\filter_input(\INPUT_GET, 'auth') == '2') {
     if (strpos($ref,'auth')) {
         $key = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwyxz'),0,4);
         mail($eml, 
-                "Heart Center Paging", 
+                "Heart Center Paging ".$key, 
                 "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
                 .'The access token is "'.$key.'"'."\r\n\r\n"
-                ."The code will self-destruct in 20 minutes.\r\n"
+                ."The code will self-destruct in 20 minutes.\r\n\r\n"
                 ."Please act responsibly."
                 );
         $cookieTime = time()+20*60;
