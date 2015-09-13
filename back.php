@@ -38,7 +38,6 @@ $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
 $import = \filter_input(INPUT_POST, 'import');
 $uid = \filter_input(\INPUT_POST, 'uid');
-
 if (($save!=='y') && ($uid)) {
     // $save exists but not 'y', must have clicked Delete.
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
@@ -95,25 +94,25 @@ if ($add) {
             unset($user->pager);
         }
         if ($numSms) {
-            $user->sms['num'] = simple_encrypt($numSms);
-            $user->sms['sys'] = $numSmsSys;
+            $user->option->sms['num'] = simple_encrypt($numSms);
+            $user->option->sms['sys'] = $numSmsSys;
         } else {
-            unset($user->sms);
+            unset($user->option->sms);
         }
         if ($numPushBul) {
-            $user->pushbul['eml'] = simple_encrypt($numPushBul);
+            $user->option->pushbul['eml'] = simple_encrypt($numPushBul);
         } else {
-            unset($user->pushbul);
+            unset($user->option->pushbul);
         }
         if ($numPushOver) {
-            $user->pushover['num'] = simple_encrypt($numPushOver);
+            $user->option->pushover['num'] = simple_encrypt($numPushOver);
         } else {
-            unset($user->pushover);
+            unset($user->option->pushover);
         }
         if ($numBoxcar) {
-            $user->boxcar['num'] = simple_encrypt($numBoxcar);
+            $user->option->boxcar['num'] = simple_encrypt($numBoxcar);
         } else {
-            unset($user->boxcar);
+            unset($user->option->boxcar);
         }
         if ($numSysOpt) {
             $user->option['mode'] = $numSysOpt;
@@ -177,6 +176,8 @@ function noAuth($title='User info editor',$button='Request authorization',$page=
     </div>
     <?php
 }
+setcookie("pageeditT",time()+20*60);
+
 if ($import) {          // Need to make this non-destructive, only overwrite non-existent info
     // Read "list.csv" into array
     $imXml = new SimpleXMLElement("<root />");
@@ -230,8 +231,8 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 $tmpUser->pager['sys'] = $tmpPageSys;
             }
             if ($tmpCellNum) {
-                $tmpUser->sms['num'] = $tmpCellNum;
-                $tmpUser->sms['sys'] = $tmpCellSys;
+                $tmpUser->option->sms['num'] = $tmpCellNum;
+                $tmpUser->option->sms['sys'] = $tmpCellSys;
             }
             if ($tmpSysOpt) {
                 $tmpUser->option['mode'] = $tmpSysOpt;

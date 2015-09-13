@@ -136,11 +136,11 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $sec = ($edUserId) ? $user['sec'] : '';
     $numPager = ($edUserId) ? simple_decrypt($user->pager['num']) : '';
     $numPagerSys = ($edUserId) ? $user->pager['sys'] : '';
-    $numSms = ($edUserId) ? simple_decrypt($user->sms['num']) : '';
-    $numSmsSys = ($edUserId) ? $user->sms['sys'] : '';
-    $numPushBul = ($edUserId) ? simple_decrypt($user->pushbul['eml']) : '';
-    $numPushOver = ($edUserId) ? simple_decrypt($user->pushover['num']) : '';
-    $numBoxcar = ($edUserId) ? simple_decrypt($user->boxcar['num']) : '';
+    $numSms = ($edUserId) ? simple_decrypt($user->option->sms['num']) : '';
+    $numSmsSys = ($edUserId) ? $user->option->sms['sys'] : '';
+    $numPushBul = ($edUserId) ? simple_decrypt($user->option->pushbul['eml']) : '';
+    $numPushOver = ($edUserId) ? simple_decrypt($user->option->pushover['num']) : '';
+    $numBoxcar = ($edUserId) ? simple_decrypt($user->option->boxcar['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userCis = ($edUserId) ? simple_decrypt($user->auth['cis']) : '';
@@ -217,10 +217,10 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
             <div class="ui-bar ui-bar-a">
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
+                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
                     </div>
                     <div class="ui-block-b">
-                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
+                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text" >
                     </div>
                 </div>
                 <div class="ui-grid-a">
@@ -236,11 +236,11 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                         </fieldset>
                     </div>
                 </div>
-                <select name="userGroup" id="addGroup" data-native-menu="false" <?php echo ($isAdmin) ?: 'disabled="disabled"';?>>
+                <select name="userGroup" id="addGroup" data-native-menu="false" >
                     <option>Choose group</option>
                     <?php
                     foreach($groupfull as $grp => $grpStr) {
-                        echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'">'.$grpStr.'</option>';
+                        echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'>'.$grpStr.'</option>';
                     }?>
                 </select>
                 <?php if ($isAdmin) { ?>

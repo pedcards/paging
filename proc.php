@@ -98,18 +98,18 @@ $group = $xml->groups->$grp;
                         $liOptSvc = $liUser->option['sys'];
                         if ($liOptSvc == "sms") {
                             $liOptStr = simple_decrypt($liUser->sms['num']).
-                                (($liUser->sms['sys']=="A") ? "@txt.att.net":'').
-                                (($liUser->sms['sys']=="V") ? "@vtext.com":'').
-                                (($liUser->sms['sys']=="T") ? "@tmomail.net":'');
+                                (($liUser->option->sms['sys']=="A") ? "@txt.att.net":'').
+                                (($liUser->option->sms['sys']=="V") ? "@vtext.com":'').
+                                (($liUser->option->sms['sys']=="T") ? "@tmomail.net":'');
                         }
                         if ($liOptSvc == "pbl") {
-                            $liOptStr = simple_decrypt($liUser->pushbul['eml']);
+                            $liOptStr = simple_decrypt($liUser->option->pushbul['eml']);
                         }
                         if ($liOptSvc == "pov") {
-                            $liOptStr = simple_decrypt($liUser->pushover['num']);
+                            $liOptStr = simple_decrypt($liUser->option->pushover['num']);
                         }
                         if ($liOptSvc == "bxc") {
-                            $liOptStr = simple_decrypt($liUser->boxcar['num']);
+                            $liOptStr = simple_decrypt($liUser->option->boxcar['num']);
                         }
                     }
                     $pagerline = array(
