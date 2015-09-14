@@ -150,7 +150,7 @@ if ($add) {
 $cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
 $cookie = filter_input(INPUT_COOKIE,'pageedit');
 if (!$cookie) {
-    noAuth();
+    //noAuth();
 }
 $user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
@@ -176,7 +176,9 @@ function noAuth($title='User info editor',$button='Request authorization',$page=
     </div>
     <?php
 }
-setcookie("pageeditT",time()+20*60);
+$newTime = time()+20*60;
+setcookie("pageedit",$cookie,$newTime);
+setcookie("pageeditT",$newTime);
 
 if ($import) {          // Need to make this non-destructive, only overwrite non-existent info
     // Read "list.csv" into array
@@ -205,7 +207,8 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 (($arrLine[$row][5]=='VZN') ?
                     'V' :
                 (($arrLine[$row][5]=='TMO') ?
-                    'T' : 'ERR'));
+                    'T' : 
+                    'ERR'));
             $tmpCellNum = simple_encrypt($arrLine[$row][6]); 
             $tmpSysOpt = ($arrLine[$row][7]) ?: 'A';
             $tmpNotifSys = $arrLine[$row][8];
@@ -230,6 +233,10 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 $tmpUser->pager['num'] = $tmpPageNum;
                 $tmpUser->pager['sys'] = $tmpPageSys;
             }
+            if ($tmpCis) {
+                $tmpUser->auth['cis'] = $tmpCis;
+                $tmpUser->auth['eml'] = $tmpEml;
+            }
             if ($tmpCellNum) {
                 $tmpUser->option->sms['num'] = $tmpCellNum;
                 $tmpUser->option->sms['sys'] = $tmpCellSys;
@@ -237,9 +244,13 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
             if ($tmpSysOpt) {
                 $tmpUser->option['mode'] = $tmpSysOpt;
             }
-            if ($tmpCis) {
-                $tmpUser->auth['cis'] = $tmpCis;
-                $tmpUser->auth['eml'] = $tmpEml;
+            $tmpOpts = $groups->xpath("//user[@uid='".$tmpUser['uid']."']/option");
+            if (count($tmpOpts[0])) {
+                $dom_opt = dom_import_simplexml($tmpOpts);
+                $dom_imp = dom_import_simplexml($tmpUser[0]);
+                //$dom_new = $dom_imp->appendChild($dom_opt);
+                //$new_node = simplexml_import_dom($dom_new);
+                $addUser = $tmpUser[0];
             }
             $row++;
         }
@@ -256,7 +267,9 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
         <?php
             $msg = (copy('list.xml','list.'.date('YmdHis').'.bak')) ? 'List.xml backed up</br>' : 'Failed to backup list.xml</br>';
             $msg .= (copy($tmpListName,'list.xml')) ? 'List.xml successfully replaced</br>' : 'Failed to replace list.xml</br>';
+            $msg .= $addUser;
             echo '<a href="back.php" class="ui-btn ui-btn-b" data-ajax="false">'.$msg.'</a>';
+            print_r($addUser);
         ?>
         </div>
     </div>
