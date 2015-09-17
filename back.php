@@ -188,8 +188,9 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
     $row = 0;
     $imXml->addChild('groups');
     if (($handle = fopen("list.csv", "r")) !== FALSE) {
+        $csvline = fgetcsv($handle, 1000, ",");
         while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            $tmpGroup = $arrLine[$row][0];
+            $tmpGroup = $arrLine[$row][array_search('Group',$csvline)];
             if ($tmpGroup == 'Group') {
                 $tmpGroup = '';
             }
@@ -198,22 +199,23 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 continue;
             }
             usleep(1);
-            $tmpLastName = $arrLine[$row][1];
-            $tmpFirstName = $arrLine[$row][2];
-            $tmpPageSys = ($arrLine[$row][3]=='COOK') ? 'C' : (($arrLine[$row][3]=='USAM') ? 'U' : 'ERR');
-            $tmpPageNum = simple_encrypt($arrLine[$row][4]);
-            $tmpCellSys = ($arrLine[$row][5]=='ATT') ?
+            $tmpLastName = $arrLine[$row][array_search('Last',$csvline)];
+            $tmpFirstName = $arrLine[$row][array_search('First',$csvline)];
+            $tmpPageSys = ($arrLine[$row][array_search('System',$csvline)]=='COOK') ? 'C' 
+                    : (($arrLine[$row][array_search('System',$csvline)]=='USAM') ? 'U' : 'ERR');
+            $tmpPageNum = simple_encrypt($arrLine[$row][array_search('Pager',$csvline)]);
+            $tmpCellSys = ($arrLine[$row][array_search('Carrier',$csvline)]=='ATT') ?
                     'A' :
-                (($arrLine[$row][5]=='VZN') ?
+                (($arrLine[$row][array_search('Carrier',$csvline)]=='VZN') ?
                     'V' :
-                (($arrLine[$row][5]=='TMO') ?
+                (($arrLine[$row][array_search('Carrier',$csvline)]=='TMO') ?
                     'T' : 
                     'ERR'));
-            $tmpCellNum = simple_encrypt($arrLine[$row][6]); 
-            $tmpSysOpt = ($arrLine[$row][7]) ?: 'A';
-            $tmpNotifSys = $arrLine[$row][8];
-            $tmpCis = simple_encrypt($arrLine[$row][9]);
-            $tmpEml = simple_encrypt($arrLine[$row][10]);
+            $tmpCellNum = simple_encrypt($arrLine[$row][array_search('SMS',$csvline)]); 
+            $tmpSysOpt = ($arrLine[$row][array_search('Mode',$csvline)]) ?: 'A';
+            $tmpNotifSys = $arrLine[$row][array_search('Carrier',$csvline)];
+            $tmpCis = simple_encrypt($arrLine[$row][array_search('CIS',$csvline)]);
+            $tmpEml = simple_encrypt($arrLine[$row][array_search('Email',$csvline)]);
             $tmpUserGrp = ($imXml->groups->$tmpGroup) ?: $imXml->groups->addChild($tmpGroup);
             if (substr($tmpLastName, 0, 3)==":::") {
                 $tmpSection = substr($tmpLastName, 4);
@@ -273,7 +275,7 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
             $msg .= (copy($tmpListName,'list.xml')) ? 'List.xml successfully replaced</br>' : 'Failed to replace list.xml</br>';
             $msg .= $addUser;
             echo '<a href="back.php" class="ui-btn ui-btn-b" data-ajax="false">'.$msg.'</a>';
-            print_r($addUser);
+            print_r(array_search('First',$csvline));
         ?>
         </div>
     </div>

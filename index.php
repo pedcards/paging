@@ -51,6 +51,7 @@ $alerttext =
         . '* Search bar! (upper left)<br>'
         . '* Recently used numbers!<br>'
         . '* Encryption!<br>'
+        . '* On-call list!<br>'
         . '* Extra notification services!<br>'
         . '</p>'
         ;
@@ -150,7 +151,7 @@ function fuzzyname($str) {
         </div>
         <div data-role="collapsibleset" data-inset="false">
         <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="phone">
-            <h4>On call list</h4>
+            <h4>On call: <?php echo date("D m/d/Y");?></h4>
         <ul data-role="listview">
             <?php
             foreach($call as $callU){
