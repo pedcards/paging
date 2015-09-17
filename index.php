@@ -69,16 +69,16 @@ $chip = simplexml_load_file('../patlist/currlist.xml');
 $call_dt = date("Ymd");
 $call_d = date("l");
 $call_t = date("H");
-if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t <= 8)) {
+if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8)) {
     $call = array(
         'PM_We_A', 'PM_We_F',
-        ($call_t >= 17 || $call_t <= 8) ? 'CICU_PM' : 'CICU',
+        ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
         ($call_t >= 17 && $call_d == 'Friday') ?: 'EP',
         'Txp',
         'ARNP_IP'
     );
 }
-if ($call_t <= 8) {
+if ($call_t < 8) {
     $call_dt = date("Ymd", time()-60*60*24);
 }
 
@@ -120,11 +120,7 @@ function fuzzyname($str) {
         }
     }
     $user = $xml->xpath("//user[@uid='".$uid."']")[0];
-    return array(
-        'first'=>$user['first'],
-        'last'=>$user['last'],
-        'uid'=>$user['uid']
-    );
+    return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
 }
 ?>
 

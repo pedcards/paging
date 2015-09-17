@@ -237,20 +237,27 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 $tmpUser->auth['cis'] = $tmpCis;
                 $tmpUser->auth['eml'] = $tmpEml;
             }
-            if ($tmpCellNum) {
-                $tmpUser->option->sms['num'] = $tmpCellNum;
-                $tmpUser->option->sms['sys'] = $tmpCellSys;
-            }
-            if ($tmpSysOpt) {
-                $tmpUser->option['mode'] = $tmpSysOpt;
-            }
-            $tmpOpts = $groups->xpath("//user[@uid='".$tmpUser['uid']."']/option");
-            if (count($tmpOpts[0])) {
-                $dom_opt = dom_import_simplexml($tmpOpts);
-                $dom_imp = dom_import_simplexml($tmpUser[0]);
-                //$dom_new = $dom_imp->appendChild($dom_opt);
-                //$new_node = simplexml_import_dom($dom_new);
-                $addUser = $tmpUser[0];
+            $tmpOpts = $groups->xpath("//user[@uid='".$tmpUser['uid']."']/option")[0];
+            if (count($tmpOpts)) {
+                $nodeIn = dom_import_simplexml($tmpOpts);
+                
+                $dom_out = new DOMDocument();
+                $domnew = dom_import_simplexml($imXml);
+                $domImp = $dom_out->importNode($domnew,true);
+                $dom_out->appendChild($domImp);
+                $xpathOut = new DOMXPath($dom_out);
+                $nodeOut = $xpathOut->query("//user[@uid='".$tmpUser['uid']."']")->item(0);
+                $nodeImp = $dom_out->importNode($nodeIn,true);
+                $nodeOut->appendChild($nodeImp);
+                $imXml = simplexml_import_dom($dom_out);
+            } else {
+                if ($tmpCellNum) {
+                    $tmpUser->option->sms['num'] = $tmpCellNum;
+                    $tmpUser->option->sms['sys'] = $tmpCellSys;
+                }
+                if ($tmpSysOpt) {
+                    $tmpUser->option['mode'] = $tmpSysOpt;
+                }
             }
             $row++;
         }
