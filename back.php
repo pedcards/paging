@@ -242,13 +242,10 @@ if ($import) {          // Need to make this non-destructive, only overwrite non
                 $nodeIn = dom_import_simplexml($tmpOpts);
                 
                 $dom_out = new DOMDocument();
-                $domnew = dom_import_simplexml($imXml);
-                $domImp = $dom_out->importNode($domnew,true);
-                $dom_out->appendChild($domImp);
+                $dom_out->appendChild($dom_out->importNode(dom_import_simplexml($imXml),true));
                 $xpathOut = new DOMXPath($dom_out);
                 $nodeOut = $xpathOut->query("//user[@uid='".$tmpUser['uid']."']")->item(0);
-                $nodeImp = $dom_out->importNode($nodeIn,true);
-                $nodeOut->appendChild($nodeImp);
+                $nodeOut->appendChild($dom_out->importNode($nodeIn,true));
                 $imXml = simplexml_import_dom($dom_out);
             } else {
                 if ($tmpCellNum) {
