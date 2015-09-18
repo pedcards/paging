@@ -7,9 +7,10 @@
         <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
         <?php
         $isLoc = true;
-        $cdnJqm = '1.4.5';
-        $cdnJQ = '1.11.1';
-        $instr = "(c)2007-2015 by Terrence Chun, MD.";
+        $ini = parse_ini_file("paging.ini");
+        $cdnJqm = $ini['jqm'];
+        $cdnJQ = $ini['jquery'];
+        $instr = $ini['copyright'];
         ?>
         <title>Heart Center Paging</title>
     </head>
@@ -63,7 +64,6 @@ function smartnum($text) {
     } else {
         $ipaddress = 'UNKNOWN';
     }
-
 // **** SNPP server Info ****
 //$ip = '63.172.11.60';
 $ip = 'snpp.amsmsg.net';
@@ -117,8 +117,6 @@ if ($pin) {
     setcookie('pagemru',$cstr,time()+(86400*30));
 }
 // Error handling if no FROM specified
-
-// TODO: create function call for dialog boxes.
 
 if ($fromName == "") {
     dialog('FAIL','red','', (($pin)?'The <b>FROM</b> field is <b>REQUIRED!</b>':'Must select a user!'), 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');

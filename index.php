@@ -10,10 +10,10 @@
     <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
     <!--==========================================-->
     <?php
+    $ini = parse_ini_file("paging.ini");
     $isLoc = true;
-    $cdnJqm = '1.4.5';
-    $cdnJQ = '1.11.1';
-    
+    $cdnJqm = $ini['jqm'];
+    $cdnJQ = $ini['jquery'];
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -44,17 +44,7 @@ if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
 }
 $pagealert = filter_input(INPUT_COOKIE, 'pagealert');
-$alerttext =
-        '<p>Paging version 3.0</p>'
-        . '<p>New and improved!</p>'
-        . '<p>Features:<br>'
-        . '* Search bar! (upper left)<br>'
-        . '* Recently used numbers!<br>'
-        . '* Encryption!<br>'
-        . '* On-call list!<br>'
-        . '* Extra notification services!<br>'
-        . '</p>'
-        ;
+$alerttext = $ini['announce'];
 $texthash = md5($alerttext);
 setcookie('pagealert', $texthash, time()+30*86400);
 $call = array(
@@ -156,13 +146,13 @@ function fuzzyname($str) {
             <?php
             foreach($call as $callU){
                 $chName = $fc_call->$callU;
-                if (! $chName) {
+                if ($chName=='') {
                     continue;
                 }
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
                     $liUserId = fuzzyname($chName)['uid'];
-                    $chName .= '*';
+                    $chName = "'".$chName."'";
                 }
                 $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
                 $liGroup = $liUser->xpath('..')[0]->getName();

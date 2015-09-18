@@ -8,10 +8,10 @@
 <!--==========================================-->
     <?php
     $isLoc = true;
-    $cdnJqm = '1.4.5';
-    $cdnJQ = '1.11.1';
-    $instr = "(c)2007-2015 by Terrence Chun, MD.";
-    
+    $ini = parse_ini_file("paging.ini");
+    $cdnJqm = $ini['jqm'];
+    $cdnJQ = $ini['jquery'];
+    $instr = $ini['copyright'];
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
