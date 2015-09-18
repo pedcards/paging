@@ -99,13 +99,14 @@ if (\filter_input(\INPUT_GET, 'auth') == '2') {
         <?php
     }
     if (strpos($ref,'auth')) {
-        $key = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwyxz'),0,4);
+        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
         mail($eml, 
-                "Heart Center Paging ".$key, 
+                "Heart Center Paging [".$key."]", 
                 "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
                 .'The access token is "'.$key.'"'."\r\n\r\n"
                 ."The code will self-destruct in 20 minutes.\r\n\r\n"
-                ."Please act responsibly."
+                ."Please act responsibly.\r\n\r\n"
+                ."- The Management"
                 );
         $cookieTime = time()+20*60;
         setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
