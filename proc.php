@@ -68,6 +68,7 @@ foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
 $group = $xml->groups->$grp;
+            $numsec = count($group->xpath("user[@sec]"));
 ?>
 
 <!-- Start of first page -->
@@ -83,14 +84,17 @@ $group = $xml->groups->$grp;
         <label for="NUMBER" >To:</label>
         <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
+            echo '<option>'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>';
             foreach($group->user as $liUser) {
                 $liUid = $liUser['uid'];
                 $liNameL = $liUser['last'];
                 $liNameF = $liUser['first'];
                 if ($liUser['sec']){
-                    $liSec = $liUser['sec'];
-                    $pagerline = '';
-                    $liName = '::: '.$liSec.' :::';
+                    if ($numsec==1){
+                        continue;
+                    }
+                    echo '<optgroup label="'.$liUser['sec'].'">'."\r\n";
+                    continue;
                 } else {
                     $liSec = '';
                     $liOpt = $liUser->option['mode'];
