@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
+    <script type="text/javascript" src="./jqm/jqm-windows.alertbox.min.js"></script>
 <!--==========================================-->
     <title>Paging v3</title>
     
@@ -54,7 +55,8 @@ function simple_decrypt($text, $salt = "") {
 </head>
 <body>
 <?php
-$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),array('tchun1')));
+$pageUser = filter_input(INPUT_COOKIE, 'pageuser');
+$isAdmin = (in_array($pageUser,$ini['admin']));
 $xml = simplexml_load_file("list.xml");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -148,6 +150,7 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $userEml = ($edUserId) ? simple_decrypt($user->auth['eml']) : '';
     $userGroup = ($edUserId) ? $user->xpath('..')[0] : '';
     $userGroupName = ($edUserId) ? $userGroup->getName() : '';
+$matchUser = ($pageUser == $userCis) ? true : false; 
 
 if (\filter_input(\INPUT_GET, 'move') == 'Y') {
     $moveway = \filter_input(\INPUT_POST,'action');
@@ -237,22 +240,25 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                         </fieldset>
                     </div>
                 </div>
-                <select name="userGroup" id="addGroup" data-native-menu="false" >
-                    <option>Choose group</option>
-                    <?php
-                    foreach($groupfull as $grp => $grpStr) {
-                        echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'>'.$grpStr.'</option>';
-                    }?>
-                </select>
-                <?php if ($isAdmin) { ?>
-                <div class="ui-field-contain">
-                    <label for="addCis">CIS logon</label>
-                    <input name="userCis" id="addCis" value="<?php echo $userCis;?>" type="text">
-                </div>
-                <div class="ui-field-contain">
-                    <label for="addEml">SCH email</label>
-                    <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*(@seattlechildrens.org)" type="text">
-                </div>
+                <?php
+                if ($isAdmin){?>
+                    <select name="userGroup" id="addGroup" data-native-menu="false" >
+                        <option>Choose group</option>
+                        <?php
+                        foreach($groupfull as $grp => $grpStr) {
+                            echo '<option value="'.$grp.'" '.(($userGroupName==$grp) ? 'selected="selected"' : '').'>'.$grpStr.'</option>';
+                        }?>
+                    </select>
+                    <div class="ui-field-contain">
+                        <label for="addCis">CIS logon</label>
+                        <input name="userCis" id="addCis" value="<?php echo $userCis;?>" type="text">
+                    </div>
+                    <div class="ui-field-contain">
+                        <label for="addEml">SCH email</label>
+                        <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*(@seattlechildrens.org)" type="text">
+                    </div>
+                <?php } else { ?>
+                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $groupfull[$userGroupName]; ?></a>
                 <?php } ?>
             </div>
         </div>
@@ -306,8 +312,17 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
         </div>
         <input type="hidden" name="add" value="<?php echo ($edUserId) ? 'edit' : 'user';?>">
         <input type="hidden" name="uid" value="<?php echo $edUserId;?>">
+        <input type="hidden" name="match" value="<?php echo $matchUser;?>">
         <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" name="save" value="y">Save</button>
     </form>
+    <?php if (! $matchUser) { ?>
+        <div class="ui-content jqm-alert-box" data-alertbox-close-time="20000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" >
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            <p>EDITING ANOTHER USER</p>
+            <p>Hopefully they know what you're up to...</p>
+        </div> 
+    <?php } ?>
+
 </div>
 
 <div data-role="popup" id="delConf">

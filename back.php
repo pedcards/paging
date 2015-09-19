@@ -28,7 +28,7 @@
 </head>
 <body>
 <?php
-$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),array('tchun1')));
+$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),$ini['admin']));
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -61,6 +61,7 @@ if ($add) {
     $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
     $userCis = \filter_input(\INPUT_POST, 'userCis');
     $userEml = \filter_input(\INPUT_POST, 'userEml');
+    $matchUser = \filter_input(\INPUT_POST, 'match');
     if ($uid) {
         $userGroupOld = $groups->xpath("//user[@uid='".$uid."']")[0]->xpath("..")[0]->getName();
     }
@@ -80,6 +81,7 @@ if ($add) {
     if ($err) {
         errmsg($err);
     } else {                                                // No errors, write
+            $xmlOrig = $xml;
         if ($userGroup !== $userGroupOld) {
            unset($groups->$userGroupOld->xpath("user[@uid='".$uid."']")[0][0]);
          }
@@ -145,13 +147,15 @@ if ($add) {
             $dom_new = $dom_All->appendChild($dom_grp);
             simplexml_import_dom($dom_new);
         }
+    $show1 = $xmlOrig->xpath("//user[@uid='".$uid."']")[0];
+    $show2 = $xml->xpath("//user[@uid='".$uid."']")[0];
     $xml->asXML("list.xml");
     }
 }
 $cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
 $cookie = filter_input(INPUT_COOKIE,'pageedit');
 if (!$cookie) {
-    noAuth();             // disable this to ignore auth check.
+    //noAuth();             // disable this to ignore auth check.
 }
 $user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
@@ -181,7 +185,7 @@ $newTime = time()+20*60;
 setcookie("pageedit",$cookie,$newTime);
 setcookie("pageeditT",$newTime);
 
-if ($import) {          // Need to make this non-destructive, only overwrite non-existent info
+if ($import) {
     // Read "list.csv" into array
     $imXml = new SimpleXMLElement("<root />");
     $arrLine = array();
@@ -346,6 +350,7 @@ function timeformat($diff) {
         ?>
         <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
         <a href="#import" class="ui-btn">Import CSV</a>
+        <a href="#export" class="ui-btn ui-state-disabled" >Export CSV (coming soon)</a>
         <?php
     }
     ?>
@@ -370,7 +375,6 @@ function timeformat($diff) {
             echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ($edNameL.', '.$edNameF)).'</i></a>';
             if ($isAdmin) { echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>'; }
             echo '</li>'."\r\n";
-            // perhaps use Session variable?
         }
         ?>
     </ul>
