@@ -81,7 +81,8 @@ if ($add) {
     if ($err) {
         errmsg($err);
     } else {                                                // No errors, write
-            $xmlOrig = $xml;
+        $origDom = dom_import_simplexml($xml->xpath("//user[@uid='".$uid."']")[0])->cloneNode(true);
+        $origXml = simplexml_import_dom($origDom);
         if ($userGroup !== $userGroupOld) {
            unset($groups->$userGroupOld->xpath("user[@uid='".$uid."']")[0][0]);
          }
@@ -90,40 +91,50 @@ if ($add) {
             $user['last'] = $nameL;
             $user['first'] = $nameF;
             $user['uid'] = ($uid) ?: uniqid();
+            $show = compare('Name',$origXml['first'].' '.$origXml['last'],$nameF.' '.$nameL);
         if ($numPager) {
             $user->pager['num'] = simple_encrypt($numPager);
             $user->pager['sys'] = $numPagerSys;
+            $show .= compare('Pager', simple_decrypt($origXml->pager['num']), $numPager);
+            $show .= preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('Pager sys', $origXml->pager['sys'], $numPagerSys)));
         } else {
             unset($user->pager);
         }
         if ($numSms) {
             $user->option->sms['num'] = simple_encrypt($numSms);
             $user->option->sms['sys'] = $numSmsSys;
+            $show .= compare('SMS',simple_decrypt($origXml->option->sms['num']),$numSms);
+            $show .= preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('SMS sys',$origXml->option->sms['sys'],$numSmsSys))));
         } else {
             unset($user->option->sms);
         }
         if ($numPushBul) {
             $user->option->pushbul['eml'] = simple_encrypt($numPushBul);
+            $show .= compare('Pushbullet',  simple_decrypt($origXml->option->pushbul['eml']),$numPushBul);
         } else {
             unset($user->option->pushbul);
         }
         if ($numPushOver) {
             $user->option->pushover['num'] = simple_encrypt($numPushOver);
+            $show .= compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$numPushOver);
         } else {
             unset($user->option->pushover);
         }
         if ($numBoxcar) {
             $user->option->boxcar['num'] = simple_encrypt($numBoxcar);
+            $show .= compare('Boxcar',  simple_decrypt($origXml->option->boxcar['num']),$numBoxcar);
         } else {
             unset($user->option->boxcar);
         }
         if ($numSysOpt) {
             $user->option['mode'] = $numSysOpt;
+            $show .= preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$numSysOpt))));
         } else {
             $user->option['mode'] = 'A';
         }
-        if ($numNotifSys) {
+        if (($numNotifSys)&&($numNotifSys!=='Choose notification...')) {
             $user->option['sys'] = $numNotifSys;
+            $show .= compare('System',$origXml->option['sys'],$numNotifSys);
         } else {
             unset($user->option['sys']);
         }
@@ -147,11 +158,23 @@ if ($add) {
             $dom_new = $dom_All->appendChild($dom_grp);
             simplexml_import_dom($dom_new);
         }
-    $show1 = $xmlOrig->xpath("//user[@uid='".$uid."']")[0];
-    $show2 = $xml->xpath("//user[@uid='".$uid."']")[0];
+        if (strlen($show)) {
+            mail(simple_decrypt($user->auth['eml'])?:'pedcards@uw.edu',
+                "Heart Center Paging info changes to ".$user->auth['cis'],
+                "Changes were saved to your user account by ".filter_input(INPUT_COOKIE, 'pageuser').". The current settings are:\r\n".$show
+            );
+        }
     $xml->asXML("list.xml");
     }
 }
+function compare($field,$old,$new) {
+    if ($old==$new) {
+        return '';
+    } else {
+        return $field.": '".$old."' -> '".$new."'\r\n";
+    }
+}
+
 $cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
 $cookie = filter_input(INPUT_COOKIE,'pageedit');
 if (!$cookie) {
@@ -345,15 +368,11 @@ function timeformat($diff) {
 </div><!-- /header -->
 
 <div data-role="content">
-    <?php
-    if ($isAdmin) {
-        ?>
+    <?php if ($isAdmin) { ?>
         <a href="edit.php" class="ui-btn ui-icon-plus ui-btn-icon-left">Add a user</a>
         <a href="#import" class="ui-btn">Import CSV</a>
         <a href="#export" class="ui-btn ui-state-disabled" >Export CSV (coming soon)</a>
-        <?php
-    }
-    ?>
+    <?php } ?>
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
