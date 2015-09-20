@@ -259,6 +259,11 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     </div>
                 <?php } else { ?>
                     <a class="ui-btn ui-shadow ui-corner-all"><?php echo $groupfull[$userGroupName]; ?></a>
+                    <input type="hidden" name="userGroup" value="<?php echo $userGroupName; ?>">
+                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $userCis?:'CIS name'; ?></a>
+                    <input type="hidden" name="userCis" value="<?php echo $userCis; ?>">
+                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $userEml?:'Email'; ?></a>
+                    <input type="hidden" name="userEml" value="<?php echo $userEml; ?>">
                 <?php } ?>
             </div>
         </div>
