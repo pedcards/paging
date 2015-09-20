@@ -64,7 +64,7 @@ if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8
     $call = array(
         'PM_We_A', 'PM_We_F',
         ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
-        ($call_t >= 17 && $call_d == 'Friday') ?: 'EP',
+        'EP',
         'Txp',
         'ARNP_IP'
     );
@@ -148,6 +148,14 @@ function fuzzyname($str) {
                 $chName = $fc_call->$callU;
                 if ($chName=='') {
                     continue;
+                }
+                if ($callU=='EP') {
+                    if ($call_d=='Friday' && $call_t>=17) {
+                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time()+60*60*24)."']/EP")[0];
+                    }
+                    if ($call_d=='Saturday') {
+                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time())."']/EP")[0];
+                    }
                 }
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
