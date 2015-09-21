@@ -73,7 +73,7 @@ $group = $xml->groups->$grp;
 
 <!-- Start of first page -->
 <div data-role="page" id="procmain" data-dom-cache="true"> <!-- page -->
-    <div data-role="header" data-add-back-btn="true" >
+    <div data-role="header" data-theme="b" data-add-back-btn="true" >
         <a href="index.php" data-ajax="false" class="ui-btn ui-shadow ui-icon-arrow-l ui-btn-icon-notext ui-corner-all" ><small>Back</small></a>
         <h3><?php echo $groupfull[$grp]; ?></h3>
     </div><!-- /header -->

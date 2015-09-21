@@ -221,10 +221,10 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
             <div class="ui-bar ui-bar-a">
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" >
+                        <input name="nameF" id="addNameF" value="<?php echo $nameF;?>" placeholder="First name" type="text" <?php echo (!$isAdmin)?'disabled="disabled"':'';?>>
                     </div>
                     <div class="ui-block-b">
-                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text" >
+                        <input name="nameL" id="addNameL" value="<?php echo $nameL;?>" placeholder="Last name" type="text" <?php echo (!$isAdmin)?'disabled="disabled"':'';?>>
                     </div>
                 </div>
                 <div class="ui-grid-a">
@@ -258,12 +258,14 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                         <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*(@seattlechildrens.org)" type="text">
                     </div>
                 <?php } else { ?>
-                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $groupfull[$userGroupName]; ?></a>
+                    <a class="ui-btn ui-shadow ui-corner-all ui-disabled"><?php echo $groupfull[$userGroupName]; ?></a>
                     <input type="hidden" name="userGroup" value="<?php echo $userGroupName; ?>">
-                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $userCis?:'CIS name'; ?></a>
+                    <a class="ui-btn ui-shadow ui-corner-all ui-disabled"><?php echo $userCis?:'CIS name'; ?></a>
                     <input type="hidden" name="userCis" value="<?php echo $userCis; ?>">
-                    <a class="ui-btn ui-shadow ui-corner-all"><?php echo $userEml?:'Email'; ?></a>
+                    <a class="ui-btn ui-shadow ui-corner-all ui-disabled"><?php echo $userEml?:'Email'; ?></a>
                     <input type="hidden" name="userEml" value="<?php echo $userEml; ?>">
+                    <input type="hidden" name="nameL" value="<?php echo $nameL; ?>">
+                    <input type="hidden" name="nameF" value="<?php echo $nameF; ?>">
                 <?php } ?>
             </div>
         </div>

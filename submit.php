@@ -172,11 +172,12 @@ if (($sendto == "B") || ($sendto == "C")) {
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
                 "title" => "[FROM: ".$frmRepl.']',
-                "message" => $msgRepl
+                "message" => $msgRepl,
+                "sound" => "echo"
             ),
             CURLOPT_SAFE_UPLOAD => true,
         ));
-        curl_exec($ch);
+        $ret = curl_exec($ch);
         curl_close($ch);
         $diag = array(
             'Pushover','green', 
@@ -204,6 +205,27 @@ if (($sendto == "B") || ($sendto == "C")) {
             'sms-128.png', 'boxcar', 
             '', '', 'b');
         $smsMsg = "Boxcar and Page";
+    }
+    if ($sendSvc=='prl'){
+        curl_setopt_array($chpush = curl_init(), array(
+            CURLOPT_URL => "https://api.prowlapp.com/publicapi/add",
+            CURLOPT_POSTFIELDS => array(
+                "apikey" => "6171e00966210b2c7a6fa33aff317117d0feb2b9",
+                "providerkey" => "63f5b2bcffdbec65d4939f9769ce4211c32c8cca",
+                "application" => "HC Paging",
+                "event" => 'FROM: '.smartnum($fromName),
+                "description" => smartnum($messagePost),
+            ),
+            CURLOPT_SAFE_UPLOAD => true,
+        ));
+        $ret = curl_exec($chpush);
+        curl_close($chpush);
+        $diag = array(
+            'Prowl','green', 
+            'Prowl message sent!', '', 
+            'sms-128.png', 'prowl', 
+            '', '', 'b');
+        $smsMsg = "Prowl and Page";
     }
 }
 
