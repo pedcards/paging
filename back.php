@@ -55,6 +55,7 @@ if ($add) {
     $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
     $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
     $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
+    $numProwl = \filter_input(\INPUT_POST, 'numProwl');
     $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
     $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
@@ -76,6 +77,7 @@ if ($add) {
         $err .= (($numSms)&&($numSmsSys=='')) ? "Cell provider required<br>" : '';
         $err .= (($numNotifSys=="sms")&&($numSms=='')) ? "Specify cell phone number<br>" : '';
         $err .= (($numNotifSys=="pbl")&&($numPushBul=='')) ? "Specify Pushbullet email<br>" : '';
+        $err .= (($numNotifSys=="prl")&&($numProwl=='')) ? "Specify Prowl user code<br>" : '';
         $err .= (($numNotifSys=="pov")&&($numPushOver=='')) ? "Specify Pushover user code<br>" : '';
         $err .= (($numNotifSys=="bxc")&&($numBoxcar=='')) ? "Specify Boxcar user code<br>" : '';
     if ($err) {
@@ -126,6 +128,12 @@ if ($add) {
         } else {
             unset($user->option->boxcar);
         }
+        if ($numProwl) {
+            $user->option->prowl['num'] = simple_encrypt($numProwl);
+            $show .= compare('Prowl',  simple_decrypt($origXml->option->prowl['num']),$numProwl);
+        } else {
+            unset($user->option->prowl);
+        }
         if ($numSysOpt) {
             $user->option['mode'] = $numSysOpt;
             $show .= preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$numSysOpt))));
@@ -160,7 +168,7 @@ if ($add) {
         }
         if (strlen($show)) {
             mail(simple_decrypt($user->auth['eml'])?:'pedcards@uw.edu',
-                "Heart Center Paging info changes to ".$user->auth['cis'],
+                "Heart Center Paging info changes to ".simple_decrypt($user->auth['cis']),
                 "Changes were saved to your user account by ".filter_input(INPUT_COOKIE, 'pageuser').". The current settings are:\r\n".$show
             );
         }

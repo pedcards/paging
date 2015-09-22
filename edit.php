@@ -142,6 +142,7 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $numSms = ($edUserId) ? simple_decrypt($user->option->sms['num']) : '';
     $numSmsSys = ($edUserId) ? $user->option->sms['sys'] : '';
     $numPushBul = ($edUserId) ? simple_decrypt($user->option->pushbul['eml']) : '';
+    $numProwl = ($edUserId) ? simple_decrypt($user->option->prowl['num']) : '';
     $numPushOver = ($edUserId) ? simple_decrypt($user->option->pushover['num']) : '';
     $numBoxcar = ($edUserId) ? simple_decrypt($user->option->boxcar['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
@@ -287,6 +288,7 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     <option value="nul">None</option>
                     <option value="sms" <?php echo ($numNotifSys=="sms") ? 'selected="selected"':'';?>>Text message</option>
                     <option value="pbl" <?php echo ($numNotifSys=="pbl") ? 'selected="selected"':'';?>>Pushbullet</option>
+                    <option value="prl" <?php echo ($numNotifSys=="prl") ? 'selected="selected"':'';?>>Prowl</option>
                     <option value="pov" <?php echo ($numNotifSys=="pov") ? 'selected="selected"':'';?>>Pushover</option>
                     <option value="bxc" <?php echo ($numNotifSys=="bxc") ? 'selected="selected"':'';?>>Boxcar</option>
                 </select>
@@ -310,6 +312,10 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                 <div class="ui-field-contain">
                     <label for="addPushOver">Pushover</label>
                     <input name="numPushOver" id="addPushOver" value="<?php echo $numPushOver;?>" placeholder="Pushover user code" type="text">
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addProwl">Prowl</label>
+                    <input name="numProwl" id="addProwl" value="<?php echo $numProwl;?>" placeholder="Prowl user code" type="text">
                 </div>
                 <div class="ui-field-contain">
                     <label for="addBoxcar">Boxcar</label>
