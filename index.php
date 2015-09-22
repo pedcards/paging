@@ -204,6 +204,9 @@ function fuzzyname($str) {
             ?>
         </ul>
         </div>
+        <ul data-role="listview" data-inset="false" data-mini="true">
+            <li data-icon="location" ><?php echo $_SERVER['REMOTE_ADDR'];?></li>
+        </ul>
         </div>
     </div>
 
