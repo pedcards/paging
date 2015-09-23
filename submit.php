@@ -164,15 +164,13 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushbullet and Page";
     }
     if ($sendSvc=='pov'){
-        $frmRepl = smartnum($fromName);
-        $msgRepl = smartnum($messagePost);
         curl_setopt_array($ch = curl_init(), array(
             CURLOPT_URL => "https://api.pushover.net/1/messages.json",
             CURLOPT_POSTFIELDS => array(
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
-                "title" => "[FROM: ".$frmRepl.']',
-                "message" => $msgRepl,
+                "title" => "[FROM: ".smartnum($fromName).']',
+                "message" => smartnum($messagePost),
                 "sound" => "echo"
             ),
             CURLOPT_SAFE_UPLOAD => true,
