@@ -186,7 +186,7 @@ function compare($field,$old,$new) {
 $cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
 $cookie = filter_input(INPUT_COOKIE,'pageedit');
 if (!$cookie) {
-    //noAuth();             // disable this to ignore auth check.
+    noAuth();             // disable this to ignore auth check.
 }
 $user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
