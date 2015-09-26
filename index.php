@@ -209,11 +209,27 @@ function fuzzyname($str) {
         </ul>
         </div>
     </div>
+    <div data-role="panel" id="info" data-display="overlay" data-position="right">
+        <ul data-role="listview" data-inset="false">
+            <li data-icon="info"><a href="#messPopup" data-rel="popup" data-position-to="window" data-transition="pop">Last system message</a></li>
+            <li data-icon="cloud"><a href="notifs.php" data-transition="slide">Notification services</a></li>
+            <li data-icon="gear"><a href="back.php">User preferences</a></li>
+            <li data-icon="location"><a><?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
+        </ul>
+        <div data-role="popup" id="messPopup" >
+            <div data-role="header" >
+                <h4>System message</h4>
+            </div>
+            <div data-role="main" class="ui-content">
+                <?php echo $alerttext;?>
+            </div>
+        </div>
+    </div>
 
     <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
         <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
-        <a href="back.php" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
+        <a href="#info" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
 
     <div data-role="content">
