@@ -204,9 +204,6 @@ function fuzzyname($str) {
             ?>
         </ul>
         </div>
-        <ul data-role="listview" data-inset="false" data-mini="true">
-            <li data-icon="location" ><?php echo $_SERVER['REMOTE_ADDR'];?></li>
-        </ul>
         </div>
     </div>
     <div data-role="panel" id="info" data-display="overlay" data-position="right">
@@ -214,7 +211,7 @@ function fuzzyname($str) {
             <li data-icon="info"><a href="#messPopup" data-rel="popup" data-position-to="window" data-transition="pop">Last system message</a></li>
             <li data-icon="cloud"><a href="notifs.php" data-transition="slide">Notification services</a></li>
             <li data-icon="gear"><a href="back.php">User preferences</a></li>
-            <li data-icon="location"><a><?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
+            <li data-icon="location"><a>IP: <?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
         </ul>
         <div data-role="popup" id="messPopup" >
             <div data-role="header" >
