@@ -234,7 +234,7 @@ if ($sendto === "C") {
 }
 
 // Block for submitting to USA Mobility number
-if ($pagesys === "USAM") {
+if ($pagesys === "U") {
     dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b');
     ?>
     <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
@@ -280,7 +280,7 @@ if (substr($snppSend,0,3) === "250") {
   // Testing for a server response code 550 (bad). Pager number was not valid. Error back.
 else if (($snppPage[0] === "4") || ($snppPage[0] === "5")) {
     $success = false;
-    dialog('SERVER ERROR', 'red', 'ERROR!!!', 'Message failed to send!<br>'.$snppSend, 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    dialog('SERVER ERROR', 'red', 'ERROR!!!', 'Message failed to send!<br>'.$snppSend.'<br>', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
 }
 ?>
 
