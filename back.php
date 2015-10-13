@@ -190,6 +190,9 @@ if (!$cookie) {
 }
 $user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
+if (!$user) {
+    noAuth();
+}
 if ($authCode) {
     (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
     setcookie('pageuser', $user);
