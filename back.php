@@ -185,18 +185,13 @@ function compare($field,$old,$new) {
 
 $cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
 $cookie = filter_input(INPUT_COOKIE,'pageedit');
-if (!$cookie) {
-    noAuth();             // disable this to ignore auth check.
-}
 $user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
-if (!$user) {
-    noAuth();
+if ((!$cookie)||(!$user)||(!$authCode)) {
+    noAuth();             // disable this to ignore auth check.
 }
-if ($authCode) {
-    (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
-    setcookie('pageuser', $user);
-}
+(simple_decrypt($cookie,$authCode)==$user) ? setcookie('pageuser', $user) : noAuth('Wrong code','Try again!','2');
+
 function noAuth($title='User info editor',$button='Request authorization',$page='1') {
     global $user, $authCode;
     ?>
