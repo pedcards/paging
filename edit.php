@@ -81,7 +81,7 @@ if (\filter_input(\INPUT_GET, 'auth') == '1') {
 }
 if (\filter_input(\INPUT_GET, 'auth') == '2') {
     $ref = $_SERVER['HTTP_REFERER'];
-    $authName = \filter_input(\INPUT_POST, 'auth');
+    $authName = strtolower(trim(\filter_input(\INPUT_POST, 'auth')));
     $users = $groups->xpath("//user/auth");
     foreach ($users as $user0) {
         $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
@@ -101,35 +101,48 @@ if (\filter_input(\INPUT_GET, 'auth') == '2') {
         <?php
     }
     if (strpos($ref,'auth')) {
+        require 'lib/PHPMailerAutoload.php';
         $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
-        mail($eml, 
-                "Heart Center Paging [".$key."]", 
-                "Someone (hopefully you) has requested access to edit user information.\r\n\r\n"
-                .'The access token is "'.$key.'"'."\r\n\r\n"
-                ."The code will self-destruct in 20 minutes.\r\n\r\n"
-                ."Please act responsibly.\r\n\r\n"
-                ."- The Management"
-                );
-        $cookieTime = time()+20*60;
-        setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
-        setcookie("pageeditT",$cookieTime);
+        $mail = new PHPMailer;
+        $mail->isSendmail();
+        $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+        $mail->addAddress($eml);
+        $mail->Subject = 'Heart Center Paging ['.$key.']';
+        $mail->isHTML(true);
+        $mail->Body    = 'Someone (hopefully you) has requested access to edit user information.<br><br>'
+                .'The access token is: <h1><b>"'.$key.'"</b></h1><br><br>'
+                .'The code will self-destruct in 20 minutes.<br><br>'
+                .'Please act responsibly.<br><br>'
+                .'<i>- The Management</i>';
+        if (!$mail->send()) { ?>
+            <div data-role="page" id="authErr" data-dialog="true">
+                <div data-role="header">
+                    <h4 style="white-space: normal; text-align: center" >Email error</h4>
+                    <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+                </div>
+                <div data-role="content">
+                    <p><?php $mail->ErrorInfo;?></p>
+                </div>
+            </div> <?php
+        } else {
+            $cookieTime = time()+20*60;
+            setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
+            setcookie("pageeditT",$cookieTime); ?>
+            <div data-role="page" id="auth2" data-dialog="true">
+                <div data-role="header">
+                    <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
+                    <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+                </div>
+                <div data-role="content">
+                    <form method="post" action="back.php">
+                        <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
+                        <input name="authname" type="hidden" id="authUser" value="<?php echo $authName;?>">
+                        <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+                    </form>
+                </div>
+            </div> <?php
+        }
     }
-    ?>
-    <div data-role="page" id="auth2" data-dialog="true">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
-            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="back.php">
-                <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
-                <input name="authname" type="hidden" id="authUser" value="<?php echo $authName;?>">
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
-            </form>
-        </div>
-    </div>
-    
-    <?php
 }
 
 $edUserId = \filter_input(\INPUT_GET,'id');

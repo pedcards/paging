@@ -17,7 +17,7 @@
 <body>
 
 <?php
-function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
+function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg,$form="") {
     ?>
     <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
         <div data-role="header" data-theme="<?php echo $bar;?>">
@@ -30,6 +30,7 @@ function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
                 <?php echo $msg2;?><br>
             </p>
         </div>
+        <?php echo $form;?>
     </div>
     <?php
 }
@@ -235,15 +236,16 @@ if ($sendto === "C") {
 
 // Block for submitting to USA Mobility number
 if ($pagesys === "U") {
-    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b');
-    ?>
-    <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
-        <input type="hidden" name="PIN" value="<?php echo $pin; ?>">
-        <input type="hidden" name="MSSG" value="<?php echo $message; ?>">
+    $usaForm = <<<EOT
+    <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" target="usam_frame">
+        <input type="hidden" name="PIN" value="$pin">
+        <input type="hidden" name="MSSG" value="$message">
         <input type="hidden" name="Q1" value="0">
         <script type="text/javascript">document.Terminal.submit();</script>
     </form>
-    <?php
+    <iframe name="usam_frame" source="http://www.usamobility.net/cgi-bin/wwwpage.exe"></iframe>
+EOT;
+    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b',$usaForm);
     exit;
 }
 
