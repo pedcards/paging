@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
+    <script src="cookies.js"></script>
 <!--==========================================-->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
 
@@ -34,6 +35,130 @@ $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
+$cookie = filter_input(INPUT_COOKIE,'pageedit');
+$user = filter_input(INPUT_COOKIE, 'pageuser');
+$authCode = filter_input(INPUT_POST,'auth');
+//$authPage = filter_input(INPUT_GET, 'auth');
+$authName = strtolower(trim(\filter_input(\INPUT_POST, 'user')));
+//if ($authName) {
+//    setcookie("test",$authName);
+//}
+if (($user)&&($cookie==$user)) {                                                                  // cookie exists, reset cookie time, pass through
+    $newTime = time()+20*60;
+    setcookie("pageedit",$cookie,$newTime);
+    setcookie("pageeditT",$newTime);
+    setcookie("pageuser",$user,$newTime);
+} else if ($authCode) {                                                         // authcode entered, only if form input
+    if (simple_decrypt($cookie,$authCode)==$user) {
+        $newTime = time()+20*60;
+        setcookie("pageedit",$cookie,$newTime);
+        setcookie("pageeditT",$newTime);
+        setcookie("pageuser",$user,$newTime);
+    } else {
+        noAuth('Wrong code','Try again','2');
+    }
+} else if ($authName) {                                                         // user name submitted
+    $ref = $_SERVER['HTTP_REFERER'];
+    $users = $groups->xpath("//user/auth");
+    foreach ($users as $user0) {
+        $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
+    }
+    $eml = $userauth[$authName];
+    if (!$eml) {                                                                // no email decoded, valid user does not exist. can this be noauth()?
+        noauth('Error','No user found');
+        ?>
+        <div data-role="page" id="noUser" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >ERROR</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-corner-all">Go back</a>
+            </div>
+        </div>
+        <?php
+    }                                                                           // user found, send authCode
+    require 'lib/PHPMailerAutoload.php';
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
+    $mail = new PHPMailer;
+    $mail->isSendmail();
+    $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+    $mail->addAddress($eml);
+    $mail->Subject = 'Heart Center Paging ['.$key.']';
+    $mail->isHTML(true);
+    $mail->Body    = 'Someone (hopefully you) has requested access to edit user information.<br><br>'
+            .'The access token is: <h1><b>"'.$key.'"</b></h1><br><br>'
+            .'The code will self-destruct in 20 minutes.<br><br>'
+            .'Please act responsibly.<br><br>'
+            .'<i>- The Management</i>';
+    if (!$mail->send()) {                                                       // email error. can this be noauth()?
+        ?>
+        <div data-role="page" id="authErr" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >Email error</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <p><?php $mail->ErrorInfo;?></p>
+            </div>
+        </div> <?php
+    } else {                                                                    // email success. set encrypted cookie, user name. await input.
+        $cookieTime = time()+20*60;
+        setcookie("pageuser",$authName,$cookieTime);
+        setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
+        setcookie("pageeditT",$cookieTime); 
+        ?>
+        <div data-role="page" id="auth2" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <form method="post" action="back.php">
+                    <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
+                    <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+                </form>
+            </div>
+        </div> <?php
+    }
+} else {                                                                        // no cookie, nothing submitted. Get user name for submission.
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >Email auth code</button>
+            </form>
+        </div>
+    </div>
+    
+    <?php
+}
+
+function noAuth($title='User info editor',$button='Request authorization',$page='1') {
+    global $user, $authCode;
+    ?>
+    <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="back.php">
+<!--                <input type="hidden" name="auth" value="<?php echo $user;?>">
+                <input type="hidden" name="key" value="<?php echo $authCode;?>">-->
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
+            </form>
+        </div>
+    </div>
+    <?php
+}
+
 //Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
@@ -182,37 +307,6 @@ function compare($field,$old,$new) {
         return $field.": '".$old."' -> '".$new."'\r\n";
     }
 }
-
-$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
-$cookie = filter_input(INPUT_COOKIE,'pageedit');
-$user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
-$authCode = filter_input(INPUT_POST,'auth');
-if ((!$cookie)||(!$user)||(!$authCode)) {
-    noAuth();             // disable this to ignore auth check.
-}
-(simple_decrypt($cookie,$authCode)==$user) ? setcookie('pageuser', $user) : noAuth('Wrong code','Try again!','2');
-
-function noAuth($title='User info editor',$button='Request authorization',$page='1') {
-    global $user, $authCode;
-    ?>
-    <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
-            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="edit.php?auth=<?php echo $page;?>">
-                <input type="hidden" name="auth" value="<?php echo $user;?>">
-                <input type="hidden" name="key" value="<?php echo $authCode;?>">
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
-            </form>
-        </div>
-    </div>
-    <?php
-}
-$newTime = time()+20*60;
-setcookie("pageedit",$cookie,$newTime);
-setcookie("pageeditT",$newTime);
 
 if ($import) {
     // Read "list.csv" into array
