@@ -65,25 +65,7 @@ if ($authName) {                                                                
             .'<i>- The Management</i>';
     if (!$mail->send()) {                                                       // email error.
         noAuth('Email error',$mail->ErrorInfo);
-    } else {
-        cookieTime();
-    }
-}
-if (!$cookie) {                                                                 // no cookie, nothing submitted. Get user name for submission.
-    ?>
-    <div data-role="page" id="auth1" data-dialog="true">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
-            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="#">
-                <input name="user" id="authName" placeholder="CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >Email auth code</button>
-            </form>
-        </div>
-    </div>
-    <?php
+    } 
 }
 if ($authCode) {                                                                // authcode entered, only if form input
     if (simple_decrypt($cookie,$authCode)==$user) {
@@ -94,7 +76,7 @@ if ($authCode) {                                                                
 } 
 if (($user)&&($cookie==$user)) {                               // cookie exists, reset cookie time, pass through
     cookieTime();
-} else {
+} else if ($user) {
     cookieTime();
     ?>
     <div data-role="page" id="auth2" data-dialog="true">
@@ -109,7 +91,24 @@ if (($user)&&($cookie==$user)) {                               // cookie exists,
             </form>
         </div>
     </div> <?php
-} 
+} else {                                                                 // no cookie, nothing submitted. Get user name for submission.
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="setCookie('pageuser',document.getElementById('authName').value,20)">
+                    Email auth code
+                </button>
+            </form>
+        </div>
+    </div>
+    <?php
+}
 function noAuth($title='User info editor',$button='Request authorization',$page='1') {
     global $user, $authCode;
     ?>
@@ -127,6 +126,9 @@ function noAuth($title='User info editor',$button='Request authorization',$page=
         </div>
     </div>
     <?php
+}
+function getAuth() {
+    
 }
 function cookieTime()  {
     global $authName, $key;
