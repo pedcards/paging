@@ -48,7 +48,9 @@ if ($authName) {                                                                
     }
     $eml = $userauth[$authName];
     if (!$eml) {                                                                // no email decoded, valid user does not exist.
+        setcookie('pageuser','');
         noauth('Error','No user found');
+        exit;
     }                                                                           // user found, send authCode
     require 'lib/PHPMailerAutoload.php';
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
@@ -58,41 +60,44 @@ if ($authName) {                                                                
     $mail->addAddress($eml);
     $mail->Subject = 'Heart Center Paging ['.$key.']';
     $mail->isHTML(true);
-    $mail->Body    = 'Someone (hopefully you) has requested access to edit user information.<br><br>'
+    $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
+            .'someone (hopefully you) has requested access to edit user information.<br><br>'
             .'The access token is: <h1><b>"'.$key.'"</b></h1><br><br>'
             .'The code will self-destruct in 20 minutes.<br><br>'
             .'Please act responsibly.<br><br>'
             .'<i>- The Management</i>';
     if (!$mail->send()) {                                                       // email error.
         noAuth('Email error',$mail->ErrorInfo);
+        exit;
     } 
 }
 if ($authCode) {                                                                // authcode entered, only if form input
     if (simple_decrypt($cookie,$authCode)==$user) {
-        $pass=true;
+        cookieTime();
     } else {
-        noAuth('Wrong code','Try again','2');
+        noAuth('Wrong code','Try again');
+        exit;
     }
-} 
-if (($user)&&($cookie==$user)) {                               // cookie exists, reset cookie time, pass through
-    cookieTime();
 } else if ($user) {
-    cookieTime();
-    ?>
-    <div data-role="page" id="auth2" data-dialog="true">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
-            <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="back.php">
-                <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
-            </form>
-        </div>
-    </div> <?php
-} else {                                                                 // no cookie, nothing submitted. Get user name for submission.
-    ?>
+    if ($cookie==$user) { 
+        cookieTime();
+    } else { 
+        cookieTime();?>
+        <div data-role="page" id="auth2" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <form method="post" action="back.php">
+                    <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
+                    <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+                </form>
+            </div>
+        </div> <?php
+        exit;
+    }
+} else { ?>
     <div data-role="page" id="auth1" data-dialog="true">
         <div data-role="header">
             <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
@@ -101,40 +106,32 @@ if (($user)&&($cookie==$user)) {                               // cookie exists,
         <div data-role="content">
             <form method="post" action="#">
                 <input name="user" id="authName" placeholder="CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="setCookie('pageuser',document.getElementById('authName').value,20)">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="setCookie('pageuser',document.getElementById('authName').value,'20')">
                     Email auth code
                 </button>
             </form>
         </div>
-    </div>
-    <?php
+    </div> <?php
+    exit;
 }
-function noAuth($title='User info editor',$button='Request authorization',$page='1') {
-    global $user, $authCode;
-    ?>
+
+function noAuth($title='User info editor',$button='Request authorization') { ?>
     <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
         <div data-role="header">
             <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
             <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
-            <form method="post" action="back.php">
-<!--                <input type="hidden" name="auth" value="<?php echo $user;?>">
-                <input type="hidden" name="key" value="<?php echo $authCode;?>">-->
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
-            </form>
+            <a href="back.php" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></a>
         </div>
-    </div>
-    <?php
-}
-function getAuth() {
-    
+    </div> <?php
 }
 function cookieTime()  {
-    global $authName, $key;
+    global $cookie, $user, $key;
     $cookieTime = time()+20*60;
-    setcookie("pageuser",$authName,$cookieTime);
-    setcookie("pageedit", simple_encrypt($authName,$key), $cookieTime);
+    setcookie("pageuser",$user,$cookieTime);
+    setcookie("pageedit", ($key)?simple_encrypt($user,$key):$cookie, $cookieTime);
+    //setcookie("pageedit", $cookie, $cookieTime);
     setcookie("pageeditT",$cookieTime); 
 }
 //Variables passed from edit.php

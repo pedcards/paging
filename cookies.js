@@ -6,7 +6,6 @@ function setCookie(cname, cvalue, exmins) {
     d.setTime(d.getTime() + (exmins*60*1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
-    alert(cname + " = " + cvalue);
 }
 
 function getCookie(cname) {
