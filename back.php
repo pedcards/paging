@@ -61,28 +61,29 @@ if ($authName) {                                                                
     $mail->Subject = 'Heart Center Paging ['.$key.']';
     $mail->isHTML(true);
     $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
-            .'someone (hopefully you) has requested access to edit user information.<br><br>'
-            .'The access token is: <h1><b>"'.$key.'"</b></h1><br><br>'
+            .'someone (hopefully you) requested access to edit user information.<br><br>'
+            .'The access token is: <h2><b>"'.$key.'"</b></h2><br>'
             .'The code will self-destruct in 20 minutes.<br><br>'
             .'Please act responsibly.<br><br>'
             .'<i>- The Management</i>';
     if (!$mail->send()) {                                                       // email error.
         noAuth('Email error',$mail->ErrorInfo);
         exit;
-    } 
+    } else {
+        cookieTime(simple_encrypt($user,$key));
+    }
 }
 if ($authCode) {                                                                // authcode entered, only if form input
     if (simple_decrypt($cookie,$authCode)==$user) {
-        cookieTime();
+        cookieTime($user);
     } else {
         noAuth('Wrong code','Try again');
         exit;
     }
 } else if ($user) {
     if ($cookie==$user) { 
-        cookieTime();
-    } else { 
-        cookieTime();?>
+        cookieTime($user);
+    } else { ?>
         <div data-role="page" id="auth2" data-dialog="true">
             <div data-role="header">
                 <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
@@ -122,16 +123,17 @@ function noAuth($title='User info editor',$button='Request authorization') { ?>
             <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
         </div>
         <div data-role="content">
-            <a href="back.php" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></a>
+            <form method="post" action="back.php">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
+            </form>
         </div>
     </div> <?php
 }
-function cookieTime()  {
-    global $cookie, $user, $key;
+function cookieTime($val='')  {
+    global $user;
     $cookieTime = time()+20*60;
     setcookie("pageuser",$user,$cookieTime);
-    setcookie("pageedit", ($key)?simple_encrypt($user,$key):$cookie, $cookieTime);
-    //setcookie("pageedit", $cookie, $cookieTime);
+    setcookie("pageedit", $val, $cookieTime);
     setcookie("pageeditT",$cookieTime); 
 }
 //Variables passed from edit.php
