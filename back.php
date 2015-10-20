@@ -70,19 +70,22 @@ if ($authName) {                                                                
         noAuth('Email error',$mail->ErrorInfo);
         exit;
     } else {
-        cookieTime(simple_encrypt($user,$key));
+        cookieTime(simple_encrypt($authName,$key));
+        $cookie = true;
     }
 }
 if ($authCode) {                                                                // authcode entered, only if form input
-    if (simple_decrypt($cookie,$authCode)==$user) {
-        cookieTime($user);
+    $userCode = simple_decrypt($cookie,$authCode);
+    if ($userCode==$user) {                                                     // decoded cookie matches user
+        cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
     } else {
         noAuth('Wrong code','Try again');
         exit;
     }
-} else if ($user) {
-    if ($cookie==$user) { 
-        cookieTime($user);
+} else if ($cookie) {                                                           // any $cookie exists, either header or pass authCode
+    $userCode = simple_decrypt($cookie);
+    if ($userCode==$user) {                                                     // decoded cookie matches user
+        cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
     } else { ?>
         <div data-role="page" id="auth2" data-dialog="true">
             <div data-role="header">
@@ -134,7 +137,7 @@ function cookieTime($val='')  {
     $cookieTime = time()+20*60;
     setcookie("pageuser",$user,$cookieTime);
     setcookie("pageedit", $val, $cookieTime);
-    setcookie("pageeditT",$cookieTime); 
+    setcookie("pageeditT",$cookieTime, $cookieTime); 
 }
 //Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
