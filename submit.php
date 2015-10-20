@@ -17,7 +17,7 @@
 <body>
 
 <?php
-function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg,$form="") {
+function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
     ?>
     <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
         <div data-role="header" data-theme="<?php echo $bar;?>">
@@ -236,16 +236,19 @@ if ($sendto === "C") {
 
 // Block for submitting to USA Mobility number
 if ($pagesys === "U") {
-    $usaForm = <<<EOT
-    <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" target="usam_frame">
-        <input type="hidden" name="PIN" value="$pin">
-        <input type="hidden" name="MSSG" value="$message">
-        <input type="hidden" name="Q1" value="0">
-        <script type="text/javascript">document.Terminal.submit();</script>
-    </form>
-    <iframe name="usam_frame" source="http://www.usamobility.net/cgi-bin/wwwpage.exe"></iframe>
-EOT;
-    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b',$usaForm);
+    $usaForm = array(
+        "PIN" => $pin,
+        "MSSG" => $message,
+        "Q1" => '0'
+    );
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,"http://www.usamobility.net/cgi-bin/wwwpage.exe");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($usaForm));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small><br>'.$result, 'pager.jpg', 'pager', '', '', 'b');
     exit;
 }
 
