@@ -127,7 +127,9 @@ $group = $xml->groups->$grp;
                     );
                     $liName = $liNameF.' '.$liNameL;
                 }
-                echo '<option value="'.  simple_encrypt(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
+                if ($liUser->pager['num']) {
+                    echo '<option value="'.  simple_encrypt(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
+                }
             }
             ?>
         </select>

@@ -465,13 +465,14 @@ function timeformat($diff) {
             $edNameF = $edUser['first'];
             $edUserId = $edUser['uid'];
             $edSection = $edUser['sec'];
+            $edPgr = $edUser->pager['num'];
             $edGroup = $edUser->xpath('..')[0]->getName();
             if (!($edGroup==$edGroupOld)) {
                 echo "\r\n".'        <li data-role="list-divider">'.$edGroup.'</li>'."\r\n";
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ($edNameL.', '.$edNameF)).'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ((($edPgr)?'':'(').$edNameL.', '.$edNameF.(($edPgr)?'':')'))).'</i></a>';
             if ($isAdmin) { echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>'; }
             echo '</li>'."\r\n";
         }

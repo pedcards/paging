@@ -131,10 +131,13 @@ function fuzzyname($str) {
                 $liNameL = $liUser['last'];
                 $liNameF = $liUser['first'];
                 $liUserId = $liUser['uid'];
+                $liPgr = $liUser->pager['num'];
                 $liGroup = $liUser->xpath('..')[0]->getName();
-                echo '            <li class="ui-mini">';
-                echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i></a>';
-                echo '</li>'."\r\n";
+                if ($liPgr) {
+                    echo '            <li class="ui-mini">';
+                    echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i><span style="font-size:x-small" class="ui-li-count">'.$liGroup.'</span></a>';
+                    echo '</li>'."\r\n";
+                }
             }
             ?>
         </ul>
