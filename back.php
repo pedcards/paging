@@ -298,7 +298,7 @@ if ($import) {
     if (($handle = fopen("list.csv", "r")) !== FALSE) {
         $csvline = fgetcsv($handle, 1000, ",");
         while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            $tmpGroup = $arrLine[$row][array_search('Group',$csvline)];
+            $tmpGroup = trim($arrLine[$row][array_search('Group',$csvline)]);
             if ($tmpGroup == 'Group') {
                 $tmpGroup = '';
             }
@@ -307,8 +307,8 @@ if ($import) {
                 continue;
             }
             usleep(1);
-            $tmpLastName = $arrLine[$row][array_search('Last',$csvline)];
-            $tmpFirstName = $arrLine[$row][array_search('First',$csvline)];
+            $tmpLastName = trim($arrLine[$row][array_search('Last',$csvline)]);
+            $tmpFirstName = trim($arrLine[$row][array_search('First',$csvline)]);
             $tmpPageSys = ($arrLine[$row][array_search('System',$csvline)]=='COOK') ? 'C' 
                     : (($arrLine[$row][array_search('System',$csvline)]=='USAM') ? 'U' : 'ERR');
             $tmpPageNum = simple_encrypt($arrLine[$row][array_search('Pager',$csvline)]);
@@ -472,7 +472,9 @@ function timeformat($diff) {
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ((($edPgr)?'':'(').$edNameL.', '.$edNameF.(($edPgr)?'':')'))).'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) 
+                    ? ('::: '.$edSection.' :::') 
+                    : ((($edPgr)?'':'<small>(').$edNameL.', '.$edNameF.(($edPgr)?'':')</small>'))).'</i></a>';
             if ($isAdmin) { echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>'; }
             echo '</li>'."\r\n";
         }
