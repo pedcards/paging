@@ -70,6 +70,7 @@ if ($authName) {                                                                
         noAuth('Email error',$mail->ErrorInfo);
         exit;
     } else {
+        $user=$authName;
         cookieTime(simple_encrypt($authName,$key));
         $cookie = true;
     }
@@ -97,6 +98,7 @@ if ($authCode) {                                                                
                     <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
                     <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
                 </form>
+                <a href="back.php" class="ui-btn ui-mini ui-btn-inline" onclick="clearCookie();" data-ajax="false">Resend auth code</a>
             </div>
         </div> <?php
         exit;
@@ -110,9 +112,7 @@ if ($authCode) {                                                                
         <div data-role="content">
             <form method="post" action="#">
                 <input name="user" id="authName" placeholder="CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="setCookie('pageuser',document.getElementById('authName').value,'20')">
-                    Email auth code
-                </button>
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="clearCookie();">Email auth code</button>
             </form>
         </div>
     </div> <?php
