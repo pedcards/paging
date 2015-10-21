@@ -15,6 +15,8 @@
     $cdnJqm = $ini['jqm'];
     $cdnJQ = $ini['jquery'];
     $instr = $ini['copyright'];
+    
+    $maint = true;
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -29,7 +31,6 @@
 </head>
 <body>
 <?php
-$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),$ini['admin']));
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -40,6 +41,13 @@ $cookie = filter_input(INPUT_COOKIE,'pageedit');
 $user = filter_input(INPUT_COOKIE, 'pageuser');
 $authCode = filter_input(INPUT_POST,'auth');
 $authName = strtolower(trim(\filter_input(\INPUT_POST, 'user')));
+$isAdmin = (in_array($user,$ini['admin']));
+if ($maint) {
+    $user = 'tchun1';
+    $cookie = simple_encrypt($user);
+    cookieTime(simple_encrypt($user));
+    
+}
 if ($authName) {                                                                 // user name submitted
     $ref = $_SERVER['HTTP_REFERER'];
     $users = $groups->xpath("//user/auth");

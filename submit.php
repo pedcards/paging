@@ -248,7 +248,11 @@ if ($pagesys === "U") {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $result = curl_exec($ch);
     curl_close($ch);
-    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small><br>'.$result, 'pager.jpg', 'pager', '', '', 'b');
+    if (preg_match("/page\s*sent/i",$result)) {
+        dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small><br>', 'pager.jpg', 'pager', '', '', 'b');
+    } else {
+        dialog('USA Mobility','red', 'Server error', 'Message failed to send!<br>', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    }
     exit;
 }
 
