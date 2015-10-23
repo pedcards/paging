@@ -3,202 +3,260 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="apple-touch-icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="images/pager.png" />
     <link href="" rel="apple-touch-startup-image" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-capable" content="YES" />
-    <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
-<!--    Block for CDN copies of jquery/mobile. Consider fallback code on fail? -->
+    <meta name="apple-mobile-web-app-capable" content="no" />
+    <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
+    <!--==========================================-->
     <?php
-    $cdnJqm = '1.4.5';
-    $cdnJQ = '1.11.1';
-    echo '
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.css" />
-    <script src="http://code.jquery.com/jquery-'.$cdnJQ.'.min.js"></script>
-    <script src="http://code.jquery.com/mobile/'.$cdnJqm.'/jquery.mobile-'.$cdnJqm.'.min.js"></script>
-';  ?>
-<!--==========================================-->
-<!-- Block for local copies of jquery/mobile. 
-    <link rel="stylesheet" href="./jqm/jquery.mobile-1.3.2.min.css" />
-    <script src="./jqm/jquery-1.9.1.min.js"></script>
-    <script src="./jqm/jquery.mobile-1.3.2.min.js"></script>
-<!--==========================================-->
-    <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
-    <script>
-            $(document).bind("mobileinit", function(){
-                    $.mobile.defaultPageTransition = 'none';
-            });
-    </script>
-    
+    $ini = parse_ini_file("paging.ini");
+    $isLoc = true;
+    $cdnJqm = $ini['jqm'];
+    $cdnJQ = $ini['jquery'];
+    ?>
+    <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
+    <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
+    <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
+    <!--==========================================-->
+
+    <script type="text/javascript" src="./jqm/jqm-windows.alertbox.min.js"></script>
     <script type="text/javascript">
-    // from http://web.enavu.com/daily-tip/maxlength-for-textarea-with-jquery/
-        $(document).ready(function() {  
-            $('textarea[maxlength]').keyup(function(){  //get the limit from maxlength attribute  
-                var limit = parseInt($(this).attr('maxlength'));  //get the current text inside the textarea  
-                var text = $(this).val();  //count the number of characters in the text  
-                var chars = text.length;  //check if there are more characters then allowed  
-                if(chars > limit){  //and if there are use substr to get the text before the limit  
-                    var new_text = text.substr(0, limit);  //and change the current text with the new text  
-                    $(this).val(new_text);  
-                }  
-            });  
-        });  
+        function clearMru() {
+            document.cookie = "pagemru=; expires=-1";
+            location.reload();
+        }
     </script>
-    
-    <title>Paging v2</title>
+
+    <title>Paging v3</title>
 </head>
 <body>
 <?php
-function str_rot($s, $n = -1) {
-    //Rotate a string by a number.
-    static $letters = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789.,!$*+-?@#'; //To be able to de-obfuscate your string the length of this needs to be a multiple of 4 AND no duplicate characters
-    $letterLen=round(strlen($letters)/2);
-    if($n==-1) {
-        $n=(int)($letterLen/2); 
-    }//Find the "halfway rotate point"
-    $n = (int)$n % ($letterLen);
-    if (!$n) {
-        return $s;
-    }
-    if ($n < 0) {
-        $n += ($letterLen);
-    }
-    //if ($n == 13) return str_rot13($s);
-    $rep = substr($letters, $n * 2) . substr($letters, 0, $n * 2);
-    return strtr($s, $letters, $rep);
+$group = filter_input(INPUT_GET,'group');
+$modDate = \date("m/d/Y", filemtime("list.xml"));
+$xml = simplexml_load_file("list.xml");
+$groups = $xml->groups;
+$groupfull = array();
+foreach ($groups->children() as $grp0) {
+    $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
+if (\filter_input(INPUT_POST,'clearck')=="y"){
+    setcookie('pagemru',null,-1);
+}
+$pagealert = filter_input(INPUT_COOKIE, 'pagealert');
+$alerttext = $ini['announce'];
+$texthash = md5($alerttext);
+setcookie('pagealert', $texthash, time()+30*86400);
+$call = array(
+    'Ward_A', 'Ward_F',
+    'ICU_A', 'ICU_F',
+    'CICU',
+    'Reg_Con',
+    'EP',
+    'Txp',
+    'ARNP_IP','ARNP_OP','ARNP_CL'
+);
+$chip = simplexml_load_file('../patlist/currlist.xml');
+$call_dt = date("Ymd");
+$call_d = date("l");
+$call_t = date("H");
+if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8)) {
+    $call = array(
+        'PM_We_A', 'PM_We_F',
+        ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
+        'EP',
+        'Txp',
+        'ARNP_IP'
+    );
+}
+if ($call_t < 8) {
+    $call_dt = date("Ymd", time()-60*60*24);
 }
 
-$group = filter_input(INPUT_GET,'group');
-$groupfull = array(
-    'CARDS' => 'Cardiologists',
-    'FELLOWS' => 'Fellows',
-    'SURG' => 'Surgery',
-    'CICU' => 'CICU',
-    'ARNP' => 'ARNP',
-    'CATH' => 'Cath Lab',
-    'CLINIC' => 'Clinic RN, Soc Work',
-    'ECHO' => 'Echo Lab',
-    'ADMIN' => 'Admin Office',
-    'DATA' => 'Research, Data'
-    );
-// Read "list.csv" into array
-$arrLine = array();
-$pagerblock = "";
-$row = 0;
-if (($handle = fopen("list.csv", "r")) !== FALSE) {
-    while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-        if ($arrLine[$row][0] === $group) {
-            $tmpLastName = $arrLine[$row][1];
-            $tmpFirstName = $arrLine[$row][2];
-            $tmpPageSys = $arrLine[$row][3];
-            $tmpPageNum = $arrLine[$row][4];
-            $tmpCellSys = $arrLine[$row][5];
-            $tmpCellNum = $arrLine[$row][6];
-            $tmpCellOpt = $arrLine[$row][7];
-            $tmpKey = $arrLine[$row][8];
-            $pagerline = 
-                    $tmpPageSys.",".$tmpPageNum.",".
-                    $tmpCellSys.",".$tmpCellNum.",".$tmpCellOpt.",".$tmpLastName ;
-            $pagerblock .= "<option value=\"".str_rot($pagerline)."\">".$tmpFirstName." ".$tmpLastName."</option>\r\n";
-            }
-            $row++;
-        } // Finish loop to get lines
-    } 
-    fclose($handle);
-    $modDate = date ("m/d/Y", filemtime("list.csv"));
+$fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
 
+function getUid($in) {
+    global $xml;
+    $trans = array(
+        "Terry" => "Terrence",
+        "Steve" => "Stephen",
+        "Tom" => "Thomas",
+        "Jenny" => "Jennifer",
+        "Matt" => "Matthew",
+        "John" => "Jonathon",
+        "Mike" => "Michael",
+        "Katherine" => "Katie"
+    );
+    $names = explode(" ", $in);
+    $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
+    return $el['uid'];
+}
+function fuzzyname($str) {
+    global $xml;
+    $users = $xml->xpath('//user');
+    $shortest = -1;
+    foreach ($users as $user) {
+        $name = $user['first']." ".$user['last'];
+        $lev = levenshtein($str, $name);
+        if ($lev == 0) {
+            $closest = $name;
+            $shortest = 0;
+            $uid = $user['uid'];
+            break;
+        }
+        if ($lev <= $shortest || $shortest < 0) {
+            $closest = $name;
+            $shortest = $lev;
+            $uid = $user['uid'];
+        }
+    }
+    $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+    return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
+}
 ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
+    <div data-role="panel" id="search" data-display="overlay">
+        <form class="ui-filterable">
+            <input id="auto-editUser" data-type="search" placeholder="Find user...">
+        </form>
+        <div style="margin-bottom: 24px;">
+        <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-input="#auto-editUser" data-inset="false" data-theme="b">
+            <?php
+            // auto reveal items from search bar
+            $liUsers = $xml->xpath('//user');
+            $liGroupOld = "";
+            foreach($liUsers as $liUser) {
+                $liNameL = $liUser['last'];
+                $liNameF = $liUser['first'];
+                $liUserId = $liUser['uid'];
+                $liPgr = $liUser->pager['num'];
+                $liGroup = $liUser->xpath('..')[0]->getName();
+                if ($liPgr) {
+                    echo '            <li class="ui-mini">';
+                    echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><i>'.$liNameL.', '.$liNameF.'</i><span style="font-size:x-small" class="ui-li-count">'.$liGroup.'</span></a>';
+                    echo '</li>'."\r\n";
+                }
+            }
+            ?>
+        </ul>
+        </div>
+        <div data-role="collapsibleset" data-inset="false">
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="phone">
+            <h4>On call: <?php echo date("D m/d/Y");?></h4>
+        <ul data-role="listview">
+            <?php
+            foreach($call as $callU){
+                $chName = $fc_call->$callU;
+                if ($chName=='') {
+                    continue;
+                }
+                if ($callU=='EP') {
+                    if ($call_d=='Friday' && $call_t>=17) {
+                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time()+60*60*24)."']/EP")[0];
+                    }
+                    if ($call_d=='Saturday') {
+                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time())."']/EP")[0];
+                    }
+                }
+                $liUserId = getUid($chName);
+                if (! $liUserId) {
+                    $liUserId = fuzzyname($chName)['uid'];
+                    $chName = "'".$chName."'";
+                }
+                $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
+                $liGroup = $liUser->xpath('..')[0]->getName();
+                echo '            <li class="ui-mini">';
+                echo '<a href="proc.php?group='.$liGroup.'&id='.$liUserId.'" data-ajax="false"><b>'.$callU.':</b><i> '.$chName.'</i></a>';
+                echo '</li>'."\r\n";
+            }
+            ?>
+        </ul>
+        </div>
+        <div data-role="collapsible" data-inset="false" data-mini="true" data-collapsed="true" data-collapsed-icon="clock">
+            <?php
+            if (filter_input(INPUT_COOKIE,'pagemru')){
+                echo '            <h4>Recently used numbers</h4>';
+            }
+            ?>
+        <form method="post" id="clearcookie" action="index.php" data-ajax="false">
+            <input type="hidden" name="clearck" value="y">
+        </form>
+        <ul data-role="listview">
+            <?php
+            // show cookies
+            $cookie = explode(",", filter_input(INPUT_COOKIE,'pagemru'));
+            foreach($cookie as $cvals){
+                if ($cvals==''){
+                    continue;
+                }
+                $ckUser = $xml->xpath("//user[@uid='".$cvals."']")[0];
+                if (!$ckUser) {
+                    setcookie('pagemru',null,-1);
+                    break;
+                }
+                $ckCt ++;
+                $ckUserId = $ckUser['uid'];
+                $ckGroup = $ckUser->xpath("..")[0]->getName();
+                echo '<li><a href="proc.php?group='.$ckGroup.'&id='.$cvals.'" data-ajax="false">'.$ckUser['first'].' '.$ckUser['last'].'</a></li>'."\r\n";
+            }
+            if ($ckCt) {
+                echo '<li data-icon="delete"><a href="" onclick="clearMru();">Clear list</a></li>'."\r\n";
+            }
+            ?>
+        </ul>
+        </div>
+        </div>
+    </div>
+    <div data-role="panel" id="info" data-display="overlay" data-position="right">
+        <ul data-role="listview" data-inset="false">
+            <li data-icon="info"><a href="#messPopup" data-rel="popup" data-position-to="window" data-transition="pop">Last system message</a></li>
+            <li data-icon="cloud"><a href="notifs.php" data-transition="slide">Notification services</a></li>
+            <li data-icon="gear"><a href="back.php">User preferences</a></li>
+            <li data-icon="location"><a>IP: <?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
+        </ul>
+        <div data-role="popup" id="messPopup" >
+            <div data-role="header" >
+                <h4>System message</h4>
+            </div>
+            <div data-role="main" class="ui-content">
+                <?php echo $alerttext;?>
+            </div>
+        </div>
+    </div>
 
-    <div data-role="header">
+    <div data-role="header" data-theme="b" >
         <h4 style="white-space: normal; text-align: center" >Heart Center Paging</h4>
+        <a href="#search" class="ui-btn ui-shadow ui-icon-search ui-btn-icon-notext ui-corner-all" >Search panel</a>
+        <a href="#info" class="ui-btn ui-shadow ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-ajax="false">return to main</a>
     </div><!-- /header -->
 
+    <div data-role="content">
     <ul data-role="listview">
-        <li><a href="?group=CARDS&#proc" >Cardiologists</a></li>
-        <li><a href="?group=FELLOWS" >Fellows</a></li>
-        <li><a href="?group=SURG" >CV Surgery/Anesthesia/Perfusion</a></li>
-        <li><a href="?group=CICU" >CICU</a></li>
-        <li><a href="?group=ARNP" >ARNP's</a></li>
-        <li><a href="?group=CATH" >Cath Lab</a></li>
-        <li><a href="?group=CLINIC" >Clinic RN, Social Work, Nutrition</a></li>
-        <li><a href="?group=ECHO" >Echo Lab</a></li>
-        <li><a href="?group=ADMIN" >Admin Office</a></li>
-        <li><a href="?group=DATA" >Research, Data, Computers</a></li>
+        <?php
+        foreach($groupfull as $grp => $grpStr) {
+            echo '<li><a href="proc.php?group='.$grp.'">'.$grpStr.'</a></li>';
+        }
+        ?>
     </ul>
-    
-    <form name="mainlist" action="back.php" method="get">
-        <input type="submit" class="ui-btn ui-shadow ui-btn-icon-left ui-corner-all ui-icon-carat-l ui-btn-icon-notext" value="User Manager">
-    </form>
-
-    <div data-alertbox-close-time="5000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" class="ui-content jqm-alert-box" style="max-width:280px">
-        <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-        <p>REMINDER!</p>
-        <p>This paging site is for internal Heart Center use. Please do not share this link with others outside of the organization. Thanks for your understanding!</p>
+    <?php if ($pagealert!==$texthash) { ?>
+        <div class="ui-content jqm-alert-box" data-alertbox-close-time="20000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" >
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            <?php echo $alerttext;?>
+        </div> 
+    <?php } ?>
     </div>
 
     <div data-role="footer" >
         <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
+&COPY;(2007-2015) Terrence Chun, MD<br>
         </small></h5>
     </div><!-- /footer -->
 </div><!-- /page -->
 
-<!-- Start of process page -->
-<div data-role="page" id="proc" data-dom-cache="true"> <!-- page -->
-<?php
-?>
-    <div data-role="header" data-add-back-btn="true" >
-        <a href="javascript:history.go(-1);" data-icon="arrow-l"><small>Back</small></a>
-        <h3><?php echo $group; ?></h3>
-    </div><!-- /header -->
 
-<form action="submit.php" method="POST" name="HTMLForm1" data-prefetch>
-    <input type="hidden" name="SERVER_IP" value="63.172.11.60">
-    <input type="hidden" name="SERVER_PORT" value="444">
-    <input type="hidden" name="WEBPAGE" value="yes">
-    <input type="hidden" name="ALPHA" value="a">
-    <input type="hidden" name="ACCEPT_PAGE" value="/paging/page_accepted.htm">
-    <input type="hidden" name="NUMBER" value="">
-    <input type="hidden" name="NUMBER2" value="">
-    <input type="hidden" name="NUMBER3" value="">
-    <input type="hidden" name="NUMBER4" value="">
-    <input type="hidden" name="NUMBER5" value="">
-    <input type="hidden" name="MYNAME" value="">
-    <input type="hidden" name="SUBJECT" value=  "">
-    <input type="hidden" name="MESSAGE" value="">
-
-<div data-role="content">
-    <div data-role="fieldcontain" >
-        <label for="NUMBER" >To:</label>
-        <select name="NUMBER" id="NUMBER">
-            <?php echo $pagerblock; ?>
-        </select>
-        <label for="MYNAME">From:</label>
-        <input type="text" name="MYNAME" id="MYNAME" value="" placeholder="REQUIRED" maxlength="20"/>
-    </div>
-
-    <div data-role="fieldcontain" style="text-align: right">
-        <textarea name="MESSAGE" id="MESSAGE" maxlength="220"></textarea>
-    </div>
-    <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
-    <div style="text-align: center">
-        <input type="submit" value="SUBMIT!" data-inline="true" data-theme="b" />
-    </div>
-</div>
-</form>
-
-    <div data-role="footer" data-position="fixed">
-        <h5><small>
-&COPY;(2007-2014) Terrence Chun, MD<br>
-Data revised: <?php echo $modDate; ?><br>
-        </small></h5>
-    </div><!-- /footer -->
-</div><!-- /page -->
-
-<!-- Last modified 2/19/13 -->
+<!-- Last modified 7/9/15 -->
 
 </body>
 </html>
