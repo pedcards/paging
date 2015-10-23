@@ -15,10 +15,13 @@
     $cdnJqm = $ini['jqm'];
     $cdnJQ = $ini['jquery'];
     $instr = $ini['copyright'];
+    
+    $maint = true;
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
+    <script src="cookies.js"></script>
 <!--==========================================-->
     <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
 
@@ -28,11 +31,121 @@
 </head>
 <body>
 <?php
-$isAdmin = (in_array(filter_input(INPUT_COOKIE, 'pageuser'),$ini['admin']));
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
+$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
+$cookie = filter_input(INPUT_COOKIE,'pageedit');
+$user = filter_input(INPUT_COOKIE, 'pageuser');
+$authCode = filter_input(INPUT_POST,'auth');
+$authName = strtolower(trim(\filter_input(\INPUT_POST, 'user')));
+$isAdmin = (in_array($user,$ini['admin']));
+if ($maint) {
+    $user = 'tchun1';
+    $cookie = simple_encrypt($user);
+    cookieTime(simple_encrypt($user));
+    
+}
+if ($authName) {                                                                 // user name submitted
+    $ref = $_SERVER['HTTP_REFERER'];
+    $users = $groups->xpath("//user/auth");
+    foreach ($users as $user0) {
+        $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
+    }
+    $eml = $userauth[$authName];
+    if (!$eml) {                                                                // no email decoded, valid user does not exist.
+        setcookie('pageuser','');
+        noauth('Error','No user found');
+        exit;
+    }                                                                           // user found, send authCode
+    require 'lib/PHPMailerAutoload.php';
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
+    $mail = new PHPMailer;
+    $mail->isSendmail();
+    $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+    $mail->addAddress($eml);
+    $mail->Subject = 'Heart Center Paging ['.$key.']';
+    $mail->isHTML(true);
+    $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
+            .'someone (hopefully you) requested access to edit user information.<br><br>'
+            .'The access token is: <h2><b>"'.$key.'"</b></h2><br>'
+            .'The code will self-destruct in 20 minutes.<br><br>'
+            .'Please act responsibly.<br><br>'
+            .'<i>- The Management</i>';
+    if (!$mail->send()) {                                                       // email error.
+        noAuth('Email error',$mail->ErrorInfo);
+        exit;
+    } else {
+        $user=$authName;
+        cookieTime(simple_encrypt($authName,$key));
+        $cookie = true;
+    }
+}
+if ($authCode) {                                                                // authcode entered, only if form input
+    $userCode = simple_decrypt($cookie,$authCode);
+    if ($userCode==$user) {                                                     // decoded cookie matches user
+        cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
+    } else {
+        noAuth('Wrong code','Try again');
+        exit;
+    }
+} else if ($cookie) {                                                           // any $cookie exists, either header or pass authCode
+    $userCode = simple_decrypt($cookie);
+    if ($userCode==$user) {                                                     // decoded cookie matches user
+        cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
+    } else { ?>
+        <div data-role="page" id="auth2" data-dialog="true">
+            <div data-role="header">
+                <h4 style="white-space: normal; text-align: center" >Email sent!<br>(May take a couple of minutes for delivery)</h4>
+                <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+            </div>
+            <div data-role="content">
+                <form method="post" action="back.php">
+                    <input name="auth" id="authCode" placeholder="Enter auth code from email" type="text" >
+                    <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Submit</button>
+                </form>
+                <a href="back.php" class="ui-btn ui-mini ui-btn-inline" onclick="clearCookie();" data-ajax="false">Resend auth code</a>
+            </div>
+        </div> <?php
+        exit;
+    }
+} else { ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Request authorization</h4>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="clearCookie();">Email auth code</button>
+            </form>
+        </div>
+    </div> <?php
+    exit;
+}
+
+function noAuth($title='User info editor',$button='Request authorization') { ?>
+    <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
+            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+        </div>
+        <div data-role="content">
+            <form method="post" action="back.php">
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
+            </form>
+        </div>
+    </div> <?php
+}
+function cookieTime($val='')  {
+    global $user;
+    $cookieTime = time()+20*60;
+    setcookie("pageuser",$user,$cookieTime);
+    setcookie("pageedit", $val, $cookieTime);
+    setcookie("pageeditT",$cookieTime, $cookieTime); 
 }
 //Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
@@ -183,39 +296,6 @@ function compare($field,$old,$new) {
     }
 }
 
-$cookieTime = filter_input(INPUT_COOKIE, 'pageeditT');
-$cookie = filter_input(INPUT_COOKIE,'pageedit');
-if (!$cookie) {
-    //noAuth();             // disable this to ignore auth check.
-}
-$user = filter_input(INPUT_POST, 'authname') ?: filter_input(INPUT_COOKIE, 'pageuser');
-$authCode = filter_input(INPUT_POST,'auth');
-if ($authCode) {
-    (simple_decrypt($cookie,$authCode)==$user) ?: noAuth('Wrong code','Try again!','2');
-    setcookie('pageuser', $user);
-}
-function noAuth($title='User info editor',$button='Request authorization',$page='1') {
-    global $user, $authCode;
-    ?>
-    <div data-role="page" id="noAuth" data-dialog="true" data-ajax="false">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" ><?php echo $title;?></h4>
-            <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
-        </div>
-        <div data-role="content">
-            <form method="post" action="edit.php?auth=<?php echo $page;?>">
-                <input type="hidden" name="auth" value="<?php echo $user;?>">
-                <input type="hidden" name="key" value="<?php echo $authCode;?>">
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b"><?php echo $button;?></button>
-            </form>
-        </div>
-    </div>
-    <?php
-}
-$newTime = time()+20*60;
-setcookie("pageedit",$cookie,$newTime);
-setcookie("pageeditT",$newTime);
-
 if ($import) {
     // Read "list.csv" into array
     $imXml = new SimpleXMLElement("<root />");
@@ -226,7 +306,7 @@ if ($import) {
     if (($handle = fopen("list.csv", "r")) !== FALSE) {
         $csvline = fgetcsv($handle, 1000, ",");
         while (($arrLine[] = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            $tmpGroup = $arrLine[$row][array_search('Group',$csvline)];
+            $tmpGroup = trim($arrLine[$row][array_search('Group',$csvline)]);
             if ($tmpGroup == 'Group') {
                 $tmpGroup = '';
             }
@@ -235,8 +315,8 @@ if ($import) {
                 continue;
             }
             usleep(1);
-            $tmpLastName = $arrLine[$row][array_search('Last',$csvline)];
-            $tmpFirstName = $arrLine[$row][array_search('First',$csvline)];
+            $tmpLastName = trim($arrLine[$row][array_search('Last',$csvline)]);
+            $tmpFirstName = trim($arrLine[$row][array_search('First',$csvline)]);
             $tmpPageSys = ($arrLine[$row][array_search('System',$csvline)]=='COOK') ? 'C' 
                     : (($arrLine[$row][array_search('System',$csvline)]=='USAM') ? 'U' : 'ERR');
             $tmpPageNum = simple_encrypt($arrLine[$row][array_search('Pager',$csvline)]);
@@ -393,13 +473,16 @@ function timeformat($diff) {
             $edNameF = $edUser['first'];
             $edUserId = $edUser['uid'];
             $edSection = $edUser['sec'];
+            $edPgr = $edUser->pager['num'];
             $edGroup = $edUser->xpath('..')[0]->getName();
             if (!($edGroup==$edGroupOld)) {
                 echo "\r\n".'        <li data-role="list-divider">'.$edGroup.'</li>'."\r\n";
                 $edGroupOld = $edGroup;
             }
             echo '            <li class="ui-mini">';
-            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) ? ('::: '.$edSection.' :::') : ($edNameL.', '.$edNameF)).'</i></a>';
+            echo '<a href="edit.php?id='.$edUserId.'" ><i>'.(($edSection) 
+                    ? ('::: '.$edSection.' :::') 
+                    : ((($edPgr)?'':'<small>(').$edNameL.', '.$edNameF.(($edPgr)?'':')</small>'))).'</i></a>';
             if ($isAdmin) { echo '<a href="edit.php?id='.$edUserId.'&move=Y" class="ui-btn ui-icon-recycle">Reorder user</a>'; }
             echo '</li>'."\r\n";
         }

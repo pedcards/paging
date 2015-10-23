@@ -30,6 +30,7 @@ function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
                 <?php echo $msg2;?><br>
             </p>
         </div>
+        <?php echo $form;?>
     </div>
     <?php
 }
@@ -164,15 +165,13 @@ if (($sendto == "B") || ($sendto == "C")) {
         $smsMsg = "Pushbullet and Page";
     }
     if ($sendSvc=='pov'){
-        $frmRepl = smartnum($fromName);
-        $msgRepl = smartnum($messagePost);
         curl_setopt_array($ch = curl_init(), array(
             CURLOPT_URL => "https://api.pushover.net/1/messages.json",
             CURLOPT_POSTFIELDS => array(
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
-                "title" => "[FROM: ".$frmRepl.']',
-                "message" => $msgRepl,
+                "title" => "[FROM: ".smartnum($fromName).']',
+                "message" => smartnum($messagePost),
                 "sound" => "echo"
             ),
             CURLOPT_SAFE_UPLOAD => true,
@@ -236,16 +235,24 @@ if ($sendto === "C") {
 }
 
 // Block for submitting to USA Mobility number
-if ($pagesys === "USAM") {
-    dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small>', 'pager.jpg', 'pager', '', '', 'b');
-    ?>
-    <form name="Terminal" action="http://www.usamobility.net/cgi-bin/wwwpage.exe" method="POST" >
-        <input type="hidden" name="PIN" value="<?php echo $pin; ?>">
-        <input type="hidden" name="MSSG" value="<?php echo $message; ?>">
-        <input type="hidden" name="Q1" value="0">
-        <script type="text/javascript">document.Terminal.submit();</script>
-    </form>
-    <?php
+if ($pagesys === "U") {
+    $usaForm = array(
+        "PIN" => $pin,
+        "MSSG" => $message,
+        "Q1" => '0'
+    );
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,"http://www.usamobility.net/cgi-bin/wwwpage.exe");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($usaForm));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    if (preg_match("/page\s*sent/i",$result)) {
+        dialog('USA Mobility','green', $smsMsg.' sent!*', '<small>*hopefully you won\'t regret what you just sent!</small><br>', 'pager.jpg', 'pager', '', '', 'b');
+    } else {
+        dialog('USA Mobility','red', 'Server error', 'Message failed to send!<br>', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    }
     exit;
 }
 
@@ -282,7 +289,7 @@ if (substr($snppSend,0,3) === "250") {
   // Testing for a server response code 550 (bad). Pager number was not valid. Error back.
 else if (($snppPage[0] === "4") || ($snppPage[0] === "5")) {
     $success = false;
-    dialog('SERVER ERROR', 'red', 'ERROR!!!', 'Message failed to send!<br>'.$snppSend, 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    dialog('SERVER ERROR', 'red', 'ERROR!!!', 'Message failed to send!<br>'.$snppSend.'<br>', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
 }
 ?>
 
