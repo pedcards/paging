@@ -500,7 +500,7 @@ function timeformat($diff) {
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
-    <ul data-role="listview" data-filter="true" data-filter-reveal="" data-input="#auto-editUser" data-inset="true">
+    <ul data-role="listview" data-filter="true" data-filter-reveal="false" data-input="#auto-editUser" data-inset="true">
         <?php
         $edUsers = $xml->xpath('//user');
         $edGroupOld = "";
