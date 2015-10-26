@@ -42,6 +42,7 @@
                 <div class="content">
                     <a href="http://pushbullet.com" data-role="button" target="_blank">Pushbullet</a>
                     <p>Free app for iOS, Android</p>
+                    <p>Requires installation of browser extension in Firefox, Chrome, or Safari</p>
                     <p>Messages can also be received in browser</p>
                     <p>Received instantaneously</p>
                     <p>Works anywhere you have a signal, either cellular or wi-fi </p>
@@ -50,7 +51,7 @@
             <div data-role="collapsible" data-collapsed="true">
                 <h4>Boxcar</h4>
                 <div class="content">
-                    <a href="http://boxcar.io" data-role="button" target="_blank">Boxcar</a>
+                    <a href="http://boxcar.io/client" data-role="button" target="_blank">Boxcar</a>
                     <p>Free app for iOS</p>
                     <p>Received instantaneously</p>
                     <p>Works anywhere you have a signal, either cellular or wi-fi </p>
@@ -83,8 +84,3 @@
 </div>
 </body>
 </html>
-
-
-
-
-
