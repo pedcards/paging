@@ -68,7 +68,7 @@ foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
 $group = $xml->groups->$grp;
-            $numsec = count($group->xpath("user[@sec]"));
+$numsec = count($group->xpath("user[@sec]"));
 ?>
 
 <!-- Start of first page -->
@@ -84,7 +84,7 @@ $group = $xml->groups->$grp;
         <label for="NUMBER" >To:</label>
         <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
-            echo '<option>'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>';
+            echo '<option value="">'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>'."\r\n";
             foreach($group->user as $liUser) {
                 $liUid = $liUser['uid'];
                 $liNameL = $liUser['last'];
@@ -151,6 +151,10 @@ $group = $xml->groups->$grp;
                 $("#emptyFrom").popup("open");
                 return false;
             }
+            if ($.trim($("#NUMBER").val()) === "") {
+                $("#emptyNum").popup("open");
+                return false;
+            }
         });
     </script>
     <div data-role="popup" id="emptyFrom" data-overlay-theme="b">
@@ -159,6 +163,14 @@ $group = $xml->groups->$grp;
         </div>
         <div data-role="main" class="ui-content">
             <p style="text-align: center">FROM field is required.</p>
+        </div>
+    </div>
+    <div data-role="popup" id="emptyNum" data-overlay-theme="b" >
+        <div data-role="header" style="background: red">
+            <h4>ERROR</h4>
+        </div>
+        <div data-role="main" class="ui-content">
+            <p style="text-align: center">Must select a valid recipient.</p>
         </div>
     </div>
 </div>
