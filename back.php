@@ -16,14 +16,13 @@
     $cdnJQ = $ini['jquery'];
     $instr = $ini['copyright'];
     
-    $maint = true;
+    $maint = false;
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
     <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
-    <script src="cookies.js"></script>
+    <script src="./lib/cookies.js"></script>
 <!--==========================================-->
-    <!--<script type="text/javascript" src="./jqm/jqm-alertbox.min.js"></script>-->
 
     <title>Paging v3</title>
 <?php
@@ -43,10 +42,9 @@ $authCode = filter_input(INPUT_POST,'auth');
 $authName = strtolower(trim(\filter_input(\INPUT_POST, 'user')));
 $isAdmin = (in_array($user,$ini['admin']));
 if ($maint) {
-    $user = 'tchun1';
-    $cookie = simple_encrypt($user);
-    cookieTime(simple_encrypt($user));
-    
+    $cookie = 'Ji911kMeuw4=';
+    cookieTime($cookie);
+    $user = simple_decrypt($cookie);
 }
 if ($authName) {                                                                 // user name submitted
     $ref = $_SERVER['HTTP_REFERER'];
@@ -58,9 +56,10 @@ if ($authName) {                                                                
     if (!$eml) {                                                                // no email decoded, valid user does not exist.
         setcookie('pageuser','');
         noauth('Error','No user found');
+        logger($authName.' attempted, failed.');
         exit;
     }                                                                           // user found, send authCode
-    require 'lib/PHPMailerAutoload.php';
+    require './lib/PHPMailerAutoload.php';
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
     $mail = new PHPMailer;
     $mail->isSendmail();
@@ -76,25 +75,30 @@ if ($authName) {                                                                
             .'<i>- The Management</i>';
     if (!$mail->send()) {                                                       // email error.
         noAuth('Email error',$mail->ErrorInfo);
+        logger('Mail error.');
         exit;
     } else {
         $user=$authName;
         cookieTime(simple_encrypt($authName,$key));
         $cookie = true;
+        logger('Auth code sent to '.$eml);
     }
 }
 if ($authCode) {                                                                // authcode entered, only if form input
     $userCode = simple_decrypt($cookie,$authCode);
     if ($userCode==$user) {                                                     // decoded cookie matches user
         cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
+        logger($user.' success.');
     } else {
         noAuth('Wrong code','Try again');
+        logger($user.' entered wrong code.');
         exit;
     }
 } else if ($cookie) {                                                           // any $cookie exists, either header or pass authCode
     $userCode = simple_decrypt($cookie);
     if ($userCode==$user) {                                                     // decoded cookie matches user
         cookieTime(simple_encrypt($userCode));                                  // set cookie as $salt encrypted login
+        logger($user.' entered.');
     } else { ?>
         <div data-role="page" id="auth2" data-dialog="true">
             <div data-role="header">
@@ -147,6 +151,38 @@ function cookieTime($val='')  {
     setcookie("pageedit", $val, $cookieTime);
     setcookie("pageeditT",$cookieTime, $cookieTime); 
 }
+function logger($msg) {
+    global $user;
+    $logfile = './logs/'.date('Ym').'.csv';
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP')) {
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    } else if(getenv('HTTP_X_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    } else if(getenv('HTTP_X_FORWARDED')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    } else if(getenv('HTTP_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    } else if(getenv('HTTP_FORWARDED')) {
+       $ipaddress = getenv('HTTP_FORWARDED');
+    } else if(getenv('REMOTE_ADDR')) {
+        $ipaddress = getenv('REMOTE_ADDR');
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
+    $out = fopen($logfile,'a');
+    fputcsv(
+        $out, 
+        array(
+            date('c'),
+            $ipaddress,
+            $user,
+            $msg
+        )
+    ); 
+    fclose($out);
+}
+
 //Variables passed from edit.php
 $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
@@ -464,7 +500,7 @@ function timeformat($diff) {
     <form class="ui-filterable">
         <input id="auto-editUser" data-type="search" placeholder="Search...">
     </form>
-    <ul data-role="listview" data-filter="true" data-filter-reveal="" data-input="#auto-editUser" data-inset="true">
+    <ul data-role="listview" data-filter="true" data-filter-reveal="false" data-input="#auto-editUser" data-inset="true">
         <?php
         $edUsers = $xml->xpath('//user');
         $edGroupOld = "";

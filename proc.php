@@ -68,7 +68,7 @@ foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
 $group = $xml->groups->$grp;
-            $numsec = count($group->xpath("user[@sec]"));
+$numsec = count($group->xpath("user[@sec]"));
 ?>
 
 <!-- Start of first page -->
@@ -78,13 +78,13 @@ $group = $xml->groups->$grp;
         <h3><?php echo $groupfull[$grp]; ?></h3>
     </div><!-- /header -->
 
-<form action="submit.php" method="POST" name="HTMLForm1" data-prefetch>
+<form action="submit.php" method="POST" name="sendForm" id="sendForm" data-prefetch>
 <div data-role="content">
     <div data-role="fieldcontain" >
         <label for="NUMBER" >To:</label>
         <select name="NUMBER" id="NUMBER" data-native-menu="true">
             <?php 
-            echo '<option>'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>';
+            echo '<option value="">'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>'."\r\n";
             foreach($group->user as $liUser) {
                 $liUid = $liUser['uid'];
                 $liNameL = $liUser['last'];
@@ -143,6 +143,35 @@ $group = $xml->groups->$grp;
     <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
     <div style="text-align: center">
         <input type="submit" value="SUBMIT!" data-inline="true" data-theme="b" />
+    </div>
+    <script type="text/javascript">
+        $('#sendForm').submit(function()
+        {
+            if ($.trim($("#MYNAME").val()) === "") {
+                $("#emptyFrom").popup("open");
+                return false;
+            }
+            if ($.trim($("#NUMBER").val()) === "") {
+                $("#emptyNum").popup("open");
+                return false;
+            }
+        });
+    </script>
+    <div data-role="popup" id="emptyFrom" data-overlay-theme="b">
+        <div data-role="header" >
+            <h4>ERROR</h4>
+        </div>
+        <div data-role="main" class="ui-content">
+            <p style="text-align: center">FROM field is required.</p>
+        </div>
+    </div>
+    <div data-role="popup" id="emptyNum" data-overlay-theme="b" >
+        <div data-role="header" style="background: red">
+            <h4>ERROR</h4>
+        </div>
+        <div data-role="main" class="ui-content">
+            <p style="text-align: center">Must select a valid recipient.</p>
+        </div>
     </div>
 </div>
 </form>
