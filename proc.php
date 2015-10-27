@@ -158,7 +158,7 @@ $numsec = count($group->xpath("user[@sec]"));
         });
     </script>
     <div data-role="popup" id="emptyFrom" data-overlay-theme="b">
-        <div data-role="header" >
+        <div data-role="header" style="background: red">
             <h4>ERROR</h4>
         </div>
         <div data-role="main" class="ui-content">
