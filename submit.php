@@ -30,7 +30,6 @@ function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
                 <?php echo $msg2;?><br>
             </p>
         </div>
-        <?php echo $form;?>
     </div>
     <?php
 }
@@ -81,7 +80,7 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $sendto = $pinarray[3]; // A:$pin, B:both, C:service
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
     $sendStr = $pinarray[5]; // user string
-$messagePost = trim(filter_input(INPUT_POST,'MESSAGE'));  // Get message from form page
+$messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page
 $messageMerged = "[From: ".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 $message = str_replace("\r\n" , "\n" , $messageMerged);  // Filter LF,CR and replace with newline.
 
