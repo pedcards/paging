@@ -43,7 +43,7 @@ function simple_decrypt($text, $salt = "") {
     return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 }
 function smartnum($text) {
-    return preg_replace('/(?<!98)7(\-)?(\d{4})/', '987$2', $text);
+    return preg_replace('/^(?<!98)7(\-)?(\d{4})$/', '987$2', $text);
 }
 
 // **** Referrer info for logfile ****
