@@ -25,8 +25,6 @@
 <!--==========================================-->
 
     <title>Paging v3</title>
-<?php
-?>
 </head>
 <body>
 <?php
@@ -188,6 +186,7 @@ $add = \filter_input(\INPUT_POST, 'add');
 $save = \filter_input(\INPUT_POST, 'save');
 $import = \filter_input(INPUT_POST, 'import');
 $uid = \filter_input(\INPUT_POST, 'uid');
+
 if (($save!=='y') && ($uid)) {
     // $save exists but not 'y', must have clicked Delete.
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
@@ -214,6 +213,8 @@ if ($add) {
     $matchUser = \filter_input(\INPUT_POST, 'match');
     if ($uid) {
         $userGroupOld = $groups->xpath("//user[@uid='".$uid."']")[0]->xpath("..")[0]->getName();
+        $origDom = dom_import_simplexml($xml->xpath("//user[@uid='".$uid."']")[0])->cloneNode(true);
+        $origXml = simplexml_import_dom($origDom);
     }
     if ($add=="user") {        // "user" for no previous UID, else "edit" for existing UID
         !($groups->$userGroup->xpath("user[@last='".$nameL."' and @first='".$nameF."']")) ?: errmsg('User already exists in this group!');
@@ -232,8 +233,6 @@ if ($add) {
     if ($err) {
         errmsg($err);
     } else {                                                // No errors, write
-        $origDom = dom_import_simplexml($xml->xpath("//user[@uid='".$uid."']")[0])->cloneNode(true);
-        $origXml = simplexml_import_dom($origDom);
         if ($userGroup !== $userGroupOld) {
            unset($groups->$userGroupOld->xpath("user[@uid='".$uid."']")[0][0]);
          }
