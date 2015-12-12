@@ -315,10 +315,11 @@ if ($add) {
             simplexml_import_dom($dom_new);
         }
         if (strlen($show)) {
-            mail(simple_decrypt($user->auth['eml'])?:'pedcards@uw.edu',
+            mail(simple_decrypt($user->auth['eml'])?:'pedcards@uw.edu','pedcards@uw.edu',
                 "Heart Center Paging info changes to ".simple_decrypt($user->auth['cis']),
                 "Changes were saved to your user account by ".filter_input(INPUT_COOKIE, 'pageuser').". The current settings are:\r\n".$show
             );
+            logger($userauth.' changed '.simple_decrypt($user->auth['cis']).': '.$show);
         }
     $xml->asXML("list.xml");
     }
