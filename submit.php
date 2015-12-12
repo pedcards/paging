@@ -171,6 +171,9 @@ if (($sendto == "B") || ($sendto == "C")) {
                 "user" => $sendStr,
                 "title" => "[FROM: ".smartnum($fromName).']',
                 "message" => smartnum($messagePost),
+                "priority" => 2,
+                "retry" => 30,
+                "expire" => 60,
                 "sound" => "echo"
             ),
             CURLOPT_SAFE_UPLOAD => true,
@@ -178,8 +181,8 @@ if (($sendto == "B") || ($sendto == "C")) {
         $ret = curl_exec($ch);
         curl_close($ch);
         $diag = array(
-            'Pushover','green', 
-            'Pushover message sent!', '', 
+            'Pushover',$ret ? 'green':'red', 
+            'Pushover message '.($ret ? 'sent!':'failed!'), '', 
             'sms-128.png', 'pushover', 
             '', '', 'b');
         $smsMsg = "Pushover and Page";
