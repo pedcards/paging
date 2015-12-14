@@ -123,16 +123,24 @@ if ($fromName == "") {
     exit;
 }
 
+    require './lib/PHPMailerAutoload.php';
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
+
+
 // Send other services
 $smsMsg = 'Page';
 if (($sendto == "B") || ($sendto == "C")) {
     if ($sendSvc == 'sms'){
-        $headers = "From: ".$fromName."@paging\r\n".
-            "X-Mailer: php";
-        mail(smartnum($sendStr), "", smartnum($messagePost)."\n==========\n<<<Do not reply to this message!>>>", $headers);
+        require_once './lib/PHPMailerAutoload.php';
+        $mail = new PHPMailer;
+        $mail->setFrom('pedcards@uw.edu', $fromName);
+        $mail->addAddress($sendStr);
+        $mail->isHTML(false);
+        $mail->Body    = smartnum($messagePost);
+        $ret = (!$mail->send());
         $diag = array(
-            'SMS','green',
-            'Text message sent to cell phone!',
+            'SMS',($ret ? 'red':'green'),
+            'Text message '.($ret ? 'error!':'sent to cell phone!'),
             '<small>*May take a while to be received.</small>',
             'sms-128.png', 'sms',
             '', '', 'b');
