@@ -81,7 +81,7 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
     $sendStr = $pinarray[5]; // user string
 $messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page
-$messageMerged = "[From: ".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
+$messageMerged = "From: ".$fromName." ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 $message = str_replace("\r\n" , "\n" , $messageMerged);  // Filter LF,CR and replace with newline.
 
 // Log the access
@@ -123,16 +123,24 @@ if ($fromName == "") {
     exit;
 }
 
+    require './lib/PHPMailerAutoload.php';
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,4); // no upper "I" or lower "l" to avoid confusion.
+
+
 // Send other services
 $smsMsg = 'Page';
 if (($sendto == "B") || ($sendto == "C")) {
     if ($sendSvc == 'sms'){
-        $headers = "From: ".$fromName."@paging\r\n".
-            "X-Mailer: php";
-        mail(smartnum($sendStr), "", smartnum($messagePost)."\n==========\n<<<Do not reply to this message!>>>", $headers);
+        require_once './lib/PHPMailerAutoload.php';
+        $mail = new PHPMailer;
+        $mail->setFrom('pedcards@uw.edu', $fromName);
+        $mail->addAddress($sendStr);
+        $mail->isHTML(false);
+        $mail->Body    = smartnum($messagePost);
+        $ret = (!$mail->send());
         $diag = array(
-            'SMS','green',
-            'Text message sent to cell phone!',
+            'SMS',($ret ? 'red':'green'),
+            'Text message '.($ret ? 'error!':'sent to cell phone!'),
             '<small>*May take a while to be received.</small>',
             'sms-128.png', 'sms',
             '', '', 'b');
@@ -169,7 +177,7 @@ if (($sendto == "B") || ($sendto == "C")) {
             CURLOPT_POSTFIELDS => array(
                 "token" => "asfJPnVyAUvsTkoGT8cAEvtE8pndHY",
                 "user" => $sendStr,
-                "title" => "[FROM: ".smartnum($fromName).']',
+                "title" => "FROM: ".smartnum($fromName),
                 "message" => smartnum($messagePost),
                 "priority" => 2,
                 "retry" => 30,
