@@ -41,7 +41,7 @@
                 <h4>Pushbullet</h4>
                 <div class="content">
                     <a href="http://pushbullet.com" data-role="button" target="_blank">Pushbullet</a>
-                    <p>Free app for iOS, Android</p>
+                    <p>Free app for iOS, Android (although changing to "freemium" model)</p>
                     <p>Requires installation of browser extension in Firefox, Chrome, or Safari</p>
                     <p>Messages can also be received in browser</p>
                     <p>Received instantaneously</p>
