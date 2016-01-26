@@ -179,9 +179,6 @@ if (($sendto == "B") || ($sendto == "C")) {
                 "user" => $sendStr,
                 "title" => "FROM: ".smartnum($fromName),
                 "message" => smartnum($messagePost),
-                "priority" => 2,
-                "retry" => 30,
-                "expire" => 60,
                 "sound" => "echo"
             ),
             CURLOPT_SAFE_UPLOAD => true,
