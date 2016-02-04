@@ -135,9 +135,8 @@ if (($sendto == "B") || ($sendto == "C")) {
         $mail = new PHPMailer;
         $mail->setFrom('pedcards@uw.edu');
         $mail->addAddress($sendStr);
-        $mail->Subject = $fromName;
         $mail->isHTML(false);
-        $mail->Body    = smartnum($messagePost);
+        $mail->Body    = 'FRM: '.$fromName.'\n'.'MSG: '.smartnum($messagePost);
         $ret = (!$mail->send());
         $diag = array(
             'SMS',($ret ? 'red':'green'),
