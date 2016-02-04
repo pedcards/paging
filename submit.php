@@ -136,7 +136,7 @@ if (($sendto == "B") || ($sendto == "C")) {
         $mail->setFrom('pedcards@uw.edu',$fromName);
         $mail->addAddress($sendStr);
         $mail->isHTML(false);
-        $mail->Body    = smartnum($messagePost).'<br>'.$fromName;
+        $mail->Body    = smartnum($messagePost).(substr($sendStr,'att')?'':' // '.$fromName);
         $ret = (!$mail->send());
         $diag = array(
             'SMS',($ret ? 'red':'green'),
