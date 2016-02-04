@@ -80,9 +80,8 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $sendto = $pinarray[3]; // A:$pin, B:both, C:service
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
     $sendStr = $pinarray[5]; // user string
-$messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page
-$messageMerged = "From: ".$fromName." ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
-$message = str_replace("\r\n" , "\r\n" , $messageMerged);  // Filter LF,CR and replace with newline.
+$messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page. Filter CR,LF
+$message = "[".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 
 // Log the access
 $out = fopen($logfile,'a');
@@ -136,7 +135,7 @@ if (($sendto == "B") || ($sendto == "C")) {
         $mail->setFrom('pedcards@uw.edu',$fromName);
         $mail->addAddress($sendStr);
         $mail->isHTML(false);
-        $mail->Body    = smartnum($messagePost).(substr_compare($sendStr,'att')?'':' // '.$fromName);
+        $mail->Body    = (strpos($sendStr,'att')?'':'['.$fromName.'] ').smartnum($messagePost);
         $ret = (!$mail->send());
         $diag = array(
             'SMS',($ret ? 'red':'green'),
