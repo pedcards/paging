@@ -133,8 +133,9 @@ if (($sendto == "B") || ($sendto == "C")) {
     if ($sendSvc == 'sms'){
         require_once './lib/PHPMailerAutoload.php';
         $mail = new PHPMailer;
-        $mail->setFrom('pedcards@uw.edu', $fromName);
+        $mail->setFrom('pedcards@uw.edu');
         $mail->addAddress($sendStr);
+        $mail->Subject = $fromName;
         $mail->isHTML(false);
         $mail->Body    = smartnum($messagePost);
         $ret = (!$mail->send());
