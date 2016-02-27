@@ -54,7 +54,8 @@ $call = array(
     'Reg_Con',
     'EP',
     'Txp',
-    'ARNP_IP','ARNP_OP','ARNP_CL'
+    'ARNP_IP','ARNP_OP','ARNP_CL',
+    'Echo_Tech'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
 $call_dt = date("Ymd");
