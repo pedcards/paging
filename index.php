@@ -251,7 +251,7 @@ function fuzzyname($str) {
 
     <div data-role="footer" >
         <h5><small>
-&COPY;(2007-2015) Terrence Chun, MD<br>
+&COPY;(2007-2016) Terrence Chun, MD<br>
         </small></h5>
     </div><!-- /footer -->
 </div><!-- /page -->
