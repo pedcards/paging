@@ -55,7 +55,6 @@ $call = array(
     'EP',
     'Txp',
     'ARNP_IP','ARNP_OP','ARNP_CL',
-    'Echo_Tech'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
 $call_dt = date("Ymd");
@@ -67,7 +66,8 @@ if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8
         ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
         'EP',
         'Txp',
-        'ARNP_IP'
+        'ARNP_IP',
+        'Echo_Tech'
     );
 }
 if ($call_t < 8) {
