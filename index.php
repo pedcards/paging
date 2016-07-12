@@ -53,7 +53,9 @@ $call = array(
     'CICU',
     'Reg_Con',
     'EP',
+    'Cath_res',
     'Txp',
+    'Txp_res',
     'ARNP_IP','ARNP_OP','ARNP_CL',
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
