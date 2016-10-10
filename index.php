@@ -243,7 +243,7 @@ function fuzzyname($str) {
         }
         ?>
     </ul>
-    <?php if ($pagealert!==$texthash) { ?>
+    <?php if (($pagealert) && ($pagealert!==$texthash)) { ?>
         <div class="ui-content jqm-alert-box" data-alertbox-close-time="20000" data-alertbox-transition="fade" data-role="popup" data-theme="a" data-overlay-theme="b" id="popupOpts" >
             <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
             <?php echo $alerttext;?>
