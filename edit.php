@@ -160,7 +160,7 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                 </div>
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206)[0-9]{7}" type="text">
+                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" type="tel">
                     </div>
                     <div class="ui-block-b" style="padding-top:2px;">
                         <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
