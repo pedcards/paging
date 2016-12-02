@@ -56,7 +56,7 @@ $call = array(
     'Cath_res',
     'Txp',
     'Txp_res',
-    'ARNP_IP','ARNP_OP','ARNP_CL',
+    'ARNP_IP','ARNP_OP','ARNP_CL','South_Sound_Cardiology'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
 $call_dt = date("Ymd");
@@ -69,7 +69,8 @@ if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8
         'EP',
         'Txp',
         'ARNP_IP',
-        'Echo_Tech'
+        'Echo_Tech',
+        'South_Sound_Cardiology'
     );
 }
 if ($call_t < 8) {
@@ -162,6 +163,10 @@ function fuzzyname($str) {
                     if ($call_d=='Saturday') {
                         $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time())."']/EP")[0];
                     }
+                }
+                if ($callU=='South_Sound_Cardiology') {
+                    $chName = 'South Sound On-Call: '.$chName;
+                    $callU = 'Grp';
                 }
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
