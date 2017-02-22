@@ -160,14 +160,14 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                 </div>
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206|253)\d{7}" type="tel"> 
+                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206|253|888)\d{7}" type="tel"> 
                     </div>
                     <div class="ui-block-b" style="padding-top:2px;">
                         <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
                             <input name="numPagerSys" id="addPagerSys-a" type="radio" value="C" <?php echo ($numPagerSys=="C") ? 'checked="checked"' : '';?>>
-                            <label for="addPagerSys-a">Cook</label>
+                            <label for="addPagerSys-a">AMS</label>
                             <input name="numPagerSys" id="addPagerSys-b" type="radio" value="U" <?php echo ($numPagerSys=="U") ? 'checked="checked"' : '';?>>
-                            <label for="addPagerSys-b">USA-M</label>
+                            <label for="addPagerSys-b">Spok</label>
                         </fieldset>
                     </div>
                 </div>
