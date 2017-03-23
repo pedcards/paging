@@ -205,6 +205,7 @@ if ($add) {
     $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
     $numProwl = \filter_input(\INPUT_POST, 'numProwl');
     $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
+    $numTigerText = \filter_input(\INPUT_POST, 'numTigerText');
     $userGroup = \filter_input(\INPUT_POST, 'userGroup');
     $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
     $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
@@ -229,6 +230,7 @@ if ($add) {
         $err .= (($numNotifSys=="pbl")&&($numPushBul=='')) ? "Specify Pushbullet email<br>" : '';
         $err .= (($numNotifSys=="prl")&&($numProwl=='')) ? "Specify Prowl user code<br>" : '';
         $err .= (($numNotifSys=="pov")&&($numPushOver=='')) ? "Specify Pushover user code<br>" : '';
+        $err .= (($numNotifSys=="tgt")&&($numTigerText=='')) ? "Specify TigerText user code<br>" : '';
         $err .= (($numNotifSys=="bxc")&&($numBoxcar=='')) ? "Specify Boxcar user code<br>" : '';
     if ($err) {
         errmsg($err);
@@ -269,6 +271,12 @@ if ($add) {
             $show .= compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$numPushOver);
         } else {
             unset($user->option->pushover);
+        }
+        if ($numTigerText) {
+            $user->option->tigertext['num'] = simple_encrypt($numTigerText);
+            $show .= compare('TigerText',  simple_decrypt($origXml->option->tigertext['num']),$numTigerText);
+        } else {
+            unset($user->option->tigertext);
         }
         if ($numBoxcar) {
             $user->option->boxcar['num'] = simple_encrypt($numBoxcar);
