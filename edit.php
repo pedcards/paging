@@ -75,6 +75,7 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $numProwl = ($edUserId) ? simple_decrypt($user->option->prowl['num']) : '';
     $numPushOver = ($edUserId) ? simple_decrypt($user->option->pushover['num']) : '';
     $numBoxcar = ($edUserId) ? simple_decrypt($user->option->boxcar['num']) : '';
+    $numTigerText = ($edUserId) ? simple_decrypt($user->option->tigertext['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userCis = ($edUserId) ? simple_decrypt($user->auth['cis']) : '';
