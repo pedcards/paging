@@ -232,6 +232,25 @@ if (($sendto == "B") || ($sendto == "C")) {
             '', '', 'b');
         $smsMsg = "Prowl and Page";
     }
+    if ($sendSvc=='tgt'){
+        curl_setopt_array($ch = curl_init(), array(
+            CURLOPT_URL => "https://developer.tigertext.me/v2/message",
+            CURLOPT_USERPWD => "RIq3MIqNcB6dsM2F5HuwfvMgffw8wTZ4:5diOz0ARBM8LHZLM0aynO88sSX87GUQ0Vll1RU29PF0q2Fpn",
+            CURLOPT_POSTFIELDS => array(
+                "recipient" => "terrence.chun@seattlechildrens.org", //$sendStr,
+                "body" => smartnum($messagePost)
+            ),
+            CURLOPT_SAFE_UPLOAD => true,
+        ));
+        $ret = curl_exec($ch);
+        curl_close($ch);
+        $diag = array(
+            'TigerText',$ret ? 'green':'red', 
+            'TigerText message '.($ret ? 'sent!':'failed!'), '', 
+            'sms-128.png', 'tigertext', 
+            '', '', 'b');
+        $smsMsg = "TigerText and Page";
+    }
 }
 
 // Option C, stop after sending SMS.
