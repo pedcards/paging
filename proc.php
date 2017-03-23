@@ -116,6 +116,9 @@ $numsec = count($group->xpath("user[@sec]"));
                         if ($liOptSvc == "bxc") {
                             $liOptStr = simple_decrypt($liUser->option->boxcar['num']);
                         }
+                        if ($liOptSvc == "tgt") {
+                            $liOptStr = simple_decrypt($liUser->option->tigertext['num']);
+                        }
                     }
                     $pagerline = array(
                         $liUid,
