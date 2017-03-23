@@ -75,6 +75,7 @@ $edUserId = \filter_input(\INPUT_GET,'id');
     $numProwl = ($edUserId) ? simple_decrypt($user->option->prowl['num']) : '';
     $numPushOver = ($edUserId) ? simple_decrypt($user->option->pushover['num']) : '';
     $numBoxcar = ($edUserId) ? simple_decrypt($user->option->boxcar['num']) : '';
+    $numTigerText = ($edUserId) ? simple_decrypt($user->option->tigertext['num']) : '';
     $numSysOpt = ($edUserId) ? $user->option['mode'] : 'A';
     $numNotifSys = ($edUserId) ? $user->option['sys'] : '';
     $userCis = ($edUserId) ? simple_decrypt($user->auth['cis']) : '';
@@ -160,14 +161,14 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                 </div>
                 <div class="ui-grid-a">
                     <div class="ui-block-a" style="padding-right:10px;">
-                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206|253)\d{7}" type="tel"> 
+                        <input name="numPager" id="addPagerNum" value="<?php echo $numPager;?>" placeholder="Pager (10-digits)" pattern="(206|253|888)\d{7}" type="tel"> 
                     </div>
                     <div class="ui-block-b" style="padding-top:2px;">
                         <fieldset data-role="controlgroup" data-type="horizontal" class="ui-mini">
                             <input name="numPagerSys" id="addPagerSys-a" type="radio" value="C" <?php echo ($numPagerSys=="C") ? 'checked="checked"' : '';?>>
-                            <label for="addPagerSys-a">Cook</label>
+                            <label for="addPagerSys-a">AMS</label>
                             <input name="numPagerSys" id="addPagerSys-b" type="radio" value="U" <?php echo ($numPagerSys=="U") ? 'checked="checked"' : '';?>>
-                            <label for="addPagerSys-b">USA-M</label>
+                            <label for="addPagerSys-b">Spok</label>
                         </fieldset>
                     </div>
                 </div>
@@ -217,9 +218,10 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     <option >Choose notification...</option>
                     <option value="nul">None</option>
                     <option value="sms" <?php echo ($numNotifSys=="sms") ? 'selected="selected"':'';?>>Text message</option>
+                    <option value="tgt" <?php echo ($numNotifSys=="tgt") ? 'selected="selected"':'';?>>TigerText</option>
+                    <option value="pov" <?php echo ($numNotifSys=="pov") ? 'selected="selected"':'';?>>Pushover</option>
                     <option value="pbl" <?php echo ($numNotifSys=="pbl") ? 'selected="selected"':'';?>>Pushbullet</option>
                     <option value="prl" <?php echo ($numNotifSys=="prl") ? 'selected="selected"':'';?>>Prowl</option>
-                    <option value="pov" <?php echo ($numNotifSys=="pov") ? 'selected="selected"':'';?>>Pushover</option>
                     <option value="bxc" <?php echo ($numNotifSys=="bxc") ? 'selected="selected"':'';?>>Boxcar</option>
                 </select>
                 <div class="ui-grid-a">
@@ -236,12 +238,17 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     </div>
                 </div>
                 <div class="ui-field-contain">
-                    <label for="addPushBul">Pushbullet</label>
-                    <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
+                    <label for="addTigerText">TigerText</label>
+                    <input name="numTigerText" id="addTigerText" value="<?php echo $numTigerText;?>" placeholder="TigerText user code" type="text">
+                    <!-- Possible to use SCH email or require TigerText account?-->
                 </div>
                 <div class="ui-field-contain">
                     <label for="addPushOver">Pushover</label>
                     <input name="numPushOver" id="addPushOver" value="<?php echo $numPushOver;?>" placeholder="Pushover user code" type="text">
+                </div>
+                <div class="ui-field-contain">
+                    <label for="addPushBul">Pushbullet</label>
+                    <input name="numPushBul" id="addPushBul" value="<?php echo $numPushBul;?>" placeholder="Pushbullet email" type="text">
                 </div>
                 <div class="ui-field-contain">
                     <label for="addProwl">Prowl</label>
