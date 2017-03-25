@@ -99,6 +99,11 @@ fputcsv(
 ); 
 fclose($out);
 
+if (strtolower($fromName) == strtolower($userCis)) {
+    echo '<script>window.location.replace("http://google.com/")</script>';
+    exit();
+}
+
 // Update the MRU cookie
 if ($pin) {
     $cstr = $uid;
