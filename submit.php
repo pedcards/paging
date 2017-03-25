@@ -80,6 +80,7 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $sendto = $pinarray[3]; // A:$pin, B:both, C:service
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
     $sendStr = $pinarray[5]; // user string
+    $userCis = $pinarray[6]; // user CIS
 $messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page. Filter CR,LF
 $message = "[".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 
