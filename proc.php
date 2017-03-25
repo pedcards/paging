@@ -126,7 +126,8 @@ $numsec = count($group->xpath("user[@sec]"));
                         simple_decrypt($liUser->pager['num']),
                         $liOpt,
                         $liOptSvc,
-                        $liOptStr
+                        $liOptStr,
+                        simple_decrypt($liUser->auth['cis'])
                     );
                     $liName = $liNameF.' '.$liNameL;
                 }
