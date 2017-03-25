@@ -100,7 +100,24 @@ fputcsv(
 fclose($out);
 
 if (strtolower($fromName) == strtolower($userCis)) {
-    echo '<script>window.location.replace("http://google.com/")</script>';
+    ?>
+    <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="b">
+        <div data-role="header" data-theme="b">
+            <h1 style="color:red">EDIT</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <form action="edit.php?id=<?php echo $uid;?>" method="POST" name="sendForm" id="sendForm" data-prefetch>
+                <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
+                <div style="text-align: center">
+                    Click here to edit user<br>
+                    <input type="submit" value="EDIT!" data-inline="true" data-theme="b" />
+                    <br><br>
+                    Or close dialog (X) to return.<br>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php
     exit();
 }
 
