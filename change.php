@@ -17,12 +17,34 @@
         <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
         <script src="./lib/cookies.js"></script>
 <!--==========================================-->
+    <?php
+    function simple_encrypt($text, $salt = "") {
+        if (!$salt) {
+            global $instr; $salt = $instr;
+        }
+        if (!$text) {
+            return $text;
+        }
+        return trim(base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, $salt, $text, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND))));
+    }
+    function simple_decrypt($text, $salt = "") {
+        if (!$salt) {
+            global $instr; $salt = $instr;
+        }
+        if (!$text) {
+            return $text;
+        }
+        return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+    }
+    ?>
         <title>Heart Center Paging</title>
     </head>
 <body>
 
 <?php
-
+/*  If directed from edit.php, read the form input
+ *  and 
+ */
 
 /*  This section at end for committing to list.xml
  * 
