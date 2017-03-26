@@ -105,7 +105,7 @@ if ($userID) {
     );
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
     $keytxt = simple_encrypt(implode(",", $pagerblock));
-    file_put_contents('./logs/'.$key, $keytxt);
+    file_put_contents('./logs/'.$key.'.blob', $keytxt);
     
     require './lib/PHPMailerAutoload.php';
     $mail = new PHPMailer;
@@ -131,8 +131,8 @@ if ($userID) {
 $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
 if ($key) {
-    while ($do == '1') {
-        $keytxt = file_get_contents('./logs/'.$key);
+    if ($do == '1') {
+        $keytxt = file_get_contents('./logs/'.$key.'.blob');
         list(
             $userID,
             $numPager, $numPagerSys,
