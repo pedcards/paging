@@ -114,15 +114,50 @@ if ($userID) {
     if (!$mail->send()) {
         dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
     } else {
-        dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, '', '', 'b', 'a', 'b');
+        dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'b');
     }
     exit;
 }
-/*  This section at end for committing to list.xml
+
+$key = \filter_input(\INPUT_GET,'id');
+$do = \filter_input(\INPUT_GET,'do');
+if ($key) {
+    while ($do == '1') {
+        $keytxt = file_get_contents('./logs/'.$key);
+        list(
+            $userID,
+            $numPager, $numPagerSys,
+            $numSms, $numSmsSys,
+            $numTigerText,
+            $numPushOver,
+            $numPushBul,
+            $numBoxcar,
+            $numProwl,
+            $numSysOpt,
+            $numNotifSys,
+            $cookieTime
+        ) = explode(",", simple_decrypt($keytxt));
+        
+        if (time()>$cookieTime) {
+            unlink('./logs/'.$key);
+            break;
+        }
+        /*  This is where we will write to list.xml
+         *  and email user with confirmation
+         */
+        $xml = simplexml_load_file("list.xml");
+        $groups = $xml->groups;
+        
+        
+    } if ($do !== '1') {
+        unlink('./logs/'.$key);
+    }
+}
+/*  This section at end for cleaning out leftover blob files
  * 
  */
-$xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
-$groups = ($xml->groups) ?: $xml->addChild('groups');
+
+
 ?>
 </BODY>
 </HTML>
