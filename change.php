@@ -18,7 +18,10 @@
         <script src="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.js"></script>
         <script src="./lib/cookies.js"></script>
 <!--==========================================-->
-    <?php
+        <title>Heart Center Paging</title>
+    </head>
+<body>
+<?php
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
             global $instr; $salt = $instr;
@@ -37,12 +40,23 @@
         }
         return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
     }
-    ?>
-        <title>Heart Center Paging</title>
-    </head>
-<body>
+    function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
+        ?>
+        <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
+            <div data-role="header" data-theme="<?php echo $bar;?>">
+                <h1 style="color:<?php echo $tcolor;?>"><?php echo $title;?></h1>
+            </div>
+            <div data-role="content" data-theme="<?php echo $fg;?>">
+                <p style="text-align:center">
+                    <?php echo $msg1;?><br>
+                    <img src="images/<?php echo $img;?>" alt="<?php echo $alt;?>"><br>
+                    <?php echo $msg2;?><br>
+                </p>
+            </div>
+        </div>
+        <?php
+    }
 
-<?php
 /*  If directed from edit.php, read the form input
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
