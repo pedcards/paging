@@ -43,11 +43,35 @@
 
 <?php
 /*  If directed from edit.php, read the form input
- *  and 
+ *  create the "cookie" (crypted values, key, and expiration time)
+ *  Send mail to affected user.
  */
-
+if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
+    $nameL = \filter_input(\INPUT_POST, 'nameL');
+    $nameF = \filter_input(\INPUT_POST, 'nameF');
+    $numPager = \filter_input(\INPUT_POST, 'numPager');
+    $numPagerSys = \filter_input(\INPUT_POST, 'numPagerSys');
+    $numSms = \filter_input(\INPUT_POST, 'numSms');
+    $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
+    $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
+    $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
+    $numProwl = \filter_input(\INPUT_POST, 'numProwl');
+    $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
+    $numTigerText = \filter_input(\INPUT_POST, 'numTigerText');
+    $userGroup = \filter_input(\INPUT_POST, 'userGroup');
+    $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
+    $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
+    $userCis = \filter_input(\INPUT_POST, 'userCis');
+    $userEml = \filter_input(\INPUT_POST, 'userEml');
+    $userID = \filter_input(\INPUT_POST, 'uid');
+    $matchUser = \filter_input(\INPUT_POST, 'match');
+}
+echo $userID;
 /*  This section at end for committing to list.xml
  * 
  */
 $xml = (simplexml_load_file("list.xml")) ?: new SimpleXMLElement("<root />");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
+?>
+</BODY>
+</HTML>
