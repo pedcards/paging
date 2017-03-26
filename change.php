@@ -95,9 +95,9 @@ if ($userID) {
         $numNotifSys,
         $cookieTime
     );
-    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,12); // no upper "I" or lower "l" to avoid confusion.
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
     $keytxt = simple_encrypt(implode(",", $pagerblock));
-    $_SESSION[$key] = $keytxt;
+    file_put_contents('./logs/'.$key, $keytxt);
     
     require './lib/PHPMailerAutoload.php';
     $mail = new PHPMailer;
