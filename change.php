@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<?php session_start();?>
 <HTML>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -80,6 +81,7 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
     );
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,12); // no upper "I" or lower "l" to avoid confusion.
     $keytxt = simple_encrypt(implode(",", $pagerblock));
+    $_SESSION[$key] = $keytxt;
 }
 /*  This section at end for committing to list.xml
  * 
