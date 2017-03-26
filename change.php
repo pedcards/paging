@@ -96,6 +96,26 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,12); // no upper "I" or lower "l" to avoid confusion.
     $keytxt = simple_encrypt(implode(",", $pagerblock));
     $_SESSION[$key] = $keytxt;
+    
+    require './lib/PHPMailerAutoload.php';
+    $mail = new PHPMailer;
+    $mail->isSendmail();
+    $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+    $mail->addAddress($userEml);
+    $mail->Subject = 'Heart Center Paging';
+    $mail->isHTML(true);
+    $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
+            .'someone (hopefully you) made some edits to your user information.<br><br>'
+            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change.<br><br>'
+            .'If you do not approve, '
+            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
+            .'<i>- The Management</i>';
+    if (!$mail->send()) {
+        dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+    } else {
+        dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, '', '', 'b', 'a', 'b');
+    }
+    exit;
 }
 /*  This section at end for committing to list.xml
  * 
