@@ -44,7 +44,7 @@
         <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
             <div data-role="header" data-theme="<?php echo $bar;?>">
                 <h1 style="color:<?php echo $tcolor;?>"><?php echo $title;?></h1>
-                <a href="index.php" data-rel="back" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+                <a href="index.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
             </div>
             <div data-role="content" data-theme="<?php echo $fg;?>">
                 <p style="text-align:center">
@@ -163,6 +163,7 @@ if ($key) {
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
 }
+dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','b');
 ?>
 </BODY>
 </HTML>
