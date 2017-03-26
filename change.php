@@ -61,7 +61,9 @@
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
+//$matchUser = \filter_input(\INPUT_POST, 'match');
+$userID = \filter_input(\INPUT_POST, 'uid');
+if ($userID) {
     $nameL = \filter_input(\INPUT_POST, 'nameL');
     $nameF = \filter_input(\INPUT_POST, 'nameF');
     $numPager = \filter_input(\INPUT_POST, 'numPager');
@@ -78,8 +80,6 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
     $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
     $userCis = \filter_input(\INPUT_POST, 'userCis');
     $userEml = \filter_input(\INPUT_POST, 'userEml');
-    $userID = \filter_input(\INPUT_POST, 'uid');
-    $matchUser = \filter_input(\INPUT_POST, 'match');
     $cookieTime = time()+20*60;
     
     $pagerblock = array(
