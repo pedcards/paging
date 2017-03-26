@@ -56,11 +56,20 @@
         <?php
     }
 
+/*  Clean out any leftover blob files
+ */
+foreach (glob('./logs/*.blob') as $fname) {
+    $fmdate = filemtime($fname);
+    if ((time()-$fmdate) > (20*60)) {
+        unlink($fname);
+    }
+    echo $fname.': '.time().'-'.$fmdate.' = '.(time()-$fmdate).'<br>';
+}
+
 /*  If directed from edit.php, read the form input
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-//$matchUser = \filter_input(\INPUT_POST, 'match');
 $userID = \filter_input(\INPUT_POST, 'uid');
 if ($userID) {
     $nameL = \filter_input(\INPUT_POST, 'nameL');
@@ -153,11 +162,6 @@ if ($key) {
         unlink('./logs/'.$key);
     }
 }
-/*  This section at end for cleaning out leftover blob files
- * 
- */
-
-
 ?>
 </BODY>
 </HTML>
