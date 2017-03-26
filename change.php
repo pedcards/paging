@@ -65,8 +65,22 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
     $userEml = \filter_input(\INPUT_POST, 'userEml');
     $userID = \filter_input(\INPUT_POST, 'uid');
     $matchUser = \filter_input(\INPUT_POST, 'match');
+    
+    $pagerblock = array(
+        $userID,
+        $numPager, $numPagerSys,
+        $numSms, $numSmsSys,
+        $numTigerText,
+        $numPushOver,
+        $numPushBul,
+        $numBoxcar,
+        $numProwl,
+        $numSysOpt,
+        $numNotifSys
+    );
+    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,12); // no upper "I" or lower "l" to avoid confusion.
+    $keytxt = simple_encrypt(implode(",", $pagerblock));
 }
-echo $userID;
 /*  This section at end for committing to list.xml
  * 
  */
