@@ -80,6 +80,7 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
     $userEml = \filter_input(\INPUT_POST, 'userEml');
     $userID = \filter_input(\INPUT_POST, 'uid');
     $matchUser = \filter_input(\INPUT_POST, 'match');
+    $cookieTime = time()+20*60;
     
     $pagerblock = array(
         $userID,
@@ -91,7 +92,8 @@ if (stripos($_SERVER['HTTP_REFERER'],'edit.php')) {
         $numBoxcar,
         $numProwl,
         $numSysOpt,
-        $numNotifSys
+        $numNotifSys,
+        $cookieTime
     );
     $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,12); // no upper "I" or lower "l" to avoid confusion.
     $keytxt = simple_encrypt(implode(",", $pagerblock));
