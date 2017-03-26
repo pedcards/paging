@@ -125,7 +125,6 @@ if ($userID) {
     } else {
         dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'b');
     }
-    exit;
 }
 
 $key = \filter_input(\INPUT_GET,'id');
@@ -148,8 +147,8 @@ if ($key) {
         ) = explode(",", simple_decrypt($keytxt));
         
         if (time()>$cookieTime) {
-            unlink('./logs/'.$key);
-            break;
+            unlink('./logs/'.$key.'.blob');
+            dialog('ERROR', 'Red', 'Link expired', 'Try again', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
         }
         /*  This is where we will write to list.xml
          *  and email user with confirmation
@@ -158,8 +157,9 @@ if ($key) {
         $groups = $xml->groups;
         
         
-    } if ($do !== '1') {
-        unlink('./logs/'.$key);
+    } else {
+        unlink('./logs/'.$key.'.blob');
+        dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
 }
 ?>
