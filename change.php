@@ -63,6 +63,38 @@
         </div>
         <?php
     }
+    function logger($msg) {
+        global $user;
+        $logfile = './logs/'.date('Ym').'.csv';
+        $ipaddress = '';
+        if (getenv('HTTP_CLIENT_IP')) {
+            $ipaddress = getenv('HTTP_CLIENT_IP');
+        } else if(getenv('HTTP_X_FORWARDED_FOR')) {
+            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+        } else if(getenv('HTTP_X_FORWARDED')) {
+            $ipaddress = getenv('HTTP_X_FORWARDED');
+        } else if(getenv('HTTP_FORWARDED_FOR')) {
+            $ipaddress = getenv('HTTP_FORWARDED_FOR');
+        } else if(getenv('HTTP_FORWARDED')) {
+           $ipaddress = getenv('HTTP_FORWARDED');
+        } else if(getenv('REMOTE_ADDR')) {
+            $ipaddress = getenv('REMOTE_ADDR');
+        } else {
+            $ipaddress = 'UNKNOWN';
+        }
+        $out = fopen($logfile,'a');
+        fputcsv(
+            $out, 
+            array(
+                date('c'),
+                $ipaddress,
+                $user,
+                $msg
+            )
+        ); 
+        fclose($out);
+    }
+require_once './lib/PHPMailerAutoload.php';
 
 /*  Clean out any leftover blob files
  */
@@ -113,7 +145,6 @@ if ($uid) {
     $keytxt = simple_encrypt(implode(",", $pagerblock));
     file_put_contents('./logs/'.$key.'.blob', $keytxt);
     
-    require_once './lib/PHPMailerAutoload.php';
     $mail = new PHPMailer;
     $mail->isSendmail();
     $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
