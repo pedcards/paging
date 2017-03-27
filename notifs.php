@@ -79,6 +79,18 @@
                     <p>Also useful for other notifications</p>
                 </div>
             </div>
+            <div data-role="collapsible" data-collapsed="true">
+                <h4>TigerText</h4>
+                <div class="content">
+                    <a href="https://tigertext.com" data-role="button" target="_blank">TigerText</a>
+                    <p>Free app for iOS and Android</p>
+                    <p>Received instantaneously</p>
+                    <p>Supports Smart Numbers</p>
+                    <p>Works anywhere you have a signal, either cellular or wi-fi</p>
+                    <p>Peer-to-peer secure messaging</p>
+                    <p>Can send audio, images, video</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
