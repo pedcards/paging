@@ -38,14 +38,14 @@
                 </div>
             </div>
             <div data-role="collapsible" data-collapsed="true">
-                <h4>Pushbullet</h4>
+                <h4>Prowl</h4>
                 <div class="content">
-                    <a href="http://pushbullet.com" data-role="button" target="_blank">Pushbullet</a>
-                    <p>Free app for iOS, Android (although changing to "freemium" model)</p>
-                    <p>Requires installation of browser extension in Firefox, Chrome, or Safari</p>
-                    <p>Messages can also be received in browser</p>
+                    <a href="http://prowlapp.com" data-role="button" target="_blank">ProwlApp</a>
+                    <p>iOS app $2.99</p>
                     <p>Received instantaneously</p>
+                    <p>Supports Smart Numbers</p>
                     <p>Works anywhere you have a signal, either cellular or wi-fi </p>
+                    <p>Can also receive any other Growl notifications</p>
                 </div>
             </div>
             <div data-role="collapsible" data-collapsed="true">
@@ -58,14 +58,14 @@
                 </div>
             </div>
             <div data-role="collapsible" data-collapsed="true">
-                <h4>Prowl</h4>
+                <h4>Pushbullet</h4>
                 <div class="content">
-                    <a href="http://prowlapp.com" data-role="button" target="_blank">ProwlApp</a>
-                    <p>iOS app $2.99</p>
+                    <a href="http://pushbullet.com" data-role="button" target="_blank">Pushbullet</a>
+                    <p>Free app for iOS, Android (although changing to "freemium" model)</p>
+                    <p>Requires installation of browser extension in Firefox, Chrome, or Safari</p>
+                    <p>Messages can also be received in browser</p>
                     <p>Received instantaneously</p>
-                    <p>Supports Smart Numbers</p>
                     <p>Works anywhere you have a signal, either cellular or wi-fi </p>
-                    <p>Can also receive any other Growl notifications</p>
                 </div>
             </div>
             <div data-role="collapsible" data-collapsed="true">
@@ -82,7 +82,7 @@
             <div data-role="collapsible" data-collapsed="true">
                 <h4>TigerText</h4>
                 <div class="content">
-                    <a href="https://tigertext.com" data-role="button" target="_blank">TigerText</a>
+                    <a href="http://tigertext.com" data-role="button" target="_blank">TigerText</a>
                     <p>Free app for iOS and Android</p>
                     <p>Received instantaneously</p>
                     <p>Supports Smart Numbers</p>
