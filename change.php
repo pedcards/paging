@@ -102,6 +102,7 @@ foreach (glob('./logs/*.blob') as $fname) {
     $fmdate = filemtime($fname);
     if ((time()-$fmdate) > (20*60)) {
         unlink($fname);
+        logger('Removed '.$fname);
     }
 }
 /*  If directed from edit.php, read the form input
@@ -159,8 +160,10 @@ if ($uid) {
             .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
             .'<i>- The Management</i>';
     if (!$mail->send()) {
+        logger('Email error sending to '.$userEml);
         dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
     } else {
+        logger('Change notification sent to '.$userEml);
         dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'b');
     }
 }
@@ -186,6 +189,7 @@ if ($key) {
         
         if (time()>$cookieTime) {
             unlink('./logs/'.$key.'.blob');
+            logger('Blob '.$key.' expired.');
             dialog('ERROR', 'Red', 'Link expired', 'Try again', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
         }
         /*  This is where we will write to list.xml
@@ -265,12 +269,15 @@ if ($key) {
         $xml->asXML("list.xml");
         
         unlink('./logs/'.$key.'.blob');
+        logger('Changes saved, '.$key.' blob file unlinked.');
         dialog('NOTIFICATION', '', 'Changes accepted!', 'Thank you!', 'sms-128.png', 'w00t', 'b', 'a', 'a');
     } else {
         unlink('./logs/'.$key.'.blob');
+        logger('Blob file '.$key.' unlinked.');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
 }
+logger('Guru Meditation');
 dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','b');
 ?>
 </BODY>
