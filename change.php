@@ -106,7 +106,7 @@ if ($uid) {
     $keytxt = simple_encrypt(implode(",", $pagerblock));
     file_put_contents('./logs/'.$key.'.blob', $keytxt);
     
-    require './lib/PHPMailerAutoload.php';
+    require_once './lib/PHPMailerAutoload.php';
     $mail = new PHPMailer;
     $mail->isSendmail();
     $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
@@ -114,8 +114,9 @@ if ($uid) {
     $mail->Subject = 'Heart Center Paging';
     $mail->isHTML(true);
     $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
-            .'someone (hopefully you) made some edits to your user information.<br><br>'
-            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change.<br><br>'
+            .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
+            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
+            .'This link will expire in 20 minutes.<br><br>'
             .'If you do not approve, '
             .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
             .'<i>- The Management</i>';
