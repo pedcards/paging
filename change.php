@@ -39,6 +39,13 @@
         }
         return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
     }
+    function compare($field,$old,$new) {
+        if ($old==$new) {
+            return '';
+        } else {
+            return $field.": '".$old."' -> '".$new."'\r\n";
+        }
+    }
     function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
         ?>
         <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="<?php echo $bg;?>">
@@ -154,9 +161,68 @@ if ($key) {
          *  and email user with confirmation
          */
         $xml = simplexml_load_file("list.xml");
-        $groups = $xml->groups;
+        $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+        $origDom = dom_import_simplexml($xml->xpath("//user[@uid='".$uid."']")[0])->cloneNode(true);
+        $origXml = simplexml_import_dom($origDom);
         
-        
+        if ($numPager) {
+            $user->pager['num'] = simple_encrypt($numPager);
+            $user->pager['sys'] = $numPagerSys;
+            $show .= compare('Pager', simple_decrypt($origXml->pager['num']), $numPager);
+            $show .= preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('Pager sys', $origXml->pager['sys'], $numPagerSys)));
+        } else {
+            unset($user->pager);
+        }
+        if ($numSms) {
+            $user->option->sms['num'] = simple_encrypt($numSms);
+            $user->option->sms['sys'] = $numSmsSys;
+            $show .= compare('SMS',simple_decrypt($origXml->option->sms['num']),$numSms);
+            $show .= preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('SMS sys',$origXml->option->sms['sys'],$numSmsSys))));
+        } else {
+            unset($user->option->sms);
+        }
+        if ($numPushBul) {
+            $user->option->pushbul['eml'] = simple_encrypt($numPushBul);
+            $show .= compare('Pushbullet',  simple_decrypt($origXml->option->pushbul['eml']),$numPushBul);
+        } else {
+            unset($user->option->pushbul);
+        }
+        if ($numPushOver) {
+            $user->option->pushover['num'] = simple_encrypt($numPushOver);
+            $show .= compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$numPushOver);
+        } else {
+            unset($user->option->pushover);
+        }
+        if ($numTigerText) {
+            $user->option->tigertext['num'] = simple_encrypt($numTigerText);
+            $show .= compare('TigerText',  simple_decrypt($origXml->option->tigertext['num']),$numTigerText);
+        } else {
+            unset($user->option->tigertext);
+        }
+        if ($numBoxcar) {
+            $user->option->boxcar['num'] = simple_encrypt($numBoxcar);
+            $show .= compare('Boxcar',  simple_decrypt($origXml->option->boxcar['num']),$numBoxcar);
+        } else {
+            unset($user->option->boxcar);
+        }
+        if ($numProwl) {
+            $user->option->prowl['num'] = simple_encrypt($numProwl);
+            $show .= compare('Prowl',  simple_decrypt($origXml->option->prowl['num']),$numProwl);
+        } else {
+            unset($user->option->prowl);
+        }
+        if ($numSysOpt) {
+            $user->option['mode'] = $numSysOpt;
+            $show .= preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$numSysOpt))));
+        } else {
+            $user->option['mode'] = 'A';
+        }
+        if (($numNotifSys)&&($numNotifSys!=='Choose notification...')) {
+            $user->option['sys'] = $numNotifSys;
+            $show .= compare('System',$origXml->option['sys'],$numNotifSys);
+        } else {
+            unset($user->option['sys']);
+        }
     } else {
         unlink('./logs/'.$key.'.blob');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
