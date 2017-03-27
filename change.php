@@ -254,6 +254,18 @@ if ($key) {
         } else {
             unset($user->option['sys']);
         }
+        if (strlen($show)) {
+            mail(simple_decrypt($user->auth['eml']),
+                "Heart Center Paging info confirmation",
+                "The following changes were saved to your user account:\r\n".$show,
+                "Bcc: pedcards@uw.edu"
+            );
+            logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
+        }
+        $xml->asXML("list.xml");
+        
+        unlink('./logs/'.$key.'.blob');
+        dialog('NOTIFICATION', '', 'Changes accepted!', 'Thank you!', 'sms-128.png', 'w00t', 'b', 'a', 'a');
     } else {
         unlink('./logs/'.$key.'.blob');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
