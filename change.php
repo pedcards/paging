@@ -64,15 +64,13 @@ foreach (glob('./logs/*.blob') as $fname) {
     if ((time()-$fmdate) > (20*60)) {
         unlink($fname);
     }
-    echo $fname.': '.time().'-'.$fmdate.' = '.(time()-$fmdate).'<br>';
 }
-
 /*  If directed from edit.php, read the form input
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-$userID = \filter_input(\INPUT_POST, 'uid');
-if ($userID) {
+$uid = \filter_input(\INPUT_POST, 'uid');
+if ($uid) {
     $nameL = \filter_input(\INPUT_POST, 'nameL');
     $nameF = \filter_input(\INPUT_POST, 'nameF');
     $numPager = \filter_input(\INPUT_POST, 'numPager');
@@ -92,7 +90,7 @@ if ($userID) {
     $cookieTime = time()+20*60;
     
     $pagerblock = array(
-        $userID,
+        $uid,
         $numPager, $numPagerSys,
         $numSms, $numSmsSys,
         $numTigerText,
@@ -134,7 +132,7 @@ if ($key) {
     if ($do == '1') {
         $keytxt = file_get_contents('./logs/'.$key.'.blob');
         list(
-            $userID,
+            $uid,
             $numPager, $numPagerSys,
             $numSms, $numSmsSys,
             $numTigerText,
