@@ -57,6 +57,14 @@ function simple_decrypt($text, $salt = "") {
 <?php
 $pageUser = filter_input(INPUT_COOKIE, 'pageuser');
 $isAdmin = (in_array($pageUser,$ini['admin']));
+if (stripos($_SERVER['HTTP_REFERER'],'submit.php')) {
+    $backbut = 'index.php';
+    $submit = 'change.php';
+    $isAdmin = false;
+} else {
+    $backbut = 'back.php';
+    $submit = 'back.php';
+}
 $xml = simplexml_load_file("list.xml");
 $groups = ($xml->groups) ?: $xml->addChild('groups');
 foreach ($groups->children() as $grp0) {
@@ -139,13 +147,13 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
 <div data-role="page" id="edit" data-dialog="true">
 <div data-role="header">
     <h4 style="white-space: normal; text-align: center" ><?php echo ($edUserId) ? 'Edit User' : 'Add User';?></h4>
-    <a href="back.php" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
+    <a href="<?php echo $backbut;?>" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-delete ui-btn-icon-notext ui-corner-all">go back</a>
     <?php if ($edUserId && $isAdmin) { echo '    <a href="#delConf" data-rel="popup" data-position-to="window" class="ui-btn ui-shadow ui-btn-icon-left ui-icon-forbidden ui-corner-all" >DELETE</a>';}?>
 
 </div><!-- /header -->
 
 <div data-role="content">
-    <form method="post" id="edForm" action="back.php" data-ajax="false">
+    <form method="post" id="edForm" action="<?php echo $submit;?>" data-ajax="false">
         <div class="ui-corner-all custom-corners">
             <div class="ui-bar ui-bar-a">
                 <h3>Paging info</h3>

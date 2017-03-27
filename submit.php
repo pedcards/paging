@@ -80,6 +80,7 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $sendto = $pinarray[3]; // A:$pin, B:both, C:service
     $sendSvc = $pinarray[4]; // extra service: sms,pbl,pov,bxc
     $sendStr = $pinarray[5]; // user string
+    $userCis = $pinarray[6]; // user CIS
 $messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page. Filter CR,LF
 $message = "[".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
 
@@ -97,6 +98,28 @@ fputcsv(
     )
 ); 
 fclose($out);
+
+if (strtolower($fromName) == strtolower($userCis)) {
+    ?>
+    <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="b">
+        <div data-role="header" data-theme="b">
+            <h1 style="color:red">EDIT</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <form action="edit.php?id=<?php echo $uid;?>" method="POST" name="sendForm" id="sendForm" data-prefetch>
+                <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
+                <div style="text-align: center">
+                    Click here to edit user<br>
+                    <input type="submit" value="EDIT!" data-inline="true" data-theme="b" />
+                    <br><br>
+                    Or close dialog (X) to return.<br>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php
+    exit();
+}
 
 // Update the MRU cookie
 if ($pin) {
@@ -237,7 +260,7 @@ if (($sendto == "B") || ($sendto == "C")) {
             CURLOPT_URL => "https://developer.tigertext.me/v2/message",
             CURLOPT_USERPWD => "RIq3MIqNcB6dsM2F5HuwfvMgffw8wTZ4:5diOz0ARBM8LHZLM0aynO88sSX87GUQ0Vll1RU29PF0q2Fpn",
             CURLOPT_POSTFIELDS => array(
-                "recipient" => "terrence.chun@seattlechildrens.org", //$sendStr,
+                "recipient" => $sendStr,
                 "body" => smartnum($messagePost)
             ),
             CURLOPT_SAFE_UPLOAD => true,
