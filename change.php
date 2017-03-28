@@ -21,6 +21,8 @@
     </head>
 <body>
 <?php
+    require_once './lib/PHPMailerAutoload.php';
+    
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
             global $instr; $salt = $instr;
@@ -94,7 +96,6 @@
         ); 
         fclose($out);
     }
-require_once './lib/PHPMailerAutoload.php';
 
 /*  Clean out any leftover blob files
  */
