@@ -46,10 +46,7 @@
         if ($old==$new) {
             return '';
         } else {
-            array_push(
-                $changes,
-                array($field=>$new)
-            );
+            $changes[] = $field.':'.$new;
             return $field.": '".$old."' -> '".$new."'\r\n";
         }
     }
@@ -172,6 +169,9 @@ if ($uid) {
     $val['cookieTime'] = time()+20*60;
     
     echo changed($uid);
+    foreach ($changes as $el) {
+        var_dump($el);
+    }
     exit;
     
     $pagerblock = array(
