@@ -96,6 +96,31 @@
         ); 
         fclose($out);
     }
+    function changed($uid) {
+        global $val, $xml, $show;
+        
+        if (is_null($uid)) {
+            return;
+        }
+        $xml = simplexml_load_file("list.xml");
+            $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+            $origDom = dom_import_simplexml($user)->cloneNode(true);
+            $origXml = simplexml_import_dom($origDom);
+            
+        $show .= printQ(compare('Pager', simple_decrypt($origXml->pager['num']), $val['numPager']),'###<br>');
+        $show .= printQ(preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('Pager sys', $origXml->pager['sys'], $val['numPagerSys']))),'###<br>');
+        $show .= printQ(compare('SMS',simple_decrypt($origXml->option->sms['num']),$val['numSms']),'###<br>');
+        $show .= printQ(preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('SMS sys',$origXml->option->sms['sys'],$val['numSmsSys'])))),'###<br>');
+        $show .= printQ(compare('Pushbullet',  simple_decrypt($origXml->option->pushbul['eml']),$val['numPushBul']),'###<br>');
+        $show .= printQ(compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$val['numPushOver']),'###<br>');
+        $show .= printQ(compare('TigerText',  simple_decrypt($origXml->option->tigertext['num']),$val['numTigerText']),'###<br>');
+        $show .= printQ(compare('Boxcar',  simple_decrypt($origXml->option->boxcar['num']),$val['numBoxcar']),'###<br>');
+        $show .= printQ(compare('Prowl',  simple_decrypt($origXml->option->prowl['num']),$val['numProwl']),'###<br>');
+        $show .= printQ(preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$val['numSysOpt'])))),'###<br>');
+        $show .= printQ(compare('System',$origXml->option['sys'],$val['numNotifSys']),'###<br>');
+        
+        return $show;
+    }
 
 /*  Clean out any leftover blob files
  */
