@@ -134,6 +134,11 @@
         }
     }
 
+/*  Begin the script
+ * 
+ */
+$uid = \filter_input(\INPUT_POST, 'uid');
+
 /*  Clean out any leftover blob files
  */
 foreach (glob('./logs/*.blob') as $fname) {
