@@ -126,6 +126,13 @@
         
         return $show;
     }
+    function printQ($txt,$str='###') {
+        if ($txt=='') {
+            return '';
+        } else {
+            return preg_replace('/###/',$txt,$str);
+        }
+    }
 
 /*  Clean out any leftover blob files
  */
