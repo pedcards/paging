@@ -47,7 +47,7 @@
             return '';
         } else {
             $changes[] = $field.':'.$new;
-            return $field.": '".$old."' -> '".$new."'\r\n";
+            return $field.": '".$old."' => '".$new."'\r\n";
         }
     }
     function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
@@ -109,17 +109,17 @@
             $origDom = dom_import_simplexml($user)->cloneNode(true);
             $origXml = simplexml_import_dom($origDom);
             
-        $show .= printQ(compare('numPager', simple_decrypt($origXml->pager['num']), $val['numPager']),'###<br>');
-        $show .= printQ(preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('numPagersys', $origXml->pager['sys'], $val['numPagerSys']))),'###<br>');
-        $show .= printQ(compare('numSms',simple_decrypt($origXml->option->sms['num']),$val['numSms']),'###<br>');
-        $show .= printQ(preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('numSmsSys',$origXml->option->sms['sys'],$val['numSmsSys'])))),'###<br>');
-        $show .= printQ(compare('numPushBul',  simple_decrypt($origXml->option->pushbul['eml']),$val['numPushBul']),'###<br>');
-        $show .= printQ(compare('numPushOver',  simple_decrypt($origXml->option->pushover['num']),$val['numPushOver']),'###<br>');
-        $show .= printQ(compare('numTigerText',  simple_decrypt($origXml->option->tigertext['num']),$val['numTigerText']),'###<br>');
-        $show .= printQ(compare('numBoxcar',  simple_decrypt($origXml->option->boxcar['num']),$val['numBoxcar']),'###<br>');
-        $show .= printQ(compare('numProwl',  simple_decrypt($origXml->option->prowl['num']),$val['numProwl']),'###<br>');
-        $show .= printQ(preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('numSysOpt',$origXml->option['mode'],$val['numSysOpt'])))),'###<br>');
-        $show .= printQ(compare('numNotifSys',$origXml->option['sys'],$val['numNotifSys']),'###<br>');
+        $show .= printQ(compare('numPager', simple_decrypt($origXml->pager['num']), $val['numPager']),'<li>###</li>');
+        $show .= printQ(preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('numPagersys', $origXml->pager['sys'], $val['numPagerSys']))),'<li>###</li>');
+        $show .= printQ(compare('numSms',simple_decrypt($origXml->option->sms['num']),$val['numSms']),'<li>###</li>');
+        $show .= printQ(preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('numSmsSys',$origXml->option->sms['sys'],$val['numSmsSys'])))),'<li>###</li>');
+        $show .= printQ(compare('numPushBul',  simple_decrypt($origXml->option->pushbul['eml']),$val['numPushBul']),'<li>###</li>');
+        $show .= printQ(compare('numPushOver',  simple_decrypt($origXml->option->pushover['num']),$val['numPushOver']),'<li>###</li>');
+        $show .= printQ(compare('numTigerText',  simple_decrypt($origXml->option->tigertext['num']),$val['numTigerText']),'<li>###</li>');
+        $show .= printQ(compare('numBoxcar',  simple_decrypt($origXml->option->boxcar['num']),$val['numBoxcar']),'<li>###</li>');
+        $show .= printQ(compare('numProwl',  simple_decrypt($origXml->option->prowl['num']),$val['numProwl']),'<li>###</li>');
+        $show .= printQ(preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('numSysOpt',$origXml->option['mode'],$val['numSysOpt'])))),'<li>###</li>');
+        $show .= printQ(compare('numNotifSys',$origXml->option['sys'],$val['numNotifSys']),'<li>###</li>');
         
         return $show;
     }
@@ -182,7 +182,7 @@ if ($uid) {
         $mail->isHTML(true);
         $mail->Body    = 'On '.date(DATE_RFC2822).', '
                 .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
-                .'<pre>'.$show.'</pre><br>'
+                .'<blockquote><ul>'.$show.'</ul></blockquote><br>'
                 .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
                 .'This link will expire in 20 minutes.<br><br>'
                 .'If you do not approve, '
