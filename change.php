@@ -168,48 +168,33 @@ if ($uid) {
     $val['userEml'] = \filter_input(\INPUT_POST, 'userEml');
     $val['cookieTime'] = time()+20*60;
     
-    echo changed($uid);
-    foreach ($changes as $el) {
-        var_dump($el);
-    }
-    exit;
-    
-    $pagerblock = array(
-        $uid,
-        $val['numPager'], $val['numPagerSys'],
-        $val['numSms'], $val['numSmsSys'],
-        $val['numTigerText'],
-        $val['numPushOver'],
-        $val['numPushBul'],
-        $val['numBoxcar'],
-        $val['numProwl'],
-        $val['numSysOpt'],
-        $val['numNotifSys'],
-        $val['cookieTime']
-    );
-    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
-    $keytxt = simple_encrypt(implode(",", $pagerblock));
-    file_put_contents('./logs/'.$key.'.blob', $keytxt);
-    
-    $mail = new PHPMailer;
-    $mail->isSendmail();
-    $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
-    $mail->addAddress($val['userEml']);
-    $mail->Subject = 'Heart Center Paging';
-    $mail->isHTML(true);
-    $mail->Body    = 'On '.date(DATE_RFC2822).', '
-            .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
-            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
-            .'This link will expire in 20 minutes.<br><br>'
-            .'If you do not approve, '
-            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
-            .'<i>- The Management</i>';
-    if (!$mail->send()) {
-        logger('Email error sending to '.$val['userEml']);
-        dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
-    } else {
-        logger('Change notification sent to '.$val['userEml']);
-        dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'b');
+    $show = changed($uid);
+    if ($show) {
+        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
+        $keytxt = simple_encrypt(implode(",", $changes));
+        file_put_contents('./logs/'.$key.'.blob', $keytxt);
+
+        $mail = new PHPMailer;
+        $mail->isSendmail();
+        $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+        $mail->addAddress($val['userEml']);
+        $mail->Subject = 'Heart Center Paging';
+        $mail->isHTML(true);
+        $mail->Body    = 'On '.date(DATE_RFC2822).', '
+                .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
+                .'<pre>'.$show.'</pre><br>'
+                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
+                .'This link will expire in 20 minutes.<br><br>'
+                .'If you do not approve, '
+                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
+                .'<i>- The Management</i>';
+        if (!$mail->send()) {
+            logger('Email error sending to '.$val['userEml']);
+            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+        } else {
+            logger('Change notification sent to '.$val['userEml']);
+            dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'b');
+        }
     }
 }
 
