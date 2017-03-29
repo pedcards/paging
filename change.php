@@ -234,70 +234,39 @@ if ($key) {
         }
         if ($val['numPager']) {
             $user->pager['num'] = simple_encrypt($val['numPager']);
+        }
+        if ($val['numPagerSys']) {
             $user->pager['sys'] = $val['numPagerSys'];
-            $show .= compare('Pager', simple_decrypt($origXml->pager['num']), $val['numPager']);
-            $show .= preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('Pager sys', $origXml->pager['sys'], $val['numPagerSys'])));
-        } else {
-            unset($user->pager);
         }
         if ($val['numSms']) {
             $user->option->sms['num'] = simple_encrypt($val['numSms']);
+        }
+        if ($val['numSmsSys']) {
             $user->option->sms['sys'] = $val['numSmsSys'];
-            $show .= compare('SMS',simple_decrypt($origXml->option->sms['num']),$val['numSms']);
-            $show .= preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('SMS sys',$origXml->option->sms['sys'],$val['numSmsSys']))));
-        } else {
-            unset($user->option->sms);
         }
         if ($val['numPushBul']) {
             $user->option->pushbul['eml'] = simple_encrypt($val['numPushBul']);
-            $show .= compare('Pushbullet',  simple_decrypt($origXml->option->pushbul['eml']),$val['numPushBul']);
-        } else {
-            unset($user->option->pushbul);
         }
         if ($val['numPushOver']) {
             $user->option->pushover['num'] = simple_encrypt($val['numPushOver']);
-            $show .= compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$val['numPushOver']);
-        } else {
-            unset($user->option->pushover);
         }
         if ($val['numTigerText']) {
             $user->option->tigertext['num'] = simple_encrypt($val['numTigerText']);
-            $show .= compare('TigerText',  simple_decrypt($origXml->option->tigertext['num']),$val['numTigerText']);
-        } else {
-            unset($user->option->tigertext);
         }
         if ($val['numBoxcar']) {
             $user->option->boxcar['num'] = simple_encrypt($val['numBoxcar']);
-            $show .= compare('Boxcar',  simple_decrypt($origXml->option->boxcar['num']),$val['numBoxcar']);
-        } else {
-            unset($user->option->boxcar);
         }
         if ($val['numProwl']) {
             $user->option->prowl['num'] = simple_encrypt($val['numProwl']);
-            $show .= compare('Prowl',  simple_decrypt($origXml->option->prowl['num']),$val['numProwl']);
-        } else {
-            unset($user->option->prowl);
         }
         if ($val['numSysOpt']) {
             $user->option['mode'] = $val['numSysOpt'];
-            $show .= preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$val['numSysOpt']))));
-        } else {
-            $user->option['mode'] = 'A';
         }
         if (($val['numNotifSys'])&&($val['numNotifSys']!=='Choose notification...')) {
             $user->option['sys'] = $val['numNotifSys'];
-            $show .= compare('System',$origXml->option['sys'],$val['numNotifSys']);
-        } else {
-            unset($user->option['sys']);
         }
-        if (strlen($show)) {
-            mail(simple_decrypt($user->auth['eml']),
-                "Heart Center Paging info confirmation",
-                "The following changes were saved to your user account:\r\n".$show,
-                "Bcc: pedcards@uw.edu"
-            );
-            logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
-        }
+        logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
+        
         $xml->asXML("list.xml");
         
         unlink('./logs/'.$key.'.blob');
