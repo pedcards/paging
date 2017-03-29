@@ -210,20 +210,11 @@ $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
 if ($key) {
     if ($do == '1') {
-        $keytxt = file_get_contents('./logs/'.$key.'.blob');
         list(
             $uid,
-            $val['numPager'], $val['numPagerSys'],
-            $val['numSms'], $val['numSmsSys'],
-            $val['numTigerText'],
-            $val['numPushOver'],
-            $val['numPushBul'],
-            $val['numBoxcar'],
-            $val['numProwl'],
-            $val['numSysOpt'],
-            $val['numNotifSys'],
+            $keytxt,
             $val['cookieTime']
-        ) = explode(",", simple_decrypt($keytxt));
+        ) = explode(",", simple_decrypt(file_get_contents('./logs/'.$key.'.blob')));
         
         if (time()>$val['cookieTime']) {
             unlink('./logs/'.$key.'.blob');
@@ -233,6 +224,14 @@ if ($key) {
         /*  This is where we will write to list.xml
          *  and email user with confirmation
          */
+        $xml = simplexml_load_file("list.xml");
+        $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+        
+        $changes = explode(',', simple_decrypt($keytxt));
+        foreach ($changes as $el) {
+            list($label,$value) = explode(':',$el);
+            $val[$label] = $value;
+        }
         if ($val['numPager']) {
             $user->pager['num'] = simple_encrypt($val['numPager']);
             $user->pager['sys'] = $val['numPagerSys'];
