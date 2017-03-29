@@ -198,10 +198,10 @@ if ($uid) {
                 .'<i>- The Management</i>';
         if (!$mail->send()) {
             logger('Email error sending to '.$val['userEml']);
-            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
+            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
         } else {
             logger('Change notification sent to '.$val['userEml']);
-            dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'b');
+            dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'a');
         }
     }
 }
@@ -311,7 +311,7 @@ if ($key) {
     }
 }
 logger('Guru Meditation');
-dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','b');
+dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
 ?>
 </BODY>
 </HTML>
