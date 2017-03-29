@@ -171,9 +171,17 @@ if ($uid) {
     $show = changed($uid);
     if ($show) {
         $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
-        $keytxt = simple_encrypt(implode(",", $changes));
+        $keytxt = simple_encrypt(
+            implode(',',
+                array(
+                    $uid,
+                    simple_encrypt(implode(",", $changes)),
+                    $val['cookieTime']
+                )
+            )
+        );
         file_put_contents('./logs/'.$key.'.blob', $keytxt);
-
+        
         $mail = new PHPMailer;
         $mail->isSendmail();
         $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
