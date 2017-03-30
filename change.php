@@ -66,6 +66,7 @@
             </div>
         </div>
         <?php
+        exit;
     }
     function logger($msg) {
         global $user;
@@ -204,11 +205,9 @@ if ($uid) {
             dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'a');
         }
     }
-}
-
-$key = \filter_input(\INPUT_GET,'id');
-$do = \filter_input(\INPUT_GET,'do');
-if ($key) {
+} else if ($key) {
+    $key = \filter_input(\INPUT_GET,'id');
+    $do = \filter_input(\INPUT_GET,'do');
     if ($do == '1') {
         list(
             $uid,
@@ -267,6 +266,7 @@ if ($key) {
         }
         logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
         
+        copy('list.xml','./lists/'.date('Ymd').'.xml');
         $xml->asXML("list.xml");
         
         unlink('./logs/'.$key.'.blob');
@@ -277,9 +277,10 @@ if ($key) {
         logger('Blob file '.$key.' unlinked.');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
+} else {
+    logger('Guru Meditation');
+    dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
 }
-logger('Guru Meditation');
-dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
 ?>
 </BODY>
 </HTML>
