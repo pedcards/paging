@@ -21,6 +21,8 @@
     </head>
 <body>
 <?php
+    require_once './lib/PHPMailerAutoload.php';
+    
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
             global $instr; $salt = $instr;
@@ -40,10 +42,12 @@
         return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
     }
     function compare($field,$old,$new) {
+        global $changes;
         if ($old==$new) {
             return '';
         } else {
-            return $field.": '".$old."' -> '".$new."'\r\n";
+            $changes[] = $field.':'.$new;
+            return $field.": '".$old."' => '".$new."'\r\n";
         }
     }
     function dialog($title,$tcolor,$msg1,$msg2,$img,$alt,$bar,$fg,$bg) {
@@ -94,7 +98,43 @@
         ); 
         fclose($out);
     }
-require_once './lib/PHPMailerAutoload.php';
+    function changed($uid) {
+        global $val, $xml, $show;
+        
+        if (is_null($uid)) {
+            return;
+        }
+        $xml = simplexml_load_file("list.xml");
+            $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+            $origDom = dom_import_simplexml($user)->cloneNode(true);
+            $origXml = simplexml_import_dom($origDom);
+            
+        $show .= printQ(compare('numPager', simple_decrypt($origXml->pager['num']), $val['numPager']),'<li>###</li>');
+        $show .= printQ(preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('numPagersys', $origXml->pager['sys'], $val['numPagerSys']))),'<li>###</li>');
+        $show .= printQ(compare('numSms',simple_decrypt($origXml->option->sms['num']),$val['numSms']),'<li>###</li>');
+        $show .= printQ(preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('numSmsSys',$origXml->option->sms['sys'],$val['numSmsSys'])))),'<li>###</li>');
+        $show .= printQ(compare('numPushBul',  simple_decrypt($origXml->option->pushbul['eml']),$val['numPushBul']),'<li>###</li>');
+        $show .= printQ(compare('numPushOver',  simple_decrypt($origXml->option->pushover['num']),$val['numPushOver']),'<li>###</li>');
+        $show .= printQ(compare('numTigerText',  simple_decrypt($origXml->option->tigertext['num']),$val['numTigerText']),'<li>###</li>');
+        $show .= printQ(compare('numBoxcar',  simple_decrypt($origXml->option->boxcar['num']),$val['numBoxcar']),'<li>###</li>');
+        $show .= printQ(compare('numProwl',  simple_decrypt($origXml->option->prowl['num']),$val['numProwl']),'<li>###</li>');
+        $show .= printQ(preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('numSysOpt',$origXml->option['mode'],$val['numSysOpt'])))),'<li>###</li>');
+        $show .= printQ(compare('numNotifSys',$origXml->option['sys'],$val['numNotifSys']),'<li>###</li>');
+        
+        return $show;
+    }
+    function printQ($txt,$str='###') {
+        if ($txt=='') {
+            return '';
+        } else {
+            return preg_replace('/###/',$txt,$str);
+        }
+    }
+
+/*  Begin the script
+ * 
+ */
+$uid = \filter_input(\INPUT_POST, 'uid');
 
 /*  Clean out any leftover blob files
  */
@@ -109,62 +149,60 @@ foreach (glob('./logs/*.blob') as $fname) {
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-$uid = \filter_input(\INPUT_POST, 'uid');
 if ($uid) {
-    $nameL = \filter_input(\INPUT_POST, 'nameL');
-    $nameF = \filter_input(\INPUT_POST, 'nameF');
-    $numPager = \filter_input(\INPUT_POST, 'numPager');
-    $numPagerSys = \filter_input(\INPUT_POST, 'numPagerSys');
-    $numSms = \filter_input(\INPUT_POST, 'numSms');
-    $numSmsSys = \filter_input(\INPUT_POST, 'numSmsSys');
-    $numPushBul = \filter_input(\INPUT_POST, 'numPushBul');
-    $numBoxcar = \filter_input(\INPUT_POST, 'numBoxcar');
-    $numProwl = \filter_input(\INPUT_POST, 'numProwl');
-    $numPushOver = \filter_input(\INPUT_POST, 'numPushOver');
-    $numTigerText = \filter_input(\INPUT_POST, 'numTigerText');
-    $userGroup = \filter_input(\INPUT_POST, 'userGroup');
-    $numSysOpt = \filter_input(\INPUT_POST, 'numSysOpt');
-    $numNotifSys = \filter_input(\INPUT_POST, 'numNotifSys');
-    $userCis = \filter_input(\INPUT_POST, 'userCis');
-    $userEml = \filter_input(\INPUT_POST, 'userEml');
-    $cookieTime = time()+20*60;
+    $val['nameL'] = \filter_input(\INPUT_POST, 'nameL');
+    $val['nameF'] = \filter_input(\INPUT_POST, 'nameF');
+    $val['numPager'] = \filter_input(\INPUT_POST, 'numPager');
+    $val['numPagerSys'] = \filter_input(\INPUT_POST, 'numPagerSys');
+    $val['numSms'] = \filter_input(\INPUT_POST, 'numSms');
+    $val['numSmsSys'] = \filter_input(\INPUT_POST, 'numSmsSys');
+    $val['numPushBul'] = \filter_input(\INPUT_POST, 'numPushBul');
+    $val['numBoxcar'] = \filter_input(\INPUT_POST, 'numBoxcar');
+    $val['numProwl'] = \filter_input(\INPUT_POST, 'numProwl');
+    $val['numPushOver'] = \filter_input(\INPUT_POST, 'numPushOver');
+    $val['numTigerText'] = \filter_input(\INPUT_POST, 'numTigerText');
+    $val['userGroup'] = \filter_input(\INPUT_POST, 'userGroup');
+    $val['numSysOpt'] = \filter_input(\INPUT_POST, 'numSysOpt');
+    $val['numNotifSys'] = \filter_input(\INPUT_POST, 'numNotifSys');
+    $val['userCis'] = \filter_input(\INPUT_POST, 'userCis');
+    $val['userEml'] = \filter_input(\INPUT_POST, 'userEml');
+    $val['cookieTime'] = time()+20*60;
     
-    $pagerblock = array(
-        $uid,
-        $numPager, $numPagerSys,
-        $numSms, $numSmsSys,
-        $numTigerText,
-        $numPushOver,
-        $numPushBul,
-        $numBoxcar,
-        $numProwl,
-        $numSysOpt,
-        $numNotifSys,
-        $cookieTime
-    );
-    $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
-    $keytxt = simple_encrypt(implode(",", $pagerblock));
-    file_put_contents('./logs/'.$key.'.blob', $keytxt);
-    
-    $mail = new PHPMailer;
-    $mail->isSendmail();
-    $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
-    $mail->addAddress($userEml);
-    $mail->Subject = 'Heart Center Paging';
-    $mail->isHTML(true);
-    $mail->Body    = 'On '.date(DATE_RFC2822).'<br>'
-            .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
-            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
-            .'This link will expire in 20 minutes.<br><br>'
-            .'If you do not approve, '
-            .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
-            .'<i>- The Management</i>';
-    if (!$mail->send()) {
-        logger('Email error sending to '.$userEml);
-        dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'b');
-    } else {
-        logger('Change notification sent to '.$userEml);
-        dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'b');
+    $show = changed($uid);
+    if ($show) {
+        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
+        $keytxt = simple_encrypt(
+            implode(',',
+                array(
+                    $uid,
+                    simple_encrypt(implode(",", $changes)),
+                    $val['cookieTime']
+                )
+            )
+        );
+        file_put_contents('./logs/'.$key.'.blob', $keytxt);
+        
+        $mail = new PHPMailer;
+        $mail->isSendmail();
+        $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+        $mail->addAddress($val['userEml']);
+        $mail->Subject = 'Heart Center Paging';
+        $mail->isHTML(true);
+        $mail->Body    = 'On '.date(DATE_RFC2822).', '
+                .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
+                .'<blockquote><ul>'.$show.'</ul></blockquote><br>'
+                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
+                .'This link will expire in 20 minutes.<br><br>'
+                .'If you do not approve, '
+                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
+                .'<i>- The Management</i>';
+        if (!$mail->send()) {
+            logger('Email error sending to '.$val['userEml']);
+            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
+        } else {
+            logger('Change notification sent to '.$val['userEml']);
+            dialog('NOTIFICATION', '', 'Confirmation email sent to', $val['userEml'], 'sms-128.png', 'w00t', 'b', 'a', 'a');
+        }
     }
 }
 
@@ -172,22 +210,13 @@ $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
 if ($key) {
     if ($do == '1') {
-        $keytxt = file_get_contents('./logs/'.$key.'.blob');
         list(
             $uid,
-            $numPager, $numPagerSys,
-            $numSms, $numSmsSys,
-            $numTigerText,
-            $numPushOver,
-            $numPushBul,
-            $numBoxcar,
-            $numProwl,
-            $numSysOpt,
-            $numNotifSys,
-            $cookieTime
-        ) = explode(",", simple_decrypt($keytxt));
+            $keytxt,
+            $val['cookieTime']
+        ) = explode(",", simple_decrypt(file_get_contents('./logs/'.$key.'.blob')));
         
-        if (time()>$cookieTime) {
+        if (time()>$val['cookieTime']) {
             unlink('./logs/'.$key.'.blob');
             logger('Blob '.$key.' expired.');
             dialog('ERROR', 'Red', 'Link expired', 'Try again', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
@@ -197,75 +226,47 @@ if ($key) {
          */
         $xml = simplexml_load_file("list.xml");
         $user = $xml->xpath("//user[@uid='".$uid."']")[0];
-        $origDom = dom_import_simplexml($xml->xpath("//user[@uid='".$uid."']")[0])->cloneNode(true);
-        $origXml = simplexml_import_dom($origDom);
         
-        if ($numPager) {
-            $user->pager['num'] = simple_encrypt($numPager);
-            $user->pager['sys'] = $numPagerSys;
-            $show .= compare('Pager', simple_decrypt($origXml->pager['num']), $numPager);
-            $show .= preg_replace('/U/','USAM/Spok',preg_replace('/C/','Cook/AMS',compare('Pager sys', $origXml->pager['sys'], $numPagerSys)));
-        } else {
-            unset($user->pager);
+        $changes = explode(',', simple_decrypt($keytxt));
+        foreach ($changes as $el) {
+            list($label,$value) = explode(':',$el);
+            $val[$label] = $value;
         }
-        if ($numSms) {
-            $user->option->sms['num'] = simple_encrypt($numSms);
-            $user->option->sms['sys'] = $numSmsSys;
-            $show .= compare('SMS',simple_decrypt($origXml->option->sms['num']),$numSms);
-            $show .= preg_replace('/A/','AT&T',preg_replace('/V/','Verizon',preg_replace('/T/','T-Mobile',compare('SMS sys',$origXml->option->sms['sys'],$numSmsSys))));
-        } else {
-            unset($user->option->sms);
+        if ($val['numPager']) {
+            $user->pager['num'] = simple_encrypt($val['numPager']);
         }
-        if ($numPushBul) {
-            $user->option->pushbul['eml'] = simple_encrypt($numPushBul);
-            $show .= compare('Pushbullet',  simple_decrypt($origXml->option->pushbul['eml']),$numPushBul);
-        } else {
-            unset($user->option->pushbul);
+        if ($val['numPagerSys']) {
+            $user->pager['sys'] = $val['numPagerSys'];
         }
-        if ($numPushOver) {
-            $user->option->pushover['num'] = simple_encrypt($numPushOver);
-            $show .= compare('Pushover',  simple_decrypt($origXml->option->pushover['num']),$numPushOver);
-        } else {
-            unset($user->option->pushover);
+        if ($val['numSms']) {
+            $user->option->sms['num'] = simple_encrypt($val['numSms']);
         }
-        if ($numTigerText) {
-            $user->option->tigertext['num'] = simple_encrypt($numTigerText);
-            $show .= compare('TigerText',  simple_decrypt($origXml->option->tigertext['num']),$numTigerText);
-        } else {
-            unset($user->option->tigertext);
+        if ($val['numSmsSys']) {
+            $user->option->sms['sys'] = $val['numSmsSys'];
         }
-        if ($numBoxcar) {
-            $user->option->boxcar['num'] = simple_encrypt($numBoxcar);
-            $show .= compare('Boxcar',  simple_decrypt($origXml->option->boxcar['num']),$numBoxcar);
-        } else {
-            unset($user->option->boxcar);
+        if ($val['numPushBul']) {
+            $user->option->pushbul['eml'] = simple_encrypt($val['numPushBul']);
         }
-        if ($numProwl) {
-            $user->option->prowl['num'] = simple_encrypt($numProwl);
-            $show .= compare('Prowl',  simple_decrypt($origXml->option->prowl['num']),$numProwl);
-        } else {
-            unset($user->option->prowl);
+        if ($val['numPushOver']) {
+            $user->option->pushover['num'] = simple_encrypt($val['numPushOver']);
         }
-        if ($numSysOpt) {
-            $user->option['mode'] = $numSysOpt;
-            $show .= preg_replace('/C/','Opt only',preg_replace('/B/','Pager+Opt',preg_replace('/A/','Pager only',compare('Option',$origXml->option['mode'],$numSysOpt))));
-        } else {
-            $user->option['mode'] = 'A';
+        if ($val['numTigerText']) {
+            $user->option->tigertext['num'] = simple_encrypt($val['numTigerText']);
         }
-        if (($numNotifSys)&&($numNotifSys!=='Choose notification...')) {
-            $user->option['sys'] = $numNotifSys;
-            $show .= compare('System',$origXml->option['sys'],$numNotifSys);
-        } else {
-            unset($user->option['sys']);
+        if ($val['numBoxcar']) {
+            $user->option->boxcar['num'] = simple_encrypt($val['numBoxcar']);
         }
-        if (strlen($show)) {
-            mail(simple_decrypt($user->auth['eml']),
-                "Heart Center Paging info confirmation",
-                "The following changes were saved to your user account:\r\n".$show,
-                "Bcc: pedcards@uw.edu"
-            );
-            logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
+        if ($val['numProwl']) {
+            $user->option->prowl['num'] = simple_encrypt($val['numProwl']);
         }
+        if ($val['numSysOpt']) {
+            $user->option['mode'] = $val['numSysOpt'];
+        }
+        if (($val['numNotifSys'])&&($val['numNotifSys']!=='Choose notification...')) {
+            $user->option['sys'] = $val['numNotifSys'];
+        }
+        logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
+        
         $xml->asXML("list.xml");
         
         unlink('./logs/'.$key.'.blob');
@@ -278,7 +279,7 @@ if ($key) {
     }
 }
 logger('Guru Meditation');
-dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','b');
+dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
 ?>
 </BODY>
 </HTML>
