@@ -21,7 +21,7 @@
     </head>
 <body>
 <?php
-    require_once './lib/PHPMailerAutoload.php';
+    require './lib/PHPMailerAutoload.php';
     
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
@@ -136,6 +136,8 @@
  * 
  */
 $uid = \filter_input(\INPUT_POST, 'uid');
+$key = \filter_input(\INPUT_GET,'id');
+$do = \filter_input(\INPUT_GET,'do');
 
 /*  Clean out any leftover blob files
  */
@@ -206,8 +208,6 @@ if ($uid) {
         }
     }
 } else if ($key) {
-    $key = \filter_input(\INPUT_GET,'id');
-    $do = \filter_input(\INPUT_GET,'do');
     if ($do == '1') {
         list(
             $uid,
