@@ -261,7 +261,7 @@ if (($sendto == "B") || ($sendto == "C")) {
             CURLOPT_USERPWD => "RIq3MIqNcB6dsM2F5HuwfvMgffw8wTZ4:5diOz0ARBM8LHZLM0aynO88sSX87GUQ0Vll1RU29PF0q2Fpn",
             CURLOPT_POSTFIELDS => array(
                 "recipient" => $sendStr,
-                "body" => smartnum($messagePost)
+                "body" => smartnum('['.$fromName.'] '.$messagePost)
             ),
             CURLOPT_SAFE_UPLOAD => true,
         ));
