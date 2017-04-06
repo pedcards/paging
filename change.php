@@ -194,10 +194,10 @@ if ($uid) {
         $mail->Body    = 'On '.date(DATE_RFC2822).', '
                 .'someone (hopefully you) made some proposed edits to your user information.<br><br>'
                 .'<blockquote><ul>'.$show.'</ul></blockquote><br>'
-                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=1&id='.$key.'">AUTHORIZE</a> this change. '
                 .'This link will expire in 20 minutes.<br><br>'
                 .'If you do not approve, '
-                .'<a href="http://depts.washington.edu/pedcards/paging3/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=0&id='.$key.'">DENY</a> it.<br><br>'
                 .'<i>- The Management</i>';
         if (!$mail->send()) {
             logger('Email error sending to '.$val['userEml']);
