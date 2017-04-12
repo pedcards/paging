@@ -21,6 +21,9 @@
     </head>
 <body>
     <?php
+    $browser = $_SERVER['HTTP_USER_AGENT'];
+    $phone = preg_match('/(iPhone|Android|Windows Phone)/i',$browser);
+    
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
             global $instr; $salt = $instr;
