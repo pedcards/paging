@@ -114,7 +114,7 @@
                 <h4>User Agent string</h4>
             </div>
             <div data-role="main" class="ui-content">
-                <?php echo $browser.'<br>'.$phone;?>
+                <?php echo $browser.'<br>'.!$phone;?>
             </div>
         </div>
         <div data-role="popup" id="info_Popup" >
@@ -134,7 +134,23 @@
     </div><!-- /header -->
     
     <div data-role="content">
-        
+        <a href="proc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>
+        <?php if ($phone) { echo '<a href="#" class="ui-btn ui-mini">Text Jonathon</a>'; }?>
+        <br>
+        <a href="proc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>'
+        <br>
+        <a href="#" class="ui-btn ui-mini">Page CICU Attending<?php echo !$phone ? ' ' : '<br>';?>On-Call: Harris</a>
+        <a href="#" class="ui-btn ui-mini">Page ICU Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim</a>
+        <a href="#" class="ui-btn ui-mini">Page Ward Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim, too</a>
+        <a href="#" class="ui-btn ui-mini">Page EP Attending<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Terry, again</a>
+        <br>
+        <a href="#" class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>
+        <a href="#" class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>
+        <br>
+        <a href="#" class="ui-btn ui-mini">Surgical/Procedure Coordinators<br>206-987-2198</a>
+        <a href="#" class="ui-btn ui-mini">Prenatal Center<br>206-987-xxxx</a>
+        <a href="#" class="ui-btn ui-mini">Regional Liaison: Emily<br>206-987-xxxx</a>
+        <a href="#" class="ui-btn ui-mini">Regional Liaison: Anya<br>206-987-xxxx</a>
     </div>
 
 </body>
