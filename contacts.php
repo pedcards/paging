@@ -149,25 +149,20 @@
     
     <div data-role="panel" id="info" data-display="overlay" data-position="right">
         <ul data-role="listview" data-inset="false">
-            <li data-icon="location"><a>IP: <?php echo $ipaddress;?></a></li>
-            <li data-icon="eye"><a href="#ua_Popup" data-rel="popup" data-position-to="window" data-transition="pop">Browser</a></li>
-            <li data-icon="info"><a href="#info_Popup" data-rel="popup" data-position-to="window" data-transition="pop">About this thing...</a></li>
+            <li data-icon="info"><a href="#info_Popup" data-rel="popup" data-position-to="window" data-transition="pop">About...</a></li>
         </ul>
-        <div data-role="popup" id="ua_Popup" >
-            <div data-role="header" >
-                <h4>User Agent string</h4>
-            </div>
-            <div data-role="main" class="ui-content">
-                <?php echo $browser.'<br>'.!$phone;?>
-            </div>
-        </div>
         <div data-role="popup" id="info_Popup" >
             <div data-role="header" >
                 <h4>About this thing...</h4>
             </div>
             <div data-role="main" class="ui-content">
-                Yeah, about this thing.<br>
-                I mean, really.
+                This web page is provided as a service<br>
+                to referring providers to the<br>
+                Seattle Children's Hospital Heart Center. <br>
+                Please be respectful of our providers <br>
+                and try not to abuse the link.<br>
+                <br>
+                Thank you!
             </div>
         </div>
     </div>
