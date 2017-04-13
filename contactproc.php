@@ -68,81 +68,67 @@ foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
 $group = $xml->groups->$grp;
-$numsec = count($group->xpath("user[@sec]"));
 ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="procmain" data-dom-cache="true"> <!-- page -->
     <div data-role="header" data-theme="b" data-add-back-btn="true" >
-        <a href="index.php" data-ajax="false" class="ui-btn ui-shadow ui-icon-arrow-l ui-btn-icon-notext ui-corner-all" ><small>Back</small></a>
+        <a href="javascript:window.history.go(-1)" data-ajax="false" class="ui-btn ui-shadow ui-icon-arrow-l ui-btn-icon-notext ui-corner-all" ><small>Back</small></a>
         <h3><?php echo $groupfull[$grp]; ?></h3>
     </div><!-- /header -->
 
 <form action="submit.php" method="POST" name="sendForm" id="sendForm" data-prefetch>
 <div data-role="content">
     <div data-role="fieldcontain" >
-        <label for="NUMBER" >To:</label>
-        <select name="NUMBER" id="NUMBER" data-native-menu="true">
-            <?php 
-            echo '<option value="">'.($grp=='MLP'?'::: Inpatient ARNP 7-4594 :::':'::: Choose one... :::').'</option>'."\r\n";
-            foreach($group->user as $liUser) {
-                $liUid = $liUser['uid'];
-                $liNameL = $liUser['last'];
-                $liNameF = $liUser['first'];
-                if ($liUser['sec']){
-                    if ($numsec==1){
-                        continue;
-                    }
-                    echo '<optgroup label="'.$liUser['sec'].'">'."\r\n";
-                    continue;
-                } else {
-                    $liSec = '';
-                    $liOpt = $liUser->option['mode'];
-                    $liOptStr = substr(uniqid("",true),-(rand(10,20)));
-                    if (($liOpt == "B") || ($liOpt == "C")) {
-                        $liOptSvc = $liUser->option['sys'];
-                        if ($liOptSvc == "sms") {
-                            $liOptStr = simple_decrypt($liUser->option->sms['num']).
-                                (($liUser->option->sms['sys']=="A") ? "@txt.att.net":'').
-                                (($liUser->option->sms['sys']=="V") ? "@vtext.com":'').
-                                (($liUser->option->sms['sys']=="T") ? "@tmomail.net":'');
-                        }
-                        if ($liOptSvc == "pbl") {
-                            $liOptStr = simple_decrypt($liUser->option->pushbul['eml']);
-                        }
-                        if ($liOptSvc == "pov") {
-                            $liOptStr = simple_decrypt($liUser->option->pushover['num']);
-                        }
-                        if ($liOptSvc == "bxc") {
-                            $liOptStr = simple_decrypt($liUser->option->boxcar['num']);
-                        }
-                        if ($liOptSvc == "tgt") {
-                            $liOptStr = simple_decrypt($liUser->option->tigertext['num']);
-                        }
-                    }
-                    $pagerline = array(
-                        $liUid,
-                        $liUser->pager['sys'],
-                        simple_decrypt($liUser->pager['num']),
-                        $liOpt,
-                        $liOptSvc,
-                        $liOptStr,
-                        simple_decrypt($liUser->auth['cis'])
-                    );
-                    $liName = $liNameF.' '.$liNameL;
-                }
-                if ($liUser->pager['num']) {
-                    echo '<option value="'.  simple_encrypt(implode(",",$pagerline)).'" '.(($liUid==$uid)?'selected="selected"':'').'>'.$liName.'</option>'."\r\n";
-                }
+        <?php 
+        $liUser = $group->xpath("user[@uid='".$uid."']")[0];
+        $liUid = $uid;
+        $liNameL = $liUser['last'];
+        $liNameF = $liUser['first'];
+
+        $liSec = '';
+        $liOpt = $liUser->option['mode'];
+        $liOptStr = substr(uniqid("",true),-(rand(10,20)));
+        if (($liOpt == "B") || ($liOpt == "C")) {
+            $liOptSvc = $liUser->option['sys'];
+            if ($liOptSvc == "sms") {
+                $liOptStr = simple_decrypt($liUser->option->sms['num']).
+                    (($liUser->option->sms['sys']=="A") ? "@txt.att.net":'').
+                    (($liUser->option->sms['sys']=="V") ? "@vtext.com":'').
+                    (($liUser->option->sms['sys']=="T") ? "@tmomail.net":'');
             }
-            ?>
-        </select>
+            if ($liOptSvc == "pbl") {
+                $liOptStr = simple_decrypt($liUser->option->pushbul['eml']);
+            }
+            if ($liOptSvc == "pov") {
+                $liOptStr = simple_decrypt($liUser->option->pushover['num']);
+            }
+            if ($liOptSvc == "bxc") {
+                $liOptStr = simple_decrypt($liUser->option->boxcar['num']);
+            }
+            if ($liOptSvc == "tgt") {
+                $liOptStr = simple_decrypt($liUser->option->tigertext['num']);
+            }
+        }
+        $pagerline = array(
+            $liUid,
+            $liUser->pager['sys'],
+            simple_decrypt($liUser->pager['num']),
+            $liOpt,
+            $liOptSvc,
+            $liOptStr,
+            simple_decrypt($liUser->auth['cis'])
+        );
+        ?>
+        <label for="NUMBER" >To:</label>
+        <p><b><?php echo $liNameF." ".$liNameL;?></b></p>
+        <input type="hidden" name="NUMBER" id="NUMBER" value="<?php echo simple_encrypt(implode(",",$pagerline));?>">
         <label for="MYNAME">From:</label>
-        <input type="text" name="MYNAME" id="MYNAME" value="" placeholder="REQUIRED" maxlength="20"/>
+        <input type="text" name="MYNAME" id="MYNAME" value="" placeholder="REQUIRED field. Include callback number." maxlength="20"/>
     </div>
 
     <div data-role="fieldcontain" style="text-align: right">
-        <textarea name="MESSAGE" id="MESSAGE" maxlength="200"></textarea>
+        <textarea name="MESSAGE" id="MESSAGE" placeholder="MESSAGE" maxlength="200"></textarea>
     </div>
     <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
     <div style="text-align: center">
@@ -181,17 +167,12 @@ $numsec = count($group->xpath("user[@sec]"));
 </form>
 
     <div data-role="footer" data-position="fixed">
-        <?php
-        ?>
         <h5><small>
-&COPY;(2007-2015) Terrence Chun, MD<br>
-Data revised: <?php echo $modDate; ?><br>
+            &COPY;(2007-2017) Terrence Chun, MD<br>
+            Data revised: <?php echo $modDate; ?><br>
         </small></h5>
     </div><!-- /footer -->
 </div><!-- /page -->
-
-<!-- Last revised 01/15/15 -->
-
 
 </BODY>
 </HTML>
