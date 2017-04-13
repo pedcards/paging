@@ -138,12 +138,11 @@
     function lister($ip) {
         // Log IP address of access to this site for reference from Index
         global $iplist;
-        $str = fopen($iplist, 'a+');
+        $str = file_get_contents($iplist);
         if (strpos($str,$ip) !== false) {
             return;
         }
-        fwrite($str, $ip."\r\n");
-        fclose($str);
+        file_put_contents($iplist, $ip."\r\n", FILE_APPEND);
     }
     ?>
     
