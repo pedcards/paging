@@ -24,26 +24,24 @@
     $browser = $_SERVER['HTTP_USER_AGENT'];
     $phone = preg_match('/(iPhone|Android|Windows Phone)/i',$browser);
     $chip = simplexml_load_file('../patlist/currlist.xml');
-    $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
     $call = array(
-        'Ward_A',
-        'ICU_A',
         'CICU',
-        'EP'
+        'ICU_A',
+        'Ward_A'
     );
     $call_dt = date("Ymd");
     $call_d = date("l");
     $call_t = date("H");
     if ((preg_match('/(Saturday|Sunday)/i',$call_d)) or ($call_t >= 17 || $call_t < 8)) {
         $call = array(
-            'PM_We_A',
             ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
-            'EP'
+            'PM_We_A'
         );
     }
     if ($call_t < 8) {
         $call_dt = date("Ymd", time()-60*60*24);
     }
+    $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
     
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
