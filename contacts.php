@@ -136,10 +136,6 @@
     <div data-role="content">
         <?php
         echo '<a href="contactproc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>';
-        if ($phone) { 
-            echo '<a href="#" class="ui-btn ui-mini">Text Jonathon</a>'; 
-        }
-        echo '<br>';
         echo '<a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>';
         echo '<br>';
         foreach($call as $callU){
