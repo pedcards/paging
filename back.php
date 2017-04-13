@@ -121,7 +121,7 @@ if ($authCode) {                                                                
         </div>
         <div data-role="content">
             <form method="post" action="#">
-                <input name="user" id="authName" placeholder="CIS login name" type="text" >
+                <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="clearCookie();">Email auth code</button>
             </form>
         </div>
