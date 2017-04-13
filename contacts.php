@@ -21,6 +21,22 @@
     </head>
 <body>
     <?php
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP')) {
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    } else if(getenv('HTTP_X_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    } else if(getenv('HTTP_X_FORWARDED')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    } else if(getenv('HTTP_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    } else if(getenv('HTTP_FORWARDED')) {
+       $ipaddress = getenv('HTTP_FORWARDED');
+    } else if(getenv('REMOTE_ADDR')) {
+        $ipaddress = getenv('REMOTE_ADDR');
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
     $browser = $_SERVER['HTTP_USER_AGENT'];
     $phone = preg_match('/(iPhone|Android|Windows Phone)/i',$browser);
     $xml = simplexml_load_file("list.xml");
@@ -44,6 +60,11 @@
         $call_dt = date("Ymd", time()-60*60*24);
     }
     $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
+    
+    $logfile = 'logs/'.date('Ym').'.csv';
+    $iplist = 'logs/iplist';
+    lister($ipaddress);
+    logger('Access contacts back page.');
     
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
@@ -101,29 +122,47 @@
         $user = $xml->xpath("//user[@uid='".$uid."']")[0];
         return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
     }
+    function logger($str) {
+        global $logfile, $ipaddress;
+        $out = fopen($logfile,'a');
+        fputcsv(
+            $out, 
+            array(
+                date('c'),
+                $ipaddress,
+                $str
+            )
+        ); 
+        fclose($out);
+    }
+    function lister($ip) {
+        // Log IP address of access to this site for reference from Index
+        global $iplist;
+        $str = fopen($iplist, 'a+');
+        if (strpos($str,$ip) !== false) {
+            return;
+        }
+        fwrite($str, $ip."\r\n");
+        fclose($str);
+    }
     ?>
     
     <div data-role="panel" id="info" data-display="overlay" data-position="right">
         <ul data-role="listview" data-inset="false">
-            <li data-icon="location"><a>IP: <?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
-            <li data-icon="eye"><a href="#ua_Popup" data-rel="popup" data-position-to="window" data-transition="pop">Browser</a></li>
-            <li data-icon="info"><a href="#info_Popup" data-rel="popup" data-position-to="window" data-transition="pop">About this thing...</a></li>
+            <li data-icon="info"><a href="#info_Popup" data-rel="popup" data-position-to="window" data-transition="pop">About...</a></li>
         </ul>
-        <div data-role="popup" id="ua_Popup" >
-            <div data-role="header" >
-                <h4>User Agent string</h4>
-            </div>
-            <div data-role="main" class="ui-content">
-                <?php echo $browser.'<br>'.!$phone;?>
-            </div>
-        </div>
         <div data-role="popup" id="info_Popup" >
             <div data-role="header" >
                 <h4>About this thing...</h4>
             </div>
             <div data-role="main" class="ui-content">
-                Yeah, about this thing.<br>
-                I mean, really.
+                This web page is provided as a service<br>
+                to referring providers to the<br>
+                Seattle Children's Hospital Heart Center. <br>
+                Please be respectful of our providers <br>
+                and try not to abuse the link.<br>
+                <br>
+                Thank you!
             </div>
         </div>
     </div>
@@ -134,12 +173,10 @@
     </div><!-- /header -->
     
     <div data-role="content">
-        <a href="contactproc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>
-        <?php if ($phone) { echo '<a href="#" class="ui-btn ui-mini">Text Jonathon</a>'; }?>
-        <br>
-        <a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>
-        <br>
         <?php
+        echo '<a href="contactproc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>';
+        echo '<a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>';
+        echo '<br>';
         foreach($call as $callU){
             $chName = $fc_call->$callU;
             if ($chName=='') {
@@ -173,15 +210,15 @@
                     .'On-Call: '.$chName.'</a>'."\r\n";
             }
         }
+        echo '<br>';
+        echo '<a '.(($phone)?'href="tel:2069878899"':'').' class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>';
+        echo '<a '.(($phone)?'href="tel:2069877777"':'').' class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>';
+        echo '<br>';
+        echo '<a '.(($phone)?'href="tel:2069872198"':'').' class="ui-btn ui-mini">Surgical/Procedure Coordinators<br>206-987-2198</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Prenatal Center<br>206-987-xxxx</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Regional Liaison: Emily<br>206-987-xxxx</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Regional Liaison: Anya<br>206-987-xxxx</a>';
         ?>
-        <br>
-        <a href="#" class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>
-        <a href="#" class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>
-        <br>
-        <a href="#" class="ui-btn ui-mini">Surgical/Procedure Coordinators<br>206-987-2198</a>
-        <a href="#" class="ui-btn ui-mini">Prenatal Center<br>206-987-xxxx</a>
-        <a href="#" class="ui-btn ui-mini">Regional Liaison: Emily<br>206-987-xxxx</a>
-        <a href="#" class="ui-btn ui-mini">Regional Liaison: Anya<br>206-987-xxxx</a>
     </div>
 
 </body>
