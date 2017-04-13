@@ -134,12 +134,14 @@
     </div><!-- /header -->
     
     <div data-role="content">
-        <a href="contactproc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>
-        <?php if ($phone) { echo '<a href="#" class="ui-btn ui-mini">Text Jonathon</a>'; }?>
-        <br>
-        <a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>
-        <br>
         <?php
+        echo '<a href="contactproc.php?group=SURG&id=55b948fa1c644" class="ui-btn ui-mini">Page Jonathon</a>';
+        if ($phone) { 
+            echo '<a href="#" class="ui-btn ui-mini">Text Jonathon</a>'; 
+        }
+        echo '<br>';
+        echo '<a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>';
+        echo '<br>';
         foreach($call as $callU){
             $chName = $fc_call->$callU;
             if ($chName=='') {
@@ -173,15 +175,15 @@
                     .'On-Call: '.$chName.'</a>'."\r\n";
             }
         }
+        echo '<br>';
+        echo '<a '.(($phone)?'href="tel:2069878899"':'').' class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>';
+        echo '<a '.(($phone)?'href="tel:2069877777"':'').' class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>';
+        echo '<br>';
+        echo '<a '.(($phone)?'href="tel:2069872198"':'').' class="ui-btn ui-mini">Surgical/Procedure Coordinators<br>206-987-2198</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Prenatal Center<br>206-987-xxxx</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Regional Liaison: Emily<br>206-987-xxxx</a>';
+        echo '<a '.(($phone)?'href="tel:206987xxxx"':'').' class="ui-btn ui-mini">Regional Liaison: Anya<br>206-987-xxxx</a>';
         ?>
-        <br>
-        <a href="#" class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>
-        <a href="#" class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>
-        <br>
-        <a href="#" class="ui-btn ui-mini">Surgical/Procedure Coordinators<br>206-987-2198</a>
-        <a href="#" class="ui-btn ui-mini">Prenatal Center<br>206-987-xxxx</a>
-        <a href="#" class="ui-btn ui-mini">Regional Liaison: Emily<br>206-987-xxxx</a>
-        <a href="#" class="ui-btn ui-mini">Regional Liaison: Anya<br>206-987-xxxx</a>
     </div>
 
 </body>
