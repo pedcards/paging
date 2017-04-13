@@ -140,7 +140,6 @@
         <a href="#" class="ui-btn ui-mini">Page CICU Attending<?php echo !$phone ? ' ' : '<br>';?>On-Call: Harris</a>
         <a href="#" class="ui-btn ui-mini">Page ICU Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim</a>
         <a href="#" class="ui-btn ui-mini">Page Ward Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim, too</a>
-        <a href="#" class="ui-btn ui-mini">Page EP Attending<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Terry, again</a>
         <br>
         <a href="#" class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>
         <a href="#" class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>
