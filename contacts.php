@@ -23,6 +23,8 @@
     <?php
     $browser = $_SERVER['HTTP_USER_AGENT'];
     $phone = preg_match('/(iPhone|Android|Windows Phone)/i',$browser);
+    $xml = simplexml_load_file("list.xml");
+    $groups = ($xml->groups) ?: $xml->addChild('groups');
     $chip = simplexml_load_file('../patlist/currlist.xml');
     $call = array(
         'CICU',
@@ -172,9 +174,6 @@
             }
         }
         ?>
-        <a href="#" class="ui-btn ui-mini">Page CICU Attending<?php echo !$phone ? ' ' : '<br>';?>On-Call: Harris</a>
-        <a href="#" class="ui-btn ui-mini">Page ICU Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim</a>
-        <a href="#" class="ui-btn ui-mini">Page Ward Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim, too</a>
         <br>
         <a href="#" class="ui-btn ui-mini">MEDCON/Transport<br>206-987-8899</a>
         <a href="#" class="ui-btn ui-mini">Physician Consult Line<br>206-987-7777</a>
