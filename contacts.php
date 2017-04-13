@@ -137,6 +137,41 @@
         <br>
         <a href="contactproc.php?group=CARDS&id=55b948fa18a52" class="ui-btn ui-mini">Page Mark</a>
         <br>
+        <?php
+        foreach($call as $callU){
+            $chName = $fc_call->$callU;
+            if ($chName=='') {
+                continue;
+            }
+            $liUserId = getUid($chName);
+            if (! $liUserId) {
+                $liUserId = fuzzyname($chName)['uid'];
+                $chName = "'".$chName."'";
+            }
+            $liUser = $xml->xpath("//user[@uid='".$liUserId."']")[0];
+            $liGroup = $liUser->xpath('..')[0]->getName();
+            if (strpos($callU,'CICU') !== false) {
+                echo '<a href="contactproc.php?group='.$liGroup.'&id='.$liUserId.'" class="ui-btn ui-mini">'
+                    .'Page CICU Attending'.(!$phone ? ' ' : '<br>')
+                    .'On-Call: '.$chName.'</a>'."\r\n";
+            }
+            if (strpos($callU,'ICU_A') !== false) {
+                echo '<a href="contactproc.php?group='.$liGroup.'&id='.$liUserId.'" class="ui-btn ui-mini">'
+                    .'Page ICU Consult Cardiologist'.(!$phone ? ' ' : '<br>')
+                    .'On-Call: '.$chName.'</a>'."\r\n";
+            }
+            if (strpos($callU,'Ward_A') !== false) {
+                echo '<a href="contactproc.php?group='.$liGroup.'&id='.$liUserId.'" class="ui-btn ui-mini">'
+                    .'Page Ward Consult Cardiologist'.(!$phone ? ' ' : '<br>')
+                    .'On-Call: '.$chName.'</a>'."\r\n";
+            }
+            if (strpos($callU,'PM_We_A') !== false) {
+                echo '<a href="contactproc.php?group='.$liGroup.'&id='.$liUserId.'" class="ui-btn ui-mini">'
+                    .'Page Cardiology Attending'.(!$phone ? ' ' : '<br>')
+                    .'On-Call: '.$chName.'</a>'."\r\n";
+            }
+        }
+        ?>
         <a href="#" class="ui-btn ui-mini">Page CICU Attending<?php echo !$phone ? ' ' : '<br>';?>On-Call: Harris</a>
         <a href="#" class="ui-btn ui-mini">Page ICU Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim</a>
         <a href="#" class="ui-btn ui-mini">Page Ward Consult Cardiologist<?php echo (!$phone) ? ' ' : '<br>';?>On-Call: Tim, too</a>
