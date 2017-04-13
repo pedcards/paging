@@ -21,6 +21,22 @@
     </head>
 <body>
     <?php
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP')) {
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    } else if(getenv('HTTP_X_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    } else if(getenv('HTTP_X_FORWARDED')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    } else if(getenv('HTTP_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    } else if(getenv('HTTP_FORWARDED')) {
+       $ipaddress = getenv('HTTP_FORWARDED');
+    } else if(getenv('REMOTE_ADDR')) {
+        $ipaddress = getenv('REMOTE_ADDR');
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
     $browser = $_SERVER['HTTP_USER_AGENT'];
     $phone = preg_match('/(iPhone|Android|Windows Phone)/i',$browser);
     $xml = simplexml_load_file("list.xml");
@@ -44,6 +60,11 @@
         $call_dt = date("Ymd", time()-60*60*24);
     }
     $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
+    
+    $logfile = 'logs/'.date('Ym').'.csv';
+    $iplist = 'logs/iplist';
+    lister($ipaddress);
+    logger('Access contacts back page.');
     
     function simple_encrypt($text, $salt = "") {
         if (!$salt) {
@@ -101,11 +122,34 @@
         $user = $xml->xpath("//user[@uid='".$uid."']")[0];
         return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
     }
+    function logger($str) {
+        global $logfile, $ipaddress;
+        $out = fopen($logfile,'a');
+        fputcsv(
+            $out, 
+            array(
+                date('c'),
+                $ipaddress,
+                $str
+            )
+        ); 
+        fclose($out);
+    }
+    function lister($ip) {
+        // Log IP address of access to this site for reference from Index
+        global $iplist;
+        $str = fopen($iplist, 'a+');
+        if (strpos($str,$ip) !== false) {
+            return;
+        }
+        fwrite($str, $ip."\r\n");
+        fclose($str);
+    }
     ?>
     
     <div data-role="panel" id="info" data-display="overlay" data-position="right">
         <ul data-role="listview" data-inset="false">
-            <li data-icon="location"><a>IP: <?php echo $_SERVER['REMOTE_ADDR'];?></a></li>
+            <li data-icon="location"><a>IP: <?php echo $ipaddress;?></a></li>
             <li data-icon="eye"><a href="#ua_Popup" data-rel="popup" data-position-to="window" data-transition="pop">Browser</a></li>
             <li data-icon="info"><a href="#info_Popup" data-rel="popup" data-position-to="window" data-transition="pop">About this thing...</a></li>
         </ul>
