@@ -56,6 +56,7 @@ $call = array(
     'Cath_res',
     'Txp',
     'Txp_res',
+    'Fetal',
     'ARNP_IP','ARNP_OP','ARNP_CL','South_Sound_Cardiology'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
@@ -70,6 +71,7 @@ if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8
         'Txp',
         'ARNP_IP',
         'Echo_Tech',
+        'Fetal',
         'South_Sound_Cardiology'
     );
 }
