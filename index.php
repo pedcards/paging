@@ -155,8 +155,13 @@ function fuzzyname($str) {
             <?php
             foreach($call as $callU){
                 $chName = $fc_call->$callU;
-                if ($chName=='') {
-                    continue;
+                if ($callU=='Ward_A' && $chName=='') {
+                    $callU = 'PM_We_A';
+                    $chName = $fc_call->$callU;
+                }
+                if ($callU=='Ward_F' && ($fc_call->Ward_A == '')) {
+                    $callU = 'PM_We_F';
+                    $chName = $fc_call->$callU;
                 }
                 if ($callU=='EP') {
                     if ($call_d=='Friday' && $call_t>=17) {
@@ -170,6 +175,10 @@ function fuzzyname($str) {
                     $chName = 'South Sound On-Call: '.$chName;
                     $callU = 'Grp';
                 }
+                if ($chName=='') {
+                    continue;
+                }
+                
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
                     $liUserId = fuzzyname($chName)['uid'];
