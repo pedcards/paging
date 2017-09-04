@@ -155,9 +155,6 @@ function fuzzyname($str) {
             <?php
             foreach($call as $callU){
                 $chName = $fc_call->$callU;
-                if ($chName=='') {
-                    continue;
-                }
                 if ($callU=='EP') {
                     if ($call_d=='Friday' && $call_t>=17) {
                         $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time()+60*60*24)."']/EP")[0];
@@ -170,6 +167,10 @@ function fuzzyname($str) {
                     $chName = 'South Sound On-Call: '.$chName;
                     $callU = 'Grp';
                 }
+                if ($chName=='') {
+                    continue;
+                }
+                
                 $liUserId = getUid($chName);
                 if (! $liUserId) {
                     $liUserId = fuzzyname($chName)['uid'];
