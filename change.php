@@ -266,7 +266,7 @@ if ($uid) {
         }
         logger(simple_decrypt($user->auth['cis']).' changed: '.$show);
         
-        copy('list.xml','./lists/'.date('Ymd').'.xml');
+        copy('list.xml','lists/'.date('YmdHis').'.xml');
         $xml->asXML("list.xml");
         
         unlink('./logs/'.$key.'.blob');

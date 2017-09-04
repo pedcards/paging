@@ -191,6 +191,7 @@ if (($save!=='y') && ($uid)) {
     // $save exists but not 'y', must have clicked Delete.
     $user = $groups->xpath("//user[@uid='".$uid."']")[0];
     unset($user[0]);
+    copy('list.xml','lists/'.date('YmdHis').'.xml');
     $xml->asXML("list.xml");
     $add = '';
 }
@@ -330,6 +331,7 @@ if ($add) {
             );
             logger($userauth.' changed '.simple_decrypt($user->auth['cis']).': '.$show);
         }
+    copy('list.xml','lists/'.date('YmdHis').'.xml');
     $xml->asXML("list.xml");
     }
 }
@@ -343,6 +345,7 @@ function compare($field,$old,$new) {
 
 if ($import) {
     // Read "list.csv" into array
+    copy('list.xml','lists/'.date('YmdHis').'.xml');
     $imXml = new SimpleXMLElement("<root />");
     $arrLine = array();
     $pagerblock = "";
