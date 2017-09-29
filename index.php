@@ -93,7 +93,7 @@ function getUid($in) {
         "Mike" => "Michael",
         "Katherine" => "Katie"
     );
-    $names = explode(" ", $in);
+    $names = explode(" ", $in, 2);
     $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
     return $el['uid'];
 }
@@ -172,8 +172,8 @@ function fuzzyname($str) {
                     }
                 }
                 if ($callU=='South_Sound_Cardiology') {
-                    $chName = 'South Sound On-Call: '.$chName;
-                    $callU = 'Grp';
+                    // $chName = 'South Sound On-Call: '.$chName;
+                    $callU = 'South Sound';
                 }
                 if ($chName=='') {
                     continue;
