@@ -172,8 +172,8 @@ function fuzzyname($str) {
                     }
                 }
                 if ($callU=='South_Sound_Cardiology') {
-                    $chName = 'South Sound On-Call: '.$chName;
-                    $callU = 'Grp';
+                    // $chName = 'South Sound On-Call: '.$chName;
+                    $callU = 'South Sound';
                 }
                 if ($chName=='') {
                     continue;
