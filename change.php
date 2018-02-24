@@ -138,6 +138,7 @@
 $uid = \filter_input(\INPUT_POST, 'uid');
 $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
+$oncall = \filter_input(\INPUT_POST, 'call');
 
 /*  Clean out any leftover blob files
  */
@@ -148,11 +149,12 @@ foreach (glob('./logs/*.blob') as $fname) {
         logger('Removed '.$fname);
     }
 }
+
+if ($uid) {
 /*  If directed from edit.php, read the form input
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-if ($uid) {
     $val['nameL'] = \filter_input(\INPUT_POST, 'nameL');
     $val['nameF'] = \filter_input(\INPUT_POST, 'nameF');
     $val['numPager'] = \filter_input(\INPUT_POST, 'numPager');
@@ -208,6 +210,8 @@ if ($uid) {
         }
     }
 } else if ($key) {
+/*  Accept or reject the blob change 
+ */
     if ($do == '1') {
         list(
             $uid,
@@ -277,6 +281,8 @@ if ($uid) {
         logger('Blob file '.$key.' unlinked.');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
+} else if ($oncall) {
+    
 } else {
     logger('Guru Meditation');
     dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
