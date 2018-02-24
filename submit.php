@@ -83,6 +83,7 @@ $pinarray = explode(",", trim(simple_decrypt(filter_input(INPUT_POST,'NUMBER')))
     $userCis = $pinarray[6]; // user CIS
 $messagePost = preg_replace("/\r\n/"," ",trim(filter_input(INPUT_POST,'MESSAGE')));  // Get message from form page. Filter CR,LF
 $message = "[".$fromName."] ".$messagePost; // Construct Message, add MYNAME in front of MESSAGE.
+$group = \filter_input(INPUT_POST, 'GROUP');
 
 // Log the access
 $out = fopen($logfile,'a');
@@ -101,7 +102,7 @@ fclose($out);
 
 if (strtolower($fromName) == strtolower($userCis)) { 
     if (preg_match('/(on).*(call)/i',$messagePost)) {
-        $redir = "change.php?id=".$uid;
+        $redir = "change.php?call=".$uid;
     } else {
         $redir = "edit.php?id=".$uid;
     } ?>
@@ -114,8 +115,8 @@ if (strtolower($fromName) == strtolower($userCis)) {
                 <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
                 <div style="text-align: center"> <?php
                     if (preg_match('/(on).*(call)/i',$messagePost)) { ?>
-                        Click here to change quickpage<br><br>
-                        <input type="hidden" name="call" value="change">
+                        Click here to change quickpage for <br>
+                        <?php echo $group; ?> <br>
                         <input type="submit" value="YES, I'M ON CALL!" data-inline="true" data-theme="b" /> <?php
                     } else { ?>
                         Click here to edit user<br><br>
