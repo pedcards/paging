@@ -99,25 +99,36 @@ fputcsv(
 ); 
 fclose($out);
 
-if (strtolower($fromName) == strtolower($userCis)) {
-    ?>
+if (strtolower($fromName) == strtolower($userCis)) { 
+    if (preg_match('/(on).*(call)/i',$messagePost)) {
+        $redir = "change.php?id=".$uid;
+    } else {
+        $redir = "edit.php?id=".$uid;
+    } ?>
     <div data-role="page" data-dialog="true" id="dialog-fn" data-overlay-theme="b">
         <div data-role="header" data-theme="b">
-            <h1 style="color:red">EDIT</h1>
+            <h1 style="color:red">CHANGE MY SETTINGS</h1>
         </div>
         <div data-role="content" data-theme="a">
-            <form action="edit.php?id=<?php echo $uid;?>" method="POST" name="sendForm" id="sendForm" data-prefetch>
+            <form action="<?php echo $redir;?>" method="POST" name="sendForm" id="sendForm" data-prefetch>
                 <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
-                <div style="text-align: center">
-                    Click here to edit user<br>
-                    <input type="submit" value="EDIT!" data-inline="true" data-theme="b" />
+                <div style="text-align: center"> <?php
+                    if (preg_match('/(on).*(call)/i',$messagePost)) { ?>
+                        Click here to change quickpage<br><br>
+                        <input type="hidden" name="call" value="change">
+                        <input type="submit" value="YES, I'M ON CALL!" data-inline="true" data-theme="b" /> <?php
+                    } else { ?>
+                        Click here to edit user<br><br>
+                        <input type="submit" value="EDIT MY SETTINGS!" data-inline="true" data-theme="b" /> <?php
+                    } ?>
                     <br><br>
-                    Or close dialog (X) to return.<br>
+                    <button onclick="window.history.go(-1); return false;" data-inline="true">
+                        Oops! Didn't want that.<br>
+                    </BUTTON>
                 </div>
             </form>
         </div>
-    </div>
-    <?php
+    </div> <?php
     exit();
 }
 
