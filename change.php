@@ -131,6 +131,24 @@
             return preg_replace('/###/',$txt,$str);
         }
     }
+    function makeblob($uid,$obj) {
+        $cookieTime = time()+20*60;
+        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
+        $keytxt = simple_encrypt(
+            implode(',',
+                array(
+                    $uid,
+                    simple_encrypt(implode(",", $obj)),
+                    $cookieTime
+                )
+            )
+        );
+        $ret = (object) [
+            'key'   => $key,
+            'blob'  => $keytxt
+        ];
+        return $ret;
+    }
 
 /*  Begin the script
  * 
