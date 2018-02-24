@@ -138,7 +138,8 @@
 $uid = \filter_input(\INPUT_POST, 'uid');
 $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
-$oncall = \filter_input(\INPUT_POST, 'call');
+$group = \filter_input(\INPUT_POST, 'GROUP');
+$oncall = \filter_input(\INPUT_GET, 'call');
 
 /*  Clean out any leftover blob files
  */
@@ -282,6 +283,7 @@ if ($uid) {
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
 } else if ($oncall) {
+    echo $group.'-'.$oncall;
     
 } else {
     logger('Guru Meditation');
