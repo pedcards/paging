@@ -334,10 +334,10 @@ if ($uid) {
         // Create/append change file
         $chg = (simplexml_load_file($chipdir."change.xml")) ?: new SimpleXMLElement('<root />');     // load change.xml if exists or start <root> in local memory
         $node = $chg[0]->addChild('node');
-        $node['mod'] = time();
-        $node->date = $call_dt;
-        $node->svc = $svc;
-        $node->name = $name;
+        $node['type'] = 'call';
+        $node['MRN'] = $name;
+        $node['change'] = $svc;
+        $node['date'] = $call_dt;
         $chg->asXML($chipdir."change.xml");
         
         unlink('./logs/'.$oncall.'.blob');
