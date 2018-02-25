@@ -294,8 +294,92 @@ if ($uid) {
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
     }
 } else if ($oncall) {
-    echo $group.'-'.$oncall;
+    $serv = [
+        'CARDS'     => 'PM_We_A',
+        'FELLOWS'   => 'PM_We_F',
+        'ECHO'      => 'Echo_Tech'
+    ];
+    $chipdir = (basename(getcwd())=='paging') ? '../patlist/' : '../testlist/';
+    $xml = simplexml_load_file("list.xml");
+    $user = $xml->xpath("//user[@uid='".$oncall."']")[0];
+    $userEml = simple_decrypt($user->auth['eml']);
     
+    if ($do=='1') {                         // commit the change blob
+        // Decrypt blob
+        list(
+            $uid,
+            $keytxt,
+            $cookieTime
+        ) = explode(",", simple_decrypt(file_get_contents('./logs/'.$oncall.'.blob')));
+        
+        // Decrypt keytxt
+        list(
+            $call_dt,
+            $name,
+            $svc
+        ) = explode(",", simple_decrypt($keytxt));
+        
+        // Check for expired cookie
+        if (time()>$cookieTime) {
+            unlink('./logs/'.$oncall.'.blob');
+            logger('Blob '.$oncall.' expired.');
+            dialog('ERROR', 'Red', 'Link expired', 'Try again', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
+        }
+        
+        // Make change in currlist
+        $chip = simplexml_load_file($chipdir."currlist.xml");
+        $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0]->$svc = $name;
+        $chip->asXML($chipdir."currlist.xml");
+        
+        // Create/append change file
+        $chg = (simplexml_load_file($chipdir."change.xml")) ?: new SimpleXMLElement('<root />');     // load change.xml if exists or start <root> in local memory
+        $node = $chg[0]->addChild('node');
+        $node['mod'] = time();
+        $node->date = $call_dt;
+        $node->svc = $svc;
+        $node->name = $name;
+        $chg->asXML($chipdir."change.xml");
+        
+        unlink('./logs/'.$oncall.'.blob');
+        logger('Call changes saved. '.$oncall.' unlinked.');
+        dialog('NOTIFICATION', '', 'Changes accepted!', 'Thank you!', 'sms-128.png', 'w00t', 'b', 'a', 'a');
+    } else if ($do=='0') {
+        unlink('./logs/'.$oncall.'.blob');
+        logger('Blob file '.$oncall.' unlinked.');
+        dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
+    } else {                                // set the change blob
+        $changes = [
+            'date'  => date('Ymd'),
+            'name'  => $user['first'].' '.$user['last'],
+            'svc'   => $serv[$group]
+        ];
+        $blob = makeblob($oncall,$changes);
+        $key = $blob->key;
+        $keytxt = $blob->blob;
+        file_put_contents('./logs/'.$key.'.blob', $keytxt);
+        
+        $mail = new PHPMailer;
+        $mail->isSendmail();
+        $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+        $mail->addAddress($userEml);
+        $mail->Subject = 'Heart Center Paging';
+        $mail->isHTML(true);
+        $mail->Body    = 'On '.date(DATE_RFC2822).', '
+                .'someone (hopefully you) proposed that you are on-call for '
+                .'<blockquote><ul>'.$serv[$group].'</ul></blockquote><br>'
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=1&call='.$key.'">AUTHORIZE</a> this change. '
+                .'This link will expire in 20 minutes.<br><br>'
+                .'If you do not approve, '
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=0&call='.$key.'">DENY</a> it.<br><br>'
+                .'<i>- The Management</i>';
+        if (!$mail->send()) {
+            logger('Email error sending to '.$userEml);
+            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
+        } else {
+            logger('Change notification sent to '.$userEml);
+            dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'a');
+        }
+    }
 } else {
     logger('Guru Meditation');
     dialog('GURU MEDITATION','red','','','dead_ipod.jpg','','b','a','a');
