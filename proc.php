@@ -184,7 +184,7 @@ $numsec = count($group->xpath("user[@sec]"));
         <?php
         ?>
         <h5><small>
-&COPY;(2007-2015) Terrence Chun, MD<br>
+&COPY;(2007-<?php echo date('Y');?>) Terrence Chun, MD<br>
 Data revised: <?php echo $modDate; ?><br>
         </small></h5>
     </div><!-- /footer -->
