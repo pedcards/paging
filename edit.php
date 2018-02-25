@@ -195,7 +195,7 @@ if (\filter_input(\INPUT_GET, 'move') == 'Y') {
                     </div>
                     <div class="ui-field-contain">
                         <label for="addEml">SCH email</label>
-                        <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*(@seattlechildrens.org)" type="text">
+                        <input name="userEml" id="addEml" value="<?php echo $userEml;?>" pattern=".*@(seattlechildrens.org|washington.edu|uw.edu)" type="text">
                     </div>
                 <?php } else { ?>
                     <a class="ui-btn ui-shadow ui-corner-all ui-disabled"><?php echo $groupfull[$userGroupName]; ?></a>

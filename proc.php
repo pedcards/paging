@@ -144,7 +144,7 @@ $numsec = count($group->xpath("user[@sec]"));
     <div data-role="fieldcontain" style="text-align: right">
         <textarea name="MESSAGE" id="MESSAGE" maxlength="200"></textarea>
     </div>
-    <input type="hidden" name="GROUP" value="<?php echo $group; ?>">
+    <input type="hidden" name="GROUP" value="<?php echo $grp; ?>">
     <div style="text-align: center">
         <input type="submit" value="SUBMIT!" data-inline="true" data-theme="b" />
     </div>

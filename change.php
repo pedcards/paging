@@ -131,6 +131,24 @@
             return preg_replace('/###/',$txt,$str);
         }
     }
+    function makeblob($uid,$obj) {
+        $cookieTime = time()+20*60;
+        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
+        $keytxt = simple_encrypt(
+            implode(',',
+                array(
+                    $uid,
+                    simple_encrypt(implode(",", $obj)),
+                    $cookieTime
+                )
+            )
+        );
+        $ret = (object) [
+            'key'   => $key,
+            'blob'  => $keytxt
+        ];
+        return $ret;
+    }
 
 /*  Begin the script
  * 
@@ -138,6 +156,8 @@
 $uid = \filter_input(\INPUT_POST, 'uid');
 $key = \filter_input(\INPUT_GET,'id');
 $do = \filter_input(\INPUT_GET,'do');
+$group = \filter_input(\INPUT_POST, 'GROUP');
+$oncall = \filter_input(\INPUT_GET, 'call');
 
 /*  Clean out any leftover blob files
  */
@@ -148,11 +168,12 @@ foreach (glob('./logs/*.blob') as $fname) {
         logger('Removed '.$fname);
     }
 }
+
+if ($uid) {
 /*  If directed from edit.php, read the form input
  *  create the "cookie" (crypted values, key, and expiration time)
  *  Send mail to affected user.
  */
-if ($uid) {
     $val['nameL'] = \filter_input(\INPUT_POST, 'nameL');
     $val['nameF'] = \filter_input(\INPUT_POST, 'nameF');
     $val['numPager'] = \filter_input(\INPUT_POST, 'numPager');
@@ -173,16 +194,9 @@ if ($uid) {
     
     $show = changed($uid);
     if ($show) {
-        $key = substr(str_shuffle('ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwyxz'),0,8); // no upper "I" or lower "l" to avoid confusion.
-        $keytxt = simple_encrypt(
-            implode(',',
-                array(
-                    $uid,
-                    simple_encrypt(implode(",", $changes)),
-                    $val['cookieTime']
-                )
-            )
-        );
+        $blob = makeblob($uid,$changes);
+        $key = $blob->key;
+        $keytxt = $blob->blob;
         file_put_contents('./logs/'.$key.'.blob', $keytxt);
         
         $mail = new PHPMailer;
@@ -208,6 +222,8 @@ if ($uid) {
         }
     }
 } else if ($key) {
+/*  Accept or reject the blob change 
+ */
     if ($do == '1') {
         list(
             $uid,
@@ -276,6 +292,93 @@ if ($uid) {
         unlink('./logs/'.$key.'.blob');
         logger('Blob file '.$key.' unlinked.');
         dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
+    }
+} else if ($oncall) {
+    $serv = [
+        'CARDS'     => 'PM_We_A',
+        'FELLOWS'   => 'PM_We_F',
+        'ECHO'      => 'Echo_Tech'
+    ];
+    $chipdir = (basename(getcwd())=='paging') ? '../patlist/' : '../testlist/';
+    $xml = simplexml_load_file("list.xml");
+    $user = $xml->xpath("//user[@uid='".$oncall."']")[0];
+    $userEml = simple_decrypt($user->auth['eml']);
+    
+    if ($do=='1') {                         // commit the change blob
+        // Decrypt blob
+        list(
+            $uid,
+            $keytxt,
+            $cookieTime
+        ) = explode(",", simple_decrypt(file_get_contents('./logs/'.$oncall.'.blob')));
+        
+        // Decrypt keytxt
+        list(
+            $call_dt,
+            $name,
+            $svc
+        ) = explode(",", simple_decrypt($keytxt));
+        
+        // Check for expired cookie
+        if (time()>$cookieTime) {
+            unlink('./logs/'.$oncall.'.blob');
+            logger('Blob '.$oncall.' expired.');
+            dialog('ERROR', 'Red', 'Link expired', 'Try again', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
+        }
+        
+        // Make change in currlist
+        $chip = simplexml_load_file($chipdir."currlist.xml");
+        $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0]->$svc = $name;
+        $chip->asXML($chipdir."currlist.xml");
+        
+        // Create/append change file
+        $chg = (simplexml_load_file($chipdir."change.xml")) ?: new SimpleXMLElement('<root />');     // load change.xml if exists or start <root> in local memory
+        $node = $chg[0]->addChild('node');
+        $node['type'] = 'call';
+        $node['MRN'] = $name;
+        $node['change'] = $svc;
+        $node['date'] = $call_dt;
+        $chg->asXML($chipdir."change.xml");
+        
+        unlink('./logs/'.$oncall.'.blob');
+        logger('Call changes saved. '.$oncall.' unlinked.');
+        dialog('NOTIFICATION', '', 'Changes accepted!', 'Thank you!', 'sms-128.png', 'w00t', 'b', 'a', 'a');
+    } else if ($do=='0') {
+        unlink('./logs/'.$oncall.'.blob');
+        logger('Blob file '.$oncall.' unlinked.');
+        dialog('DECLINED', '', 'Change denied', 'Try again', 'pager.jpg', '', 'b', 'a', 'a');
+    } else {                                // set the change blob
+        $changes = [
+            'date'  => date('Ymd'),
+            'name'  => $user['first'].' '.$user['last'],
+            'svc'   => $serv[$group]
+        ];
+        $blob = makeblob($oncall,$changes);
+        $key = $blob->key;
+        $keytxt = $blob->blob;
+        file_put_contents('./logs/'.$key.'.blob', $keytxt);
+        
+        $mail = new PHPMailer;
+        $mail->isSendmail();
+        $mail->setFrom('pedcards@uw.edu', 'Heart Center Paging');
+        $mail->addAddress($userEml);
+        $mail->Subject = 'Heart Center Paging';
+        $mail->isHTML(true);
+        $mail->Body    = 'On '.date(DATE_RFC2822).', '
+                .'someone (hopefully you) proposed that you are on-call for '
+                .'<blockquote><ul>'.$serv[$group].'</ul></blockquote><br>'
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=1&call='.$key.'">AUTHORIZE</a> this change. '
+                .'This link will expire in 20 minutes.<br><br>'
+                .'If you do not approve, '
+                .'<a href="http://depts.washington.edu/pedcards/'.basename(getcwd()).'/change.php?do=0&call='.$key.'">DENY</a> it.<br><br>'
+                .'<i>- The Management</i>';
+        if (!$mail->send()) {
+            logger('Email error sending to '.$userEml);
+            dialog('ERROR', 'Red', 'Email error', '', 'dead_ipod.jpg', 'bummer', 'b', 'a', 'a');
+        } else {
+            logger('Change notification sent to '.$userEml);
+            dialog('NOTIFICATION', '', 'Confirmation email sent to', $userEml, 'sms-128.png', 'w00t', 'b', 'a', 'a');
+        }
     }
 } else {
     logger('Guru Meditation');
