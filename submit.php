@@ -40,7 +40,10 @@ function simple_decrypt($text, $salt = "") {
     if (!$text) {
         return $text;
     }
-    return trim(mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+    return openssl_decrypt(
+            $text, 
+            'AES-128-CBC',
+            $salt);
 }
 function smartnum($text) {
     return preg_replace('/(?<!\d)7(\-)?(\d{4})(?!\d)/', '$0 [206-987-$2]', $text);
