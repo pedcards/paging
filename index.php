@@ -50,7 +50,7 @@ setcookie('pagealert', $texthash, time()+30*86400);
 $call = array(
     'Ward_A', 'Ward_F',
     'ICU_A', 'ICU_F',
-    'CICU',
+    'CICU_Red', 'CICU_Blue',
     'Reg_Con',
     'EP',
     'Cath_res',
@@ -66,7 +66,7 @@ $call_t = date("H");
 if ((preg_match('/(Saturday|Sunday)/',$call_d)) or ($call_t >= 17 || $call_t < 8)) {
     $call = array(
         'PM_We_A', 'PM_We_F',
-        ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU',
+        ($call_t >= 17 || $call_t < 8) ? 'CICU_PM' : 'CICU_Red',
         'EP',
         'Txp',
         'ARNP_IP',
