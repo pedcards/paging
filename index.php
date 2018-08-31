@@ -57,7 +57,10 @@ $call = array(
     'Txp',
     'Txp_res',
     'Fetal',
-    'ARNP_IP','ARNP_OP','ARNP_CL','South_Sound_Cardiology'
+    'ARNP_IP',
+    'ARNP_OP',
+    'ARNP_CL',
+    'South_Sound_Cardiology'
 );
 $chip = simplexml_load_file('../patlist/currlist.xml');
 $call_dt = date("Ymd");
