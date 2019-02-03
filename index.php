@@ -42,6 +42,22 @@ $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+if ($_SESSION['valid']=='') {
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
+        </div>
+        <div data-role="content">
+            <? print_r($_SESSION);?>
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
+            </form>
+        </div>
+    </div> 
+    <?php
+}
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
 }
