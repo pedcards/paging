@@ -1,3 +1,4 @@
+<?php session_start();?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,6 +15,7 @@
     $isLoc = true;
     $cdnJqm = $ini['jqm'];
     $cdnJQ = $ini['jquery'];
+    $instr = $ini['copyright'];
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -39,6 +41,29 @@ $groups = $xml->groups;
 $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
+}
+$authName = \filter_input(INPUT_POST, 'user');
+if ($authName) {
+    $users = $groups->xpath("//user/auth");
+    foreach ($users as $user0) {
+        $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
+    }
+    $_SESSION['valid']=$userauth[$authName];
+}
+if ($_SESSION['valid']=='') {
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
+        </div>
+        <div data-role="content">
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
+            </form>
+        </div>
+    </div> 
+    <?php
 }
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
@@ -121,6 +146,18 @@ function fuzzyname($str) {
     }
     $user = $xml->xpath("//user[@uid='".$uid."']")[0];
     return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
+}
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return openssl_decrypt(
+            $text, 
+            'AES-128-CBC',
+            $salt);
 }
 ?>
 
