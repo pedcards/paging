@@ -57,7 +57,6 @@ if ($_SESSION['valid']=='') {
             <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
         </div>
         <div data-role="content">
-            <? print_r($_SESSION);?>
             <form method="post" action="#">
                 <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
