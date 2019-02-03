@@ -15,6 +15,7 @@
     $isLoc = true;
     $cdnJqm = $ini['jqm'];
     $cdnJQ = $ini['jquery'];
+    $instr = $ini['copyright'];
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -122,6 +123,18 @@ function fuzzyname($str) {
     }
     $user = $xml->xpath("//user[@uid='".$uid."']")[0];
     return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
+}
+function simple_decrypt($text, $salt = "") {
+    if (!$salt) {
+        global $instr; $salt = $instr;
+    }
+    if (!$text) {
+        return $text;
+    }
+    return openssl_decrypt(
+            $text, 
+            'AES-128-CBC',
+            $salt);
 }
 ?>
 
