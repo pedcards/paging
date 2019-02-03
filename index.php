@@ -42,6 +42,14 @@ $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+$authName = \filter_input(INPUT_POST, 'user');
+if ($authName) {
+    $users = $groups->xpath("//user/auth");
+    foreach ($users as $user0) {
+        $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
+    }
+    $_SESSION['valid']=$userauth[$authName];
+}
 if ($_SESSION['valid']=='') {
     ?>
     <div data-role="page" id="auth1" data-dialog="true">
