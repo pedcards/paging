@@ -86,6 +86,7 @@
 </head>
 <body>
 <?php
+//$_SESSION['valid']='';
 $group = filter_input(INPUT_GET,'group');
 $modDate = \date("m/d/Y", filemtime("list.xml"));
 $xml = simplexml_load_file("list.xml");
