@@ -16,6 +16,58 @@
     $cdnJqm = $ini['jqm'];
     $cdnJQ = $ini['jquery'];
     $instr = $ini['copyright'];
+    
+    function getUid($in) {
+        global $xml;
+        $trans = array(
+            "Terry" => "Terrence",
+            "Steve" => "Stephen",
+            "Tom" => "Thomas",
+            "Jenny" => "Jennifer",
+            "Matt" => "Matthew",
+            "John" => "Jonathon",
+            "Mike" => "Michael",
+            "Katherine" => "Katie"
+        );
+        $names = explode(" ", $in, 2);
+        $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
+        return $el['uid'];
+    }
+    function fuzzyname($str) {
+        global $xml;
+        $users = $xml->xpath('//user');
+        $shortest = -1;
+        foreach ($users as $user) {
+            $name = $user['first']." ".$user['last'];
+            $lev = levenshtein($str, $name);
+            if ($lev == 0) {
+                $closest = $name;
+                $shortest = 0;
+                $uid = $user['uid'];
+                break;
+            }
+            if ($lev <= $shortest || $shortest < 0) {
+                $closest = $name;
+                $shortest = $lev;
+                $uid = $user['uid'];
+            }
+        }
+        $user = $xml->xpath("//user[@uid='".$uid."']")[0];
+        return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
+    }
+    function simple_decrypt($text, $salt = "") {
+        if (!$salt) {
+            global $instr; $salt = $instr;
+        }
+        if (!$text) {
+            return $text;
+        }
+        return openssl_decrypt(
+                $text, 
+                'AES-128-CBC',
+                $salt);
+    }
+    
     ?>
     <link rel="stylesheet" href="<?php echo (($isLoc) ? './jqm' : 'http://code.jquery.com/mobile/'.$cdnJqm).'/jquery.mobile-'.$cdnJqm;?>.min.css" />
     <script src="<?php echo (($isLoc) ? './jqm/' : 'http://code.jquery.com/').'jquery-'.$cdnJQ;?>.min.js"></script>
@@ -49,21 +101,6 @@ if ($authName) {
         $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
     }
     $_SESSION['valid']=$userauth[$authName];
-}
-if ($_SESSION['valid']=='') {
-    ?>
-    <div data-role="page" id="auth1" data-dialog="true">
-        <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
-        </div>
-        <div data-role="content">
-            <form method="post" action="#">
-                <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
-            </form>
-        </div>
-    </div> 
-    <?php
 }
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
@@ -109,57 +146,21 @@ if ($call_t < 8) {
 
 $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
 
-function getUid($in) {
-    global $xml;
-    $trans = array(
-        "Terry" => "Terrence",
-        "Steve" => "Stephen",
-        "Tom" => "Thomas",
-        "Jenny" => "Jennifer",
-        "Matt" => "Matthew",
-        "John" => "Jonathon",
-        "Mike" => "Michael",
-        "Katherine" => "Katie"
-    );
-    $names = explode(" ", $in, 2);
-    $el = $xml->xpath("//user[@last='".$names[1]."' and (@first='".$names[0]."' or @first='".strtr($names[0],$trans)."')]")[0];
-    return $el['uid'];
-}
-function fuzzyname($str) {
-    global $xml;
-    $users = $xml->xpath('//user');
-    $shortest = -1;
-    foreach ($users as $user) {
-        $name = $user['first']." ".$user['last'];
-        $lev = levenshtein($str, $name);
-        if ($lev == 0) {
-            $closest = $name;
-            $shortest = 0;
-            $uid = $user['uid'];
-            break;
-        }
-        if ($lev <= $shortest || $shortest < 0) {
-            $closest = $name;
-            $shortest = $lev;
-            $uid = $user['uid'];
-        }
-    }
-    $user = $xml->xpath("//user[@uid='".$uid."']")[0];
-    return array('first'=>$user['first'], 'last'=>$user['last'], 'uid'=>$user['uid']);
-}
-function simple_decrypt($text, $salt = "") {
-    if (!$salt) {
-        global $instr; $salt = $instr;
-    }
-    if (!$text) {
-        return $text;
-    }
-    return openssl_decrypt(
-            $text, 
-            'AES-128-CBC',
-            $salt);
-}
-?>
+if ($_SESSION['valid']=='') {
+    ?>
+    <div data-role="page" id="auth1" data-dialog="true">
+        <div data-role="header">
+            <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
+        </div>
+        <div data-role="content">
+            <form method="post" action="#">
+                <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
+            </form>
+        </div>
+    </div> 
+    <?php
+} else { ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
