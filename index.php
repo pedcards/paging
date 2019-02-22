@@ -309,14 +309,11 @@ if ($_SESSION['valid']=='') {
     </div>
 
     <div data-role="footer" >
-        <h5><small>
-&COPY;(2007-<?php echo date('Y');?>) Terrence Chun, MD<br>
-        </small></h5>
+        <h5><small>&COPY;(2007-<?php echo date('Y');?>) Terrence Chun, MD<br></small></h5>
     </div><!-- /footer -->
 </div><!-- /page -->
 
-
-<!-- Last modified 7/9/15 -->
+<?php } ?>
 
 </body>
 </html>
