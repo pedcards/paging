@@ -86,7 +86,6 @@
 </head>
 <body>
 <?php
-//$_SESSION['valid']='';
 $group = filter_input(INPUT_GET,'group');
 $modDate = \date("m/d/Y", filemtime("list.xml"));
 $xml = simplexml_load_file("list.xml");
@@ -95,6 +94,9 @@ $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+$_SESSION['valid'] = filter_input(INPUT_COOKIE, 'authcookie');
+//    $_SESSION['valid']='';                                  // comment this out to run without check
+//    setcookie('authcookie','');                             // remove comments to reset to fresh state
 $authName = \filter_input(INPUT_POST, 'user');
 if ($authName) {
     $users = $groups->xpath("//user/auth");
@@ -102,6 +104,7 @@ if ($authName) {
         $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
     }
     $_SESSION['valid']=$userauth[$authName];
+    setcookie('authcookie',$userauth[$authName],time()+1*86400);
 }
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
