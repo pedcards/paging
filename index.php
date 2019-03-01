@@ -152,14 +152,14 @@ $fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
 
 if ($_SESSION['valid']=='') {
     ?>
-    <div data-role="page" id="auth1" data-dialog="true">
+    <div data-role="page" id="auth1" data-dialog="true" data-close-btn="none">
         <div data-role="header">
-            <h4 style="white-space: normal; text-align: center" >Enter CIS login</h4>
+            <h4 style="white-space: normal; text-align: center" >Seattle Children's<br>Heart Center<br>Paging</h4>
         </div>
         <div data-role="content">
             <form method="post" action="#">
                 <input name="user" id="authName" placeholder="Enter your CIS login name" type="text" >
-                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >SUBMIT</button>
+                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b" >OK</button>
             </form>
         </div>
     </div> 
