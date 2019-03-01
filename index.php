@@ -122,9 +122,13 @@ $groupfull = array();
 foreach ($groups->children() as $grp0) {
     $groupfull[$grp0->getName()] = $grp0->attributes()->full;
 }
+$logfile = 'logs/'.date('Ym').'.csv';
 $_SESSION['valid'] = filter_input(INPUT_COOKIE, 'authcookie');
-//    $_SESSION['valid']='';                                  // comment this out to run without check
-//    setcookie('authcookie','');                             // remove comments to reset to fresh state
+
+// comment this out to run without check
+// remove comments to reset to fresh state
+//    $_SESSION['valid']=''; setcookie('authcookie','');
+
 $authName = \filter_input(INPUT_POST, 'user');
 if ($authName) {
     $users = $groups->xpath("//user/auth");
