@@ -133,6 +133,14 @@ if ($authName) {
     }
     $_SESSION['valid']=$userauth[$authName];
     setcookie('authcookie',$userauth[$authName],time()+1*86400);
+    
+    eventlog(
+        'Login '.$authName.(($userauth[$authName]=='') 
+            ? ' failed.' 
+            : ' success.'
+            )
+        );
+    
 }
 if (\filter_input(INPUT_POST,'clearck')=="y"){
     setcookie('pagemru',null,-1);
