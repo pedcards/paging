@@ -129,7 +129,7 @@ $_SESSION['valid'] = filter_input(INPUT_COOKIE, 'authcookie');
 // remove comments to reset to fresh state
 //    $_SESSION['valid']=''; setcookie('authcookie','');
 
-$authName = \filter_input(INPUT_POST, 'user');
+$authName = strtolower(\filter_input(INPUT_POST, 'user'));
 if ($authName) {
     $users = $groups->xpath("//user/auth");
     foreach ($users as $user0) {
