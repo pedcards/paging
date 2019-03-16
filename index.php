@@ -206,7 +206,9 @@ if ($_SESSION['valid']=='') {
         </div>
     </div> 
     <?php
-} else { ?>
+} else { 
+    setcookie('authcookie',$_SESSION['valid'],time()+3*86400);
+    ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
