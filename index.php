@@ -138,7 +138,7 @@ if ($authName) {
     $_SESSION['valid']=$userauth[$authName];
     setcookie('authcookie',
             (($userauth[$authName]=='') ? '' : $authName),
-            time()+1*86400);
+            time()+3*86400);
     
     eventlog(
         'Login '.$authName.(($userauth[$authName]=='') 
