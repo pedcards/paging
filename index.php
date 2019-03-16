@@ -135,13 +135,13 @@ if ($authName) {
     foreach ($users as $user0) {
         $userauth[simple_decrypt($user0->attributes()->cis)] = simple_decrypt($user0->attributes()->eml);
     }
-    $_SESSION['valid']=$userauth[$authName];
-    setcookie('authcookie',
-            (($userauth[$authName]=='') ? '' : $authName),
-            time()+1*86400);
+    $authChk = ($userauth[$authName]=='') ? '' : $authName;
+    
+    $_SESSION['valid']= $authChk;
+    setcookie('authcookie',$authChk,time()+3*86400);
     
     eventlog(
-        'Login '.$authName.(($userauth[$authName]=='') 
+        'Login '.$authName.(($authChk=='') 
             ? ' failed.' 
             : ' success.'
             )
@@ -206,7 +206,9 @@ if ($_SESSION['valid']=='') {
         </div>
     </div> 
     <?php
-} else { ?>
+} else { 
+    setcookie('authcookie',$_SESSION['valid'],time()+3*86400);
+    ?>
 
 <!-- Start of first page -->
 <div data-role="page" id="main">
