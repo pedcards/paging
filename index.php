@@ -171,7 +171,7 @@ $call = array(
     'ARNP_CL',
     'South_Sound_Cardiology'
 );
-$chip = simplexml_load_file('../patlist/currlist.xml');
+$chip = simplexml_load_file('../patlist/call.xml');
 $call_dt = date("Ymd");
 $call_d = date("l");
 $call_t = date("H");
@@ -191,7 +191,7 @@ if ($call_t < 8) {
     $call_dt = date("Ymd", time()-60*60*24);
 }
 
-$fc_call = $chip->lists->forecast->xpath("call[@date='".$call_dt."']")[0];
+$fc_call = $chip->forecast->xpath("call[@date='".$call_dt."']")[0];
 
 if ($_SESSION['valid']=='') {
     ?>
@@ -255,10 +255,10 @@ if ($_SESSION['valid']=='') {
                 }
                 if ($callU=='EP') {
                     if ($call_d=='Friday' && $call_t>=17) {
-                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time()+60*60*24)."']/EP")[0];
+                        $chName = $chip->forecast->xpath("call[@date='".date("Ymd",time()+60*60*24)."']/EP")[0];
                     }
                     if ($call_d=='Saturday') {
-                        $chName = $chip->lists->forecast->xpath("call[@date='".date("Ymd",time())."']/EP")[0];
+                        $chName = $chip->forecast->xpath("call[@date='".date("Ymd",time())."']/EP")[0];
                     }
                 }
                 if ($callU=='South_Sound_Cardiology') {
