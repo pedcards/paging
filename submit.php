@@ -98,8 +98,8 @@ fputcsv(
         $pin,
         $uid,
         filter_input(INPUT_COOKIE, 'authcookie'),
-        $fromName,
-        $messagePost        // TODO: could use str_rot13($messagePost) for some privacy
+        $fromName //,
+        //$messagePost        // TODO: could use str_rot13($messagePost) for some privacy
     )
 ); 
 fclose($out);
